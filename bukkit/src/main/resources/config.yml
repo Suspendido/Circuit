@@ -1,0 +1,14 @@
+mongo:
+  ip: "127.0.0.1"
+  port: 27017
+  database: "Xenon"
+  auth:
+    enabled: false
+    username: ""
+    password: ""
+redis:
+  address: "127.0.0.1"
+  port: 6379
+  auth:
+    enabled: false
+    password: ""
