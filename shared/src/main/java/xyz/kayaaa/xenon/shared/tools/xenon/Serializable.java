@@ -1,10 +1,8 @@
-package xyz.kayaaa.xenon.shared.tools;
+package xyz.kayaaa.xenon.shared.tools.xenon;
 
 import org.bson.Document;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.RankService;
-
-import java.util.UUID;
 
 public interface Serializable {
 

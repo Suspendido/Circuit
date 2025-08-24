@@ -11,7 +11,7 @@ import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
-import xyz.kayaaa.xenon.shared.tools.CC;
+import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 public class PlayerListener implements Listener {
 

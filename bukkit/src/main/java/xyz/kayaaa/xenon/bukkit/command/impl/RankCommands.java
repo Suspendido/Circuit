@@ -6,7 +6,7 @@ import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.RankService;
-import xyz.kayaaa.xenon.shared.tools.CC;
+import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 public class RankCommands extends CommandBase {
 

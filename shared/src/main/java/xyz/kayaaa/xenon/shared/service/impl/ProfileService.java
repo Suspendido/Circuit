@@ -53,7 +53,7 @@ public class ProfileService extends Service {
 
         Profile profile;
         if (doc == null) {
-            XenonShared.getInstance().log(true, "Couldn't locate profile with uuid: " + uuid.toString());
+            XenonShared.getInstance().getLogger().warn(true, "Couldn't locate profile with uuid: " + uuid.toString());
             profile = create(uuid);
             save(profile);
         } else {
@@ -121,12 +121,12 @@ public class ProfileService extends Service {
             }
         }
 
-        this.print("Loaded " + profiles.size() + " profiles from MongoDB");
+        this.print("&aLoaded " + profiles.size() + " profiles from MongoDB");
     }
 
     public void saveAll() {
         profiles.forEach(this::save);
-        this.print("Saved " + profiles.size() + " profiles to MongoDB");
+        this.print("&aSaved " + profiles.size() + " profiles to MongoDB");
     }
 
     public Profile fromDocument(Document doc) {

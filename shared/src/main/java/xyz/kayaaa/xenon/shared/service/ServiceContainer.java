@@ -2,18 +2,19 @@ package xyz.kayaaa.xenon.shared.service;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.Validate;
 import xyz.kayaaa.xenon.shared.XenonShared;
-import xyz.kayaaa.xenon.shared.tools.ClassUtils;
-import xyz.kayaaa.xenon.shared.tools.Validation;
+import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
+import xyz.kayaaa.xenon.shared.tools.java.Validation;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ServiceContainer is a utility class that manages the registration and retrieval of services inside Nugget.
+ * ServiceContainer is a utility class that manages the registration and retrieval of services inside Xenon.
  * It allows services to be registered and later retrieved by their class type.
+ * <p>
+ * NOTE: Class was reused from an older project of mine, Nugget, and modified to fit Xenon's needs.
  */
 @UtilityClass
 public class ServiceContainer {
@@ -47,7 +48,7 @@ public class ServiceContainer {
     @SneakyThrows
     private void registerServices() {
         List<Class<?>> classes = ClassUtils.getClasses(XenonShared.getInstance().getFile(), Service.class.getPackage().getName() + ".impl");
-        XenonShared.getInstance().log("Found " + classes.size() + " services.");
+        XenonShared.getInstance().getLogger().log("Found " + classes.size() + " services.");
 
         classes.stream()
                 .filter(c -> !c.getName().contains("$"))
@@ -66,6 +67,17 @@ public class ServiceContainer {
         Validation.notNull(service.getClass(), "Service class cannot be null");
         services.put(service.getClass(), service);
         service.setEnabled();
+    }
+
+    public void shutdownServices() {
+        services.values().forEach(service -> {
+            try {
+                service.setEnabled(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        services.clear();
     }
 
     /**

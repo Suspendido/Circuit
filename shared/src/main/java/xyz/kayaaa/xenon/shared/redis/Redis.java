@@ -3,6 +3,7 @@ package xyz.kayaaa.xenon.shared.redis;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import xyz.kayaaa.xenon.shared.XenonShared;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -81,6 +82,7 @@ public class Redis {
 
     public void close() {
         try {
+            XenonShared.getInstance().getLogger().log(true, "Shutting down Redis connection...");
             jedisPublisher.close();
             jedisSubscriber.close();
         } catch (Exception ignored) {}

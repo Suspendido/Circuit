@@ -84,7 +84,7 @@ public class Profile {
     public boolean hasRank(Rank rank) {
         if (rank == null) return false;
 
-        return this.grants.stream().anyMatch(grant -> grant.getData() instanceof Rank && grant.getData().equals(rank));
+        return this.grants.stream().anyMatch(grant -> grant.getData() instanceof Rank && grant.getData().equals(rank) && grant.isActive());
     }
 
     public Document toDocument() {

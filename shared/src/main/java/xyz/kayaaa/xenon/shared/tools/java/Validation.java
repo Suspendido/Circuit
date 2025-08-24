@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.shared.tools;
+package xyz.kayaaa.xenon.shared.tools.java;
 
 import lombok.experimental.UtilityClass;
 

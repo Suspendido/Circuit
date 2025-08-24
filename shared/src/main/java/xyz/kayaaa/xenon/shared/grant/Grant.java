@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
-import xyz.kayaaa.xenon.shared.tools.Serializable;
+import xyz.kayaaa.xenon.shared.tools.xenon.Serializable;
 
 import java.util.UUID;
 
@@ -24,7 +24,12 @@ public class Grant<T extends Serializable> {
     private String removalReason;
 
     public boolean isActive() {
-        return !removed;
+        return !isRemoved() && !isExpired();
+    }
+
+    public boolean isExpired() {
+        if (duration == -1) return false;
+        return System.currentTimeMillis() > this.timeCreated + this.duration;
     }
 
     public Document toDocument() {

@@ -9,13 +9,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import xyz.kayaaa.xenon.bukkit.command.CommandBase;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
 import xyz.kayaaa.xenon.bukkit.provider.RankProvider;
+import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
+import xyz.kayaaa.xenon.bukkit.task.GrantDurationTask;
+import xyz.kayaaa.xenon.bukkit.tools.XenonBukkitLogger;
+import xyz.kayaaa.xenon.bukkit.tools.menu.MenuListener;
 import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.mongo.MongoCredentials;
 import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.redis.RedisCredentials;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
-import xyz.kayaaa.xenon.shared.tools.ClassUtils;
+import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
 import xyz.kayaaa.xenon.bukkit.tools.ConfigUtil;
 
 @Getter
@@ -65,10 +69,11 @@ public class XenonPlugin extends JavaPlugin {
             mongoCredentials = new MongoCredentials(mongoIp, mongoPort);
         }
 
-        shared = new XenonShared(redisCredentials, mongoCredentials, databaseName);
+        shared = new XenonShared(new XenonBukkitLogger(), redisCredentials, mongoCredentials, databaseName);
         this.setupCommands();
         this.setupServices();
-        this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        this.setupTasks();
+        this.setupListeners();
     }
 
     private void setupCommands() {
@@ -89,11 +94,22 @@ public class XenonPlugin extends JavaPlugin {
 
     private void setupServices() {
         ServiceContainer.registerService(new BukkitProfileService());
+        ServiceContainer.registerService(new BukkitGrantService());
+    }
+
+    private void setupTasks() {
+        new GrantDurationTask();
+    }
+
+    private void setupListeners() {
+        this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
     }
 
     @Override
     public void onDisable() {
-        ConfigUtil.saveConfig(mainConfig);
+        this.shared.getLogger().log("Shutting down Xenon!");
+        ServiceContainer.shutdownServices();
         this.shared.shutdown();
     }
 }

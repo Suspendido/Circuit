@@ -7,7 +7,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import xyz.kayaaa.xenon.shared.tools.CC;
+import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 import java.util.ArrayList;
 import java.util.Comparator;

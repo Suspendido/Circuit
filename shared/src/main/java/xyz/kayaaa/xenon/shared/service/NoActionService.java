@@ -2,6 +2,9 @@ package xyz.kayaaa.xenon.shared.service;
 
 import lombok.NonNull;
 
+/**
+ * Represents a service that does not perform any action when enabled or disabled.
+ */
 public abstract class NoActionService extends Service {
 
     @Override @NonNull

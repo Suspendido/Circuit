@@ -1,8 +1,7 @@
-package xyz.kayaaa.xenon.shared.tools;
+package xyz.kayaaa.xenon.shared.tools.java;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
-import xyz.kayaaa.xenon.shared.tools.Serializable;
+import xyz.kayaaa.xenon.shared.tools.xenon.Serializable;
 
 import java.util.ArrayList;
 import java.util.List;

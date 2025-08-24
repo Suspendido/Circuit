@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bson.Document;
 import xyz.kayaaa.xenon.shared.grant.Grant;
-import xyz.kayaaa.xenon.shared.tools.Serializable;
+import xyz.kayaaa.xenon.shared.tools.xenon.Serializable;
 import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.service.NoActionService;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;

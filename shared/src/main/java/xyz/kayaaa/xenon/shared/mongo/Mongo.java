@@ -7,6 +7,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import lombok.Getter;
+import xyz.kayaaa.xenon.shared.XenonShared;
 
 import java.util.Collections;
 
@@ -46,6 +47,7 @@ public class Mongo {
 
     public void close() {
         if (mongoClient != null) {
+            XenonShared.getInstance().getLogger().log(true, "Shutting down MongoDB connection...");
             mongoClient.close();
         }
         instance = null;

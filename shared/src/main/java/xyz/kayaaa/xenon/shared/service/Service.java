@@ -5,13 +5,15 @@ import lombok.NonNull;
 import xyz.kayaaa.xenon.shared.XenonShared;
 
 /**
- * Represents a service in the Nugget plugin.
+ * Represents a service in Xenon.
  * <p>
- * Services are used to provide various functionalities within the plugin.
+ * Services are used to provide various functionalities within Xenon.
  * Each service has a unique identifier and can be enabled or disabled.
  * <p>
  * Developers, when implementing a service, you should extend this class
  * and implement the required methods to provide the desired functionality.
+ * <p>
+ * NOTE: Class was reused from an older project of mine, Nugget, and modified to fit Xenon's needs.
  */
 public abstract class Service {
 
@@ -65,13 +67,13 @@ public abstract class Service {
         try {
             if (this.enabled) {
                 this.enable();
-                this.print(this.getIdentifier() + "-service has been enabled.");
+                this.print("&a" + this.getIdentifier() + "-service has been enabled.");
             } else {
                 this.disable();
-                this.print(this.getIdentifier() + "-service has been disabled.");
+                this.print("&c" + this.getIdentifier() + "-service has been disabled.");
             }
         } catch (Exception ex) {
-            this.print("An error occurred while trying to " + (e ? "enable" : "disable") + " the service: " + ex.getMessage());
+            this.print("&cAn error occurred while trying to " + (e ? "enable" : "disable") + " the service: " + ex.getMessage());
             ex.printStackTrace();
             this.enabled = !e;
         }
@@ -99,6 +101,6 @@ public abstract class Service {
      * @param message The message to log.
      */
     public void print(String message) {
-        XenonShared.getInstance().log(true, "[" + this.getIdentifier() + "-service] " + message);
+        XenonShared.getInstance().getLogger().log(true, "[" + this.getIdentifier() + "-service] " + message);
     }
 }

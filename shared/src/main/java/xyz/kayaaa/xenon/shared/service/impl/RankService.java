@@ -32,14 +32,6 @@ public class RankService extends Service {
         this.ranks = new ArrayList<>();
         this.ranksCollection = XenonShared.getInstance().getMongo().getDatabase().getCollection("ranks");
         this.loadAll();
-        if (this.ranks.isEmpty()) {
-            this.defaultRank = new Rank(UUID.randomUUID(), "Default");
-            this.defaultRank.setDefaultRank(true);
-            this.defaultRank.setPrefix("&7");
-            this.defaultRank.setSuffix("");
-            this.defaultRank.setColor("&7");
-            this.ranks.add(this.defaultRank);
-        }
     }
 
     @Override
@@ -65,12 +57,20 @@ public class RankService extends Service {
                 this.defaultRank = rank;
             }
         }
-        this.print("Loaded " + ranks.size() + " ranks from MongoDB");
+        if (defaultRank == null) {
+            this.defaultRank = new Rank(UUID.randomUUID(), "Default");
+            this.defaultRank.setDefaultRank(true);
+            this.defaultRank.setPrefix("&7");
+            this.defaultRank.setSuffix("");
+            this.defaultRank.setColor("&7");
+            this.ranks.add(this.defaultRank);
+        }
+        this.print("&aLoaded " + ranks.size() + " ranks from MongoDB");
     }
 
     public void saveAll() {
         this.ranks.forEach(this::save);
-        this.print("Saved " + ranks.size() + " ranks to MongoDB");
+        this.print("&cSaved " + ranks.size() + " ranks to MongoDB");
     }
 
     public Rank getRank(UUID uuid) {
