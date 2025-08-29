@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.Validate;
 import org.bson.Document;
 import xyz.kayaaa.xenon.shared.XenonShared;
+import xyz.kayaaa.xenon.shared.chat.ChatChannel;
 import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
@@ -26,6 +27,7 @@ public class Profile {
     @Setter private String address;
     @Setter private String name;
     @Setter private String color;
+    @Setter private ChatChannel channel = ChatChannel.DEFAULT;
 
     private final String token;
     private final List<String> permissions;

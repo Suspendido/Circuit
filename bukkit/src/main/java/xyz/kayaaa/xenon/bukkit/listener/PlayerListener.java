@@ -7,10 +7,13 @@ import org.bukkit.event.player.*;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.profile.BukkitProfile;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
+import xyz.kayaaa.xenon.shared.chat.ChatChannel;
 import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
+import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
+import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffChatPacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
@@ -70,6 +73,12 @@ public class PlayerListener implements Listener {
             String expire = punishmentGrant.getDuration() == -1 ? "Never" : TimeUtils.formatDate(punishmentGrant.getTimeCreated() + punishmentGrant.getDuration());
             String message = PunishmentType.MUTE.format(punishmentGrant.getReason(), expire);
             Arrays.stream(StringHelper.splitByNewline(message)).forEach(player::sendMessage);
+        }
+
+        if (profile.getChannel() == ChatChannel.STAFF) {
+            event.setCancelled(true);
+            XenonPlugin.getInstance().getShared().getRedis().sendPacket(new StaffChatPacket(player.getUniqueId(), XenonPlugin.getInstance().getShared().getServer().getName(), event.getMessage()));
+            return;
         }
 
         event.setFormat(CC.translate(profile.getCurrentGrant().getData().getPrefix() + (profile.getColor() != null && !profile.getColor().isEmpty() ? profile.getColor() : "") + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: &f" + event.getMessage()));

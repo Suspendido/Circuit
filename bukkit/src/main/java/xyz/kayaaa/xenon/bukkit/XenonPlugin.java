@@ -27,6 +27,7 @@ import xyz.kayaaa.xenon.shared.redis.packets.misc.MessagePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.server.ServerCommandPacket;
 import xyz.kayaaa.xenon.shared.redis.packets.server.ServerStatusPacket;
+import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffChatPacket;
 import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffStatusPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
@@ -172,6 +173,7 @@ public class XenonPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new PunishmentUpdatePacket(), new PunishmentUpdateListener());
         this.shared.getRedis().registerListener(new ServerCommandPacket(), new ServerCommandListener());
         this.shared.getRedis().registerListener(new StaffStatusPacket(), new StaffStatusListener());
+        this.shared.getRedis().registerListener(new StaffChatPacket(), new StaffChatListener());
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
