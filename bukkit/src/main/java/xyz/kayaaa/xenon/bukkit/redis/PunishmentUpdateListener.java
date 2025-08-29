@@ -24,8 +24,8 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
     @Override
     public void listen(PunishmentUpdatePacket packet) {
         TaskUtil.runTask(() -> {
-            UUID authorUUID = UUID.fromString(packet.getAuthor());
-            UUID targetUUID = UUID.fromString(packet.getTarget());
+            UUID authorUUID = packet.getAuthor();
+            UUID targetUUID = packet.getTarget();
             PunishmentType type = PunishmentType.from(packet.getPunishmentType());
             if (type == null) {
                 XenonShared.getInstance().getLogger().warn("Tried sending a punishment update with invalid punishment type!");
@@ -49,7 +49,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                     if (profile == null) return false;
                     if (!packet.isSilent()) return true;
 
-                    return profile.getCurrentGrant().getData().isStaff();
+                    return profile.getCurrentGrant().getData().isStaff() || player.isOp();
                 });
                 return;
             } else {
@@ -62,7 +62,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                     if (profile == null) return false;
                     if (!packet.isSilent()) return true;
 
-                    return profile.getCurrentGrant().getData().isStaff();
+                    return profile.getCurrentGrant().getData().isStaff() || player.isOp();
                 });
             }
 

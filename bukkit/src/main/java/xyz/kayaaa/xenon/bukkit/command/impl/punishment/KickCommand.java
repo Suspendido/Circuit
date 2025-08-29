@@ -39,6 +39,6 @@ public class KickCommand extends CommandBase {
         Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), PunishmentType.KICK, reason, -1);
         profile.addGrant(grant);
         ServiceContainer.getService(ProfileService.class).save(profile);
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId().toString() : XenonConstants.getConsoleUUID().toString(), player.getUniqueId().toString(), PunishmentType.KICK.name(), System.currentTimeMillis(), -1, reason, false, false));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), player.getUniqueId(), PunishmentType.KICK.name(), System.currentTimeMillis(), -1, reason, false, false));
     }
 }

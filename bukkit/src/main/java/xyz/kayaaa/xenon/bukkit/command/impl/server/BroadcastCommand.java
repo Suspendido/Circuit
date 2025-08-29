@@ -16,7 +16,7 @@ public class BroadcastCommand extends CommandBase {
     @Command(name = "", desc = "Broadcasts a message", usage = "<message>")
     @Require("xenon.cmd.broadcast")
     public void broadcast(@Sender CommandSender sender, @Text String message) {
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket("&9Xenon &7> &f" + message));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket("&9Xenon &7» &f" + message));
         sender.sendMessage(CC.translate("&aBroadcasted to the whole network!"));
     }
 

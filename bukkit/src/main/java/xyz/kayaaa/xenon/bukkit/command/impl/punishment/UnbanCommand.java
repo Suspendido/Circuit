@@ -44,6 +44,6 @@ public class UnbanCommand extends CommandBase {
         Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.BAN);
         ServiceContainer.getService(PunishmentService.class).removePunishment(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), profile, punishment, reason);
         ServiceContainer.getService(ProfileService.class).save(profile);
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId().toString() : XenonConstants.getConsoleUUID().toString(), player.getUniqueId().toString(), PunishmentType.BAN.name(), -1, -1, reason, true, false));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), player.getUniqueId(), PunishmentType.BAN.name(), -1, -1, reason, true, false));
     }
 }

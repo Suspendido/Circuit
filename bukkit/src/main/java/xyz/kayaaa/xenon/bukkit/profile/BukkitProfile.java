@@ -9,6 +9,7 @@ import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
+import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffStatusPacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
@@ -34,6 +35,7 @@ public class BukkitProfile {
             player.kickPlayer(PunishmentType.BLACKLIST.format(punishmentGrant.getReason(), punishmentGrant.getDuration() == -1 ? "Never" : TimeUtils.formatDate(punishmentGrant.getTimeCreated() + punishmentGrant.getDuration())));
             return;
         }
+
         List<Profile> alts = ServiceContainer.getService(ProfileService.class).findFromAddress(profile);
         if (!alts.isEmpty()) {
             for (Profile profile1 : alts) {
@@ -59,6 +61,16 @@ public class BukkitProfile {
             attachment.setPermission(permission, true);
         }
         player.recalculatePermissions();
+
+        if (profile.getCurrentGrant().getData().isStaff()) {
+            XenonPlugin.getInstance().getShared().getRedis().sendPacket(new StaffStatusPacket(player.getUniqueId(), true, XenonPlugin.getInstance().getShared().getServer().getName()));
+        }
     }
 
+    public void leave() {
+        ServiceContainer.getService(ProfileService.class).save(profile);
+        if (profile.getCurrentGrant().getData().isStaff()) {
+            XenonPlugin.getInstance().getShared().getRedis().sendPacket(new StaffStatusPacket(player.getUniqueId(), false, XenonPlugin.getInstance().getShared().getServer().getName()));
+        }
+    }
 }

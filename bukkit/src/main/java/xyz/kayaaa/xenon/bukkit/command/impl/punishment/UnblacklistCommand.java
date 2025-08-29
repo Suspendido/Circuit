@@ -44,6 +44,6 @@ public class UnblacklistCommand extends CommandBase {
         Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.BLACKLIST);
         ServiceContainer.getService(PunishmentService.class).removePunishment(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), profile, punishment, reason);
         ServiceContainer.getService(ProfileService.class).save(profile);
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId().toString() : XenonConstants.getConsoleUUID().toString(), player.getUniqueId().toString(), PunishmentType.BLACKLIST.name(), -1, -1, reason, true, false));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), player.getUniqueId(), PunishmentType.BLACKLIST.name(), -1, -1, reason, true, false));
     }
 }

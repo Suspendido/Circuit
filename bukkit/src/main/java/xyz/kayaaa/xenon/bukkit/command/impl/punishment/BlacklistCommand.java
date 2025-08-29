@@ -44,6 +44,6 @@ public class BlacklistCommand extends CommandBase {
         Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), PunishmentType.BLACKLIST, reason, -1);
         profile.addGrant(grant);
         ServiceContainer.getService(ProfileService.class).save(profile);
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId().toString() : XenonConstants.getConsoleUUID().toString(), player.getUniqueId().toString(), PunishmentType.BLACKLIST.name(), grant.getTimeCreated(), -1, reason, false, false));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), player.getUniqueId(), PunishmentType.BLACKLIST.name(), grant.getTimeCreated(), -1, reason, false, false));
     }
 }

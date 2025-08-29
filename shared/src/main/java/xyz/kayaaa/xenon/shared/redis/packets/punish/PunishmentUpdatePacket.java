@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import xyz.kayaaa.xenon.shared.redis.RedisPacket;
 
+import java.util.UUID;
+
 @AllArgsConstructor @NoArgsConstructor @Getter
 public class PunishmentUpdatePacket implements RedisPacket {
 
-    private String author;
-    private String target;
+    private UUID author;
+    private UUID target;
     private String punishmentType;
     private long timeCreated;
     private long duration;

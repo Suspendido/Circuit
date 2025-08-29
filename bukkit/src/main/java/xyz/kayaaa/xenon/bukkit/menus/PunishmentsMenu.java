@@ -119,7 +119,6 @@ public class PunishmentsMenu extends Menu {
                 lore.add("&fRemoved at: &9" + TimeUtils.formatDate(grant.getRemovedAt()));
                 lore.add("&fRemoval reason: &9" + (grant.getRemovalReason() == null ? "&cNone" : grant.getRemovalReason()));
                 lore.add("");
-                lore.add("&eClick to destroy!");
             }
             builder.lore(lore);
             return builder.build();

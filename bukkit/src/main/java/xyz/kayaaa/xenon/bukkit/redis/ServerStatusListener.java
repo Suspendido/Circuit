@@ -16,7 +16,7 @@ public class ServerStatusListener extends PacketListener<ServerStatusPacket> {
         ServerUtils.sendMessage( "&b[Staff] &f" + packet.getServerName() + " is now " + (packet.isOnline() ? "&aonline" : "&coffline") + (packet.isWhitelisted() ? ", &fbut it is &ewhitelisted." : "."), player -> {
             Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
             if (profile == null) return false;
-            return profile.getCurrentGrant().getData().isStaff();
+            return profile.getCurrentGrant().getData().isStaff() || player.isOp();
         });
     }
 

@@ -150,7 +150,7 @@ public class ProfileService extends Service {
         List<String> permissions = (List<String>) doc.get("permissions", List.class);
         GrantService grantService = ServiceContainer.getService(GrantService.class);
 
-        List<Grant<Rank>> rankGrants = this.extractGrants(doc, "grants", "rank", grantService);
+        List<Grant<Rank>> rankGrants = this.extractGrants(doc, "rankGrants", "rank", grantService);
         List<Grant<Punishment>> punishments = this.extractGrants(doc, "punishments", "punishment", grantService);
 
         return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments);

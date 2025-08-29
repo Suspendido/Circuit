@@ -44,15 +44,15 @@ public class PlayerListener implements Listener {
     public void onPlayerLeave(PlayerQuitEvent event) {
         event.setQuitMessage(null);
         Player player = event.getPlayer();
-        Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
-        ServiceContainer.getService(ProfileService.class).save(profile);
+        BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
+        bukkitProfile.leave();
     }
 
     @EventHandler
     public void onPlayerKick(PlayerKickEvent event) {
         Player player = event.getPlayer();
-        Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
-        ServiceContainer.getService(ProfileService.class).save(profile);
+        BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
+        bukkitProfile.leave();
     }
 
     @EventHandler

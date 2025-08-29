@@ -143,7 +143,7 @@ public class Redis {
     }
 
     public <T extends RedisPacket> void registerListener(T packet, PacketListener<T> listener) {
-        packetListeners.computeIfAbsent(packet.getID(), k -> new ArrayList<>()).add((PacketListener<RedisPacket>) listener);
+        packetListeners.computeIfAbsent(packet.getID(), id -> new ArrayList<>()).add((PacketListener<RedisPacket>) listener);
     }
 
     public void handlePacket(RedisPacket packet) {

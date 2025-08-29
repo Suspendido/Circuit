@@ -1,6 +1,7 @@
 package xyz.kayaaa.xenon.shared;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
+import xyz.kayaaa.xenon.shared.tools.gson.UUIDAdapter;
 import xyz.kayaaa.xenon.shared.tools.xenon.XenonLogger;
 
 import java.io.File;
@@ -28,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class XenonShared {
 
     @Getter private static XenonShared instance;
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDAdapter()).serializeNulls().create();
     private final Redis redis;
     private final Mongo mongo;
 
