@@ -6,13 +6,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.profile.BukkitProfile;
+import xyz.kayaaa.xenon.bukkit.service.BukkitChatService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.shared.chat.ChatChannel;
 import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
-import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffChatPacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
@@ -67,6 +67,12 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        if (!ServiceContainer.getService(BukkitChatService.class).isChatEnabled() && (!profile.getCurrentGrant().getData().isStaff() && !player.isOp())) {
+            event.setCancelled(true);
+            player.sendMessage(CC.RED + "Chat is disabled.");
+            return;
+        }
+
         if (profile.findActivePunishment(PunishmentType.MUTE) != null) {
             Grant<Punishment> punishmentGrant = profile.findActivePunishment(PunishmentType.MUTE);
             event.setCancelled(true);
@@ -81,6 +87,14 @@ public class PlayerListener implements Listener {
             return;
         }
 
+        if (!ServiceContainer.getService(BukkitChatService.class).canChat(player) && (!profile.getCurrentGrant().getData().isStaff() && !player.isOp())) {
+            event.setCancelled(true);
+            long seconds = ServiceContainer.getService(BukkitChatService.class).getSlowdown() - (System.currentTimeMillis() - ServiceContainer.getService(BukkitChatService.class).getChatCooldown().getOrDefault(player, 0L));
+            player.sendMessage(CC.RED + "You're in chat cooldown. " + TimeUtils.formatTime(seconds) + " remaining.");
+            return;
+        }
+
         event.setFormat(CC.translate(profile.getCurrentGrant().getData().getPrefix() + (profile.getColor() != null && !profile.getColor().isEmpty() ? profile.getColor() : "") + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: &f" + event.getMessage()));
+        ServiceContainer.getService(BukkitChatService.class).getChatCooldown().put(player, System.currentTimeMillis());
     }
 }

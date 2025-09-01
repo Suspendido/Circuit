@@ -14,6 +14,7 @@ import org.spigotmc.SpigotConfig;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
 import xyz.kayaaa.xenon.bukkit.listener.ServerListener;
 import xyz.kayaaa.xenon.bukkit.redis.*;
+import xyz.kayaaa.xenon.bukkit.service.BukkitChatService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.bukkit.task.GrantDurationTask;
@@ -178,6 +179,7 @@ public class XenonPlugin extends JavaPlugin {
     }
 
     private void setupServices() {
+        ServiceContainer.registerService(new BukkitChatService());
         ServiceContainer.registerService(new BukkitProfileService());
         ServiceContainer.registerService(new BukkitGrantService());
     }

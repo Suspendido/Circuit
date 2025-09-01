@@ -54,7 +54,9 @@ public class TimeUtils {
     }
 
     public String formatTime(long millis) {
-        millis += 1L;
+        if (millis < 1000L) {
+            return millis + " milliseconds";
+        }
 
         long seconds = millis / 1000L;
         long minutes = seconds / 60L;
@@ -78,6 +80,36 @@ public class TimeUtils {
             return minutes + " minute" + (minutes == 1 ? "" : "s");
         } else {
             return seconds + " second" + (seconds == 1 ? "" : "s");
+        }
+    }
+
+    public String formatTimeShort(long millis) {
+        if (millis < 1000L) {
+            return millis + "ms";
+        }
+
+        long seconds = millis / 1000L;
+        long minutes = seconds / 60L;
+        long hours = minutes / 60L;
+        long days = hours / 24L;
+        long weeks = days / 7L;
+        long months = weeks / 4L;
+        long years = months / 12L;
+
+        if (years > 0) {
+            return years + "y";
+        } else if (months > 0) {
+            return months + "m";
+        } else if (weeks > 0) {
+            return weeks + "w";
+        } else if (days > 0) {
+            return days + "d";
+        } else if (hours > 0) {
+            return hours + "h";
+        } else if (minutes > 0) {
+            return minutes + "m";
+        } else {
+            return seconds + "s";
         }
     }
 

@@ -8,6 +8,7 @@ import xyz.kayaaa.xenon.shared.redis.RedisPacket;
 @AllArgsConstructor @NoArgsConstructor @Getter
 public class MessagePacket implements RedisPacket {
 
+    private String server;
     private String message;
 
     @Override

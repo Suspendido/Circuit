@@ -14,7 +14,7 @@ public class BroadcastCommand extends BaseCommand {
     @Default
     @CommandCompletion("@players *")
     public void broadcast(CommandSender sender, @Name("message") @Flags("remaining") String message) {
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket("&9Xenon &7» &f" + message));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket(null, "&9Xenon &7» &f" + message));
         sender.sendMessage(CC.translate("&aBroadcasted to the whole network!"));
     }
 
