@@ -18,6 +18,7 @@ import xyz.kayaaa.xenon.bukkit.service.BukkitChatService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.bukkit.task.GrantDurationTask;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.TaskUtil;
 import xyz.kayaaa.xenon.bukkit.tools.xenon.XenonBukkitLogger;
 import xyz.kayaaa.xenon.bukkit.tools.menu.MenuListener;
 import xyz.kayaaa.xenon.shared.XenonShared;
@@ -37,6 +38,7 @@ import xyz.kayaaa.xenon.shared.service.impl.RankService;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
+import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,26 +57,27 @@ public class XenonPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
         if (Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee || !Bukkit.getServer().getOnlineMode() && !SpigotConfig.bungee) {
-            this.shared.getLogger().warn("&c** --------------------------------------- **");
-            this.shared.getLogger().warn("&c&lSERVER CONFIGURATION ISSUE!");
-            this.shared.getLogger().warn("&cSomething is wrong with your Bukkit config.");
-            this.shared.getLogger().warn("&cYou probably did one of the following:");
-            this.shared.getLogger().warn("");
-            this.shared.getLogger().warn("&c1. Enabled bungee on spigot.yml, and left");
-            this.shared.getLogger().warn("&c  online-mode enabled on server.properties");
-            this.shared.getLogger().warn("");
-            this.shared.getLogger().warn("&c2. Disabled bungee on spigot.yml, and left");
-            this.shared.getLogger().warn("&c  online-mode disabled on server.properties");
-            this.shared.getLogger().warn("");
-            this.shared.getLogger().warn("&cEither way, Xenon &c&lDOES NOT &csupport");
-            this.shared.getLogger().warn("&cthis type of server configuration. Please fix");
-            this.shared.getLogger().warn("&cyour configurations immediately!");
-            this.shared.getLogger().warn("&c** --------------------------------------- **");
-            System.exit(0);
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c&lSERVER CONFIGURATION ISSUE!"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&cSomething is wrong with your Bukkit config."));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&cYou probably did one of the following:"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c1. Enabled bungee on spigot.yml, and left"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode enabled on server.properties"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c2. Disabled bungee on spigot.yml, and left"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode disabled on server.properties"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&cEither way, Xenon &c&lDOES NOT &csupport"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&cthis type of server configuration. Please fix"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&cyour configurations immediately!"));
+            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
+            TaskUtil.runTaskLater(() -> {
+                System.exit(0);
+            }, 1L);
+            return;
         }
-
         mainConfig = ConfigUtil.createConfig("config");
         String redisAddress = mainConfig.getString("redis.address");
         int redisPort = mainConfig.getInt("redis.port");
