@@ -53,8 +53,8 @@ public class ServiceContainer {
                 .filter(c -> !c.getName().contains("$"))
                 .map(ServiceContainer::newServiceInstance)
                 .forEach(ServiceContainer::registerService);
-        XenonShared.getInstance().getLogger().log("&eFinished registering all internal services!");
-        XenonShared.getInstance().getLogger().log("&eAny service registered below this, is external.");
+        XenonShared.getInstance().getLogger().log("&eFinished registering all shared services!");
+        XenonShared.getInstance().getLogger().log("&eAny service registered below this, comes from other modules (like Xenon-Bukkit)");
     }
 
     /**
