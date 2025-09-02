@@ -1,14 +1,11 @@
 package xyz.kayaaa.xenon.bukkit;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spigotmc.SpigotConfig;
 import xyz.kayaaa.xenon.bukkit.listener.PlayerListener;
@@ -18,13 +15,15 @@ import xyz.kayaaa.xenon.bukkit.service.BukkitChatService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.service.BukkitProfileService;
 import xyz.kayaaa.xenon.bukkit.task.GrantDurationTask;
+import xyz.kayaaa.xenon.bukkit.tools.menu.MenuListener;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.TaskUtil;
 import xyz.kayaaa.xenon.bukkit.tools.xenon.XenonBukkitLogger;
-import xyz.kayaaa.xenon.bukkit.tools.menu.MenuListener;
 import xyz.kayaaa.xenon.shared.XenonShared;
 import xyz.kayaaa.xenon.shared.credentials.MongoCredentials;
-import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.credentials.RedisCredentials;
+import xyz.kayaaa.xenon.shared.gift.GiftCode;
+import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.redis.packets.misc.MessagePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.server.ServerCommandPacket;
@@ -34,12 +33,13 @@ import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffStatusPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
+import xyz.kayaaa.xenon.shared.service.impl.GiftCodeService;
 import xyz.kayaaa.xenon.shared.service.impl.RankService;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
-import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,7 +49,7 @@ public class XenonPlugin extends JavaPlugin {
     @Getter
     private static XenonPlugin instance;
 
-    private YamlConfiguration mainConfig;
+    private YamlConfiguration mainConfig, filterConfig;
     private XenonShared shared;
 
     private boolean joinable = false;
@@ -79,6 +79,7 @@ public class XenonPlugin extends JavaPlugin {
             return;
         }
         mainConfig = ConfigUtil.createConfig("config");
+        filterConfig = ConfigUtil.createConfig(new File(this.getDataFolder(), "modules"), "filter");
         String redisAddress = mainConfig.getString("redis.address");
         int redisPort = mainConfig.getInt("redis.port");
         if (redisAddress == null || redisPort == 0) {
@@ -164,6 +165,7 @@ public class XenonPlugin extends JavaPlugin {
 
         manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
+        manager.getCommandCompletions().registerCompletion("giftcodes", c -> ServiceContainer.getService(GiftCodeService.class).getCache().values().stream().map(GiftCode::getCode).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
                 "perm", "permanent",
                 "1m", "5m", "10m", "30m",

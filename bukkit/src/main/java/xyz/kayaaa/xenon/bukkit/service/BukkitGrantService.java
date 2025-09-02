@@ -3,8 +3,6 @@ package xyz.kayaaa.xenon.bukkit.service;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import xyz.kayaaa.xenon.bukkit.tools.xenon.GrantUtils;
 import xyz.kayaaa.xenon.shared.XenonConstants;
 import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.grant.GrantProcedure;

@@ -10,7 +10,6 @@ import xyz.kayaaa.xenon.bukkit.tools.spigot.ColorMapping;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.shared.grant.GrantProcedure;
 import xyz.kayaaa.xenon.shared.rank.Rank;
-import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 import java.util.ArrayList;
 import java.util.List;

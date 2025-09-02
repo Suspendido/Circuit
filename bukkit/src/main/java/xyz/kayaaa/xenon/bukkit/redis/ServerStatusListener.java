@@ -7,8 +7,6 @@ import xyz.kayaaa.xenon.shared.redis.packets.server.ServerStatusPacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 
-import java.util.function.Consumer;
-
 public class ServerStatusListener extends PacketListener<ServerStatusPacket> {
 
     @Override

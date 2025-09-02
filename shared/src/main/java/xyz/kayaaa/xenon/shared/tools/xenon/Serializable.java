@@ -2,6 +2,7 @@ package xyz.kayaaa.xenon.shared.tools.xenon;
 
 import org.bson.Document;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
+import xyz.kayaaa.xenon.shared.service.impl.GiftCodeService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
 import xyz.kayaaa.xenon.shared.service.impl.RankService;
 
@@ -19,6 +20,8 @@ public interface Serializable {
                 return ServiceContainer.getService(RankService.class).fromDocument(doc);
             case "punishment":
                 return ServiceContainer.getService(PunishmentService.class).fromDocument(doc);
+            case "gift":
+                return ServiceContainer.getService(GiftCodeService.class).fromDocument(doc);
             default:
                 throw new IllegalArgumentException("Unknown type: " + type);
         }

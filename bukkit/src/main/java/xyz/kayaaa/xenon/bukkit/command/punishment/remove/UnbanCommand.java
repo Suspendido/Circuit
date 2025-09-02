@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.punishment;
+package xyz.kayaaa.xenon.bukkit.command.punishment.remove;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
@@ -15,7 +15,6 @@ import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
-import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 
 @CommandAlias("unban")
@@ -26,18 +25,18 @@ public class UnbanCommand extends BaseCommand {
     @CommandCompletion("@players *")
     public void ban(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
         if (profile == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         if (profile.findActivePunishment(PunishmentType.BAN) == null) {
-            sender.sendMessage(CC.translate("&cPlayer is not banned!"));
+            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.BAN.getType()));
             return;
         }
 

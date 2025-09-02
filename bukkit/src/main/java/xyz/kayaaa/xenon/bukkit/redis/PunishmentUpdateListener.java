@@ -85,7 +85,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                         if (altPlayer == null) continue;
 
                         altPlayer.kickPlayer(
-                                type.formatRelation(alt.getName(), packet.getReason(), expire)
+                                type.formatRelation(player.getName(), packet.getReason(), expire)
                         );
                     }
                 }

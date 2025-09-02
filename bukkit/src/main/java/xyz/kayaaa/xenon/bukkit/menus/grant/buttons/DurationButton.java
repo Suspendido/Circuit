@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.menus.grant.GrantMenu;
 import xyz.kayaaa.xenon.bukkit.menus.grant.prompt.DurationPrompt;
-import xyz.kayaaa.xenon.bukkit.menus.grant.prompt.ReasonPrompt;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.shared.grant.GrantProcedure;

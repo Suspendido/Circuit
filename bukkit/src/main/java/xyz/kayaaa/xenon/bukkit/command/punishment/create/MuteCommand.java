@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.punishment;
+package xyz.kayaaa.xenon.bukkit.command.punishment.create;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
@@ -26,18 +26,18 @@ public class MuteCommand extends BaseCommand {
     @CommandCompletion("@players @times *")
     public void mute(CommandSender sender, @Name("target") OfflinePlayer target, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
         if (profile == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         if (profile.findActivePunishment(PunishmentType.MUTE) != null) {
-            sender.sendMessage(CC.translate("&cPlayer is already muted!"));
+            sender.sendMessage(XenonConstants.getPlayerAlreadyPunished().replace("<punishment_type>", PunishmentType.MUTE.getType()));
             return;
         }
 

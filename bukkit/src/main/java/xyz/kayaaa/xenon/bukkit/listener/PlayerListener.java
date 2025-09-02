@@ -13,6 +13,7 @@ import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.punishment.Punishment;
 import xyz.kayaaa.xenon.shared.punishment.PunishmentType;
+import xyz.kayaaa.xenon.shared.redis.packets.misc.MessagePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffChatPacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
@@ -91,6 +92,13 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
             long seconds = ServiceContainer.getService(BukkitChatService.class).getSlowdown() - (System.currentTimeMillis() - ServiceContainer.getService(BukkitChatService.class).getChatCooldown().getOrDefault(player, 0L));
             player.sendMessage(CC.RED + "You're in chat cooldown. " + TimeUtils.formatTime(seconds) + " remaining.");
+            return;
+        }
+
+        if (ServiceContainer.getService(BukkitChatService.class).shouldFilter(player, event.getMessage())) {
+            event.setCancelled(true);
+            player.sendMessage(CC.RED + "Your message was filtered.");
+            XenonPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket(XenonPlugin.getInstance().getShared().getServer().getName(), "&c[Filtered] " + profile.getCurrentGrant().getData().getColor() + player.getName() + "&7: &c" + event.getMessage(), true));
             return;
         }
 

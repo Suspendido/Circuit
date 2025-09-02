@@ -10,6 +10,7 @@ public class MessagePacket implements RedisPacket {
 
     private String server;
     private String message;
+    private boolean staffOnly;
 
     @Override
     public String getID() {

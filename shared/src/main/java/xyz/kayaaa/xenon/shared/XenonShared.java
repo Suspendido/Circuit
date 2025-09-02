@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.Validate;
 import org.bson.Document;
 import redis.clients.jedis.JedisPubSub;
+import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.mongo.Mongo;
 import xyz.kayaaa.xenon.shared.credentials.MongoCredentials;
 import xyz.kayaaa.xenon.shared.redis.Redis;
@@ -18,6 +19,7 @@ import xyz.kayaaa.xenon.shared.redis.packets.server.ServerUpdatePacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
+import xyz.kayaaa.xenon.shared.tools.gson.GrantAdapter;
 import xyz.kayaaa.xenon.shared.tools.gson.UUIDAdapter;
 import xyz.kayaaa.xenon.shared.tools.xenon.XenonLogger;
 
@@ -30,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class XenonShared {
 
     @Getter private static XenonShared instance;
-    private final Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDAdapter()).serializeNulls().create();
+    private final Gson gson;
     private final Redis redis;
     private final Mongo mongo;
 
@@ -67,6 +69,7 @@ public class XenonShared {
 
         this.mongoTest();
         this.redisTest();
+        gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDAdapter()).registerTypeAdapter(Grant.class, new GrantAdapter()).serializeNulls().create();
     }
 
     private void redisTest() {

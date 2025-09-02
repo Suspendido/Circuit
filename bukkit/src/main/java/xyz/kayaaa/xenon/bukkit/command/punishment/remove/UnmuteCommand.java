@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.punishment;
+package xyz.kayaaa.xenon.bukkit.command.punishment.remove;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
@@ -15,34 +15,33 @@ import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
-import xyz.kayaaa.xenon.shared.tools.string.CC;
 
-@CommandAlias("unblacklist")
-@CommandPermission("xenon.punish.blacklist")
-public class UnblacklistCommand extends BaseCommand {
+@CommandAlias("unmute")
+@CommandPermission("xenon.punish.mute")
+public class UnmuteCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@players *")
-    public void unblacklist(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
+    public void unmute(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
         if (profile == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
-        if (profile.findActivePunishment(PunishmentType.BLACKLIST) == null) {
-            sender.sendMessage(CC.translate("&cPlayer is not banned!"));
+        if (profile.findActivePunishment(PunishmentType.MUTE) == null) {
+            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.MUTE.getType()));
             return;
         }
 
-        Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.BLACKLIST);
+        Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.MUTE);
         ServiceContainer.getService(PunishmentService.class).removePunishment(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), profile, punishment, reason);
         ServiceContainer.getService(ProfileService.class).save(profile);
-        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), target.getUniqueId(), PunishmentType.BLACKLIST.name(), -1, -1, reason, true, false));
+        XenonPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : XenonConstants.getConsoleUUID(), target.getUniqueId(), PunishmentType.MUTE.name(), -1, -1, reason, true, false));
     }
 }

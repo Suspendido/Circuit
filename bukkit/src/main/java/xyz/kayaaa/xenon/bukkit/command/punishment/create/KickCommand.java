@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.punishment;
+package xyz.kayaaa.xenon.bukkit.command.punishment.create;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
@@ -15,7 +15,6 @@ import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
-import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 @CommandAlias("kick")
 @CommandPermission("xenon.punish.kick")
@@ -25,13 +24,13 @@ public class KickCommand extends BaseCommand {
     @CommandCompletion("@players *")
     public void kick(CommandSender sender, @Name("target") OnlinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getPlayer().getUniqueId());
         if (profile == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 

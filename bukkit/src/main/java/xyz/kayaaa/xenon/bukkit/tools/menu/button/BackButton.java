@@ -5,9 +5,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Menu;
+import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 import java.util.Arrays;

@@ -1,7 +1,6 @@
 package xyz.kayaaa.xenon.bukkit.menus;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,7 +8,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Menu;
-import xyz.kayaaa.xenon.bukkit.tools.menu.pagination.PaginatedMenu;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ColorMapping;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ItemBuilder;
 import xyz.kayaaa.xenon.shared.profile.Profile;

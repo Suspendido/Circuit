@@ -4,7 +4,6 @@ import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
-import xyz.kayaaa.xenon.bukkit.menus.grant.GrantMenu;
 import xyz.kayaaa.xenon.bukkit.menus.grant.buttons.ProcedureButton;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;

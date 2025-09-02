@@ -1,6 +1,5 @@
 package xyz.kayaaa.xenon.bukkit.menus.grant.buttons;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
@@ -8,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
-import xyz.kayaaa.xenon.bukkit.menus.grant.GrantMenu;
 import xyz.kayaaa.xenon.bukkit.menus.grant.prompt.ReasonPrompt;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.bukkit.tools.menu.Button;

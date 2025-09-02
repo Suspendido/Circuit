@@ -11,7 +11,10 @@ import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServersMenu extends Menu {
 

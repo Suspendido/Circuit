@@ -1,4 +1,4 @@
-package xyz.kayaaa.xenon.bukkit.command.punishment;
+package xyz.kayaaa.xenon.bukkit.command.punishment.create;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
@@ -15,7 +15,6 @@ import xyz.kayaaa.xenon.shared.redis.packets.punish.PunishmentUpdatePacket;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.service.impl.PunishmentService;
-import xyz.kayaaa.xenon.shared.tools.string.CC;
 
 @CommandAlias("blacklist|banip|ipban|bl")
 @CommandPermission("xenon.punish.blacklist")
@@ -25,18 +24,18 @@ public class BlacklistCommand extends BaseCommand {
     @CommandCompletion("@players *")
     public void blacklist(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
         if (profile == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 
-        if (profile.findActivePunishment(PunishmentType.BAN) != null || profile.findActivePunishment(PunishmentType.BLACKLIST) != null) {
-            sender.sendMessage(CC.translate("&cPlayer is already banned!"));
+        if (profile.findActivePunishment(PunishmentType.BLACKLIST) != null || profile.findActivePunishment(PunishmentType.BAN) != null) {
+            sender.sendMessage(XenonConstants.getPlayerAlreadyPunished().replace("<punishment_type>", PunishmentType.BAN.getType()));
             return;
         }
 

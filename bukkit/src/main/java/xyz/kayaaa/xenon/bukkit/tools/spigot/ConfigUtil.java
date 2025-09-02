@@ -27,21 +27,30 @@ public class ConfigUtil {
      * @return the YamlConfiguration object
      */
     public YamlConfiguration createConfig(String name) {
-        File configFile = new File(pluginDataFolder, name + ".yml");
+        return createConfig(pluginDataFolder, name);
+    }
+
+    public YamlConfiguration createConfig(File parentFolder, String name) {
+        File configFile = new File(parentFolder, name + ".yml");
         if (!configFile.exists()) {
             configFile.getParentFile().mkdirs();
-            try (InputStream resourceStream = XenonPlugin.getInstance().getResource(name + ".yml")) {
-                if (resourceStream != null) {
-                    // Copy resource content to config file
-                    Files.copy(resourceStream, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } else {
-                    configFile.createNewFile();
+            try {
+                String relativePath = pluginDataFolder.toPath().relativize(configFile.toPath())
+                        .toString()
+                        .replace(File.separatorChar, '/'); // necessário pro getResource
+
+                try (InputStream resourceStream = XenonPlugin.getInstance().getResource(relativePath)) {
+                    if (resourceStream != null) {
+                        Files.copy(resourceStream, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } else {
+                        configFile.createNewFile();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        YamlConfiguration configuration = loadConfig(name);
+        YamlConfiguration configuration = loadConfig(parentFolder, name);
         configMap.put(configuration, name);
         return configuration;
     }
@@ -53,7 +62,17 @@ public class ConfigUtil {
      * @return the YamlConfiguration object
      */
     public YamlConfiguration loadConfig(String name) {
-        File configFile = new File(pluginDataFolder, name + ".yml");
+        return loadConfig(pluginDataFolder, name);
+    }
+
+    /**
+     * Loads an existing configuration file.
+     *
+     * @param name the name of the configuration file (without .yml extension)
+     * @return the YamlConfiguration object
+     */
+    public YamlConfiguration loadConfig(File parent, String name) {
+        File configFile = new File(parent, name + ".yml");
         if (!configFile.exists()) {
             return null;
         }
@@ -62,7 +81,7 @@ public class ConfigUtil {
             config.load(configFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
-            saveConfig(config, name);
+            saveConfig(parent, config, name);
         }
         return config;
     }
@@ -74,7 +93,11 @@ public class ConfigUtil {
      * @param name   the name of the configuration file (without .yml extension)
      */
     public void saveConfig(YamlConfiguration config, String name) {
-        File configFile = new File(pluginDataFolder, name + ".yml");
+        saveConfig(pluginDataFolder, config, name);
+    }
+
+    public void saveConfig(File parent, YamlConfiguration config, String name) {
+        File configFile = new File(parent, name + ".yml");
         try {
             config.save(configFile);
         } catch (IOException e) {
@@ -88,8 +111,12 @@ public class ConfigUtil {
      * @param config the YamlConfiguration object
      */
     public void saveConfig(YamlConfiguration config) {
+        saveConfig(pluginDataFolder, config);
+    }
+
+    public void saveConfig(File parent, YamlConfiguration config) {
         String name = configMap.getOrDefault(config, config.getName());
-        File configFile = new File(pluginDataFolder, name + ".yml");
+        File configFile = new File(parent, name + ".yml");
         try {
             config.save(configFile);
         } catch (IOException e) {
@@ -105,7 +132,11 @@ public class ConfigUtil {
      * @return true if the file was successfully deleted, false otherwise
      */
     public boolean deleteConfig(String name) {
-        File configFile = new File(pluginDataFolder, name + ".yml");
+        return deleteConfig(pluginDataFolder, name);
+    }
+
+    public boolean deleteConfig(File parent, String name) {
+        File configFile = new File(parent, name + ".yml");
         return configFile.delete();
     }
 }

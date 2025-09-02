@@ -5,11 +5,9 @@ import co.aikar.commands.annotation.*;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import xyz.kayaaa.xenon.bukkit.menus.GrantsMenu;
 import xyz.kayaaa.xenon.bukkit.menus.grant.GrantMenu;
 import xyz.kayaaa.xenon.bukkit.service.BukkitGrantService;
 import xyz.kayaaa.xenon.shared.XenonConstants;
-import xyz.kayaaa.xenon.shared.grant.Grant;
 import xyz.kayaaa.xenon.shared.grant.GrantProcedure;
 import xyz.kayaaa.xenon.shared.profile.Profile;
 import xyz.kayaaa.xenon.shared.rank.Rank;
@@ -51,8 +49,6 @@ public class GrantCommands extends BaseCommand {
             sender.sendMessage(CC.translate("&cThis player already has this rank!"));
             return;
         }
-
-        GrantService service = ServiceContainer.getService(GrantService.class);
 
         boolean isPermanent = time.equalsIgnoreCase("perm") || time.equalsIgnoreCase("permanent");
         long duration = isPermanent ? -1 : TimeUtils.parseTime(time);

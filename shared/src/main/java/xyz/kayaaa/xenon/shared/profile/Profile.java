@@ -13,6 +13,7 @@ import xyz.kayaaa.xenon.shared.rank.Rank;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
 import xyz.kayaaa.xenon.shared.service.impl.GrantService;
 import xyz.kayaaa.xenon.shared.tools.java.CryptographyUtils;
+import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -20,8 +21,6 @@ import java.util.stream.Collectors;
 
 @Getter
 public class Profile {
-
-    private static final String TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     private final UUID UUID;
     @Setter private String address;
@@ -39,7 +38,7 @@ public class Profile {
         this.address = null;
         this.name = null;
         this.color = "";
-        this.token = generateToken();
+        this.token = StringHelper.generateString(16);
         this.permissions = new ArrayList<>();
         this.rankGrants = new ArrayList<>();
         this.punishments = new ArrayList<>();
@@ -61,13 +60,6 @@ public class Profile {
                 .filter(grant -> grant.isActive() && grant.getData() != null)
                 .max(Comparator.comparingInt(grant -> grant.getData().getWeight()))
                 .orElse(ServiceContainer.getService(GrantService.class).getDefaultGrant());
-    }
-
-    private String generateToken() {
-        return ThreadLocalRandom.current().ints(16, 0, TOKEN_CHARS.length())
-                .mapToObj(TOKEN_CHARS::charAt)
-                .map(String::valueOf)
-                .collect(Collectors.joining());
     }
 
     public void addGrant(Grant<?> grant) {

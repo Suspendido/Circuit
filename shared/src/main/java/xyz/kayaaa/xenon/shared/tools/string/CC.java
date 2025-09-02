@@ -21,8 +21,8 @@ public class CC {
     public static final String DARK_AQUA = translate("&3");
     public static final String BLUE = translate("&9");
     public static final String DARK_BLUE = translate("&1");
-    public static final String GRAY = translate("&8");
-    public static final String DARK_GRAY = translate("&7");
+    public static final String GRAY = translate("&7");
+    public static final String DARK_GRAY = translate("&8");
     public static final String BLACK = translate("&0");
     public static final String PINK = translate("&d");
     public static final String DARK_PURPLE = translate("&5");

@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.menus.ServersMenu;
-import xyz.kayaaa.xenon.shared.redis.packets.misc.MessagePacket;
 import xyz.kayaaa.xenon.shared.redis.packets.server.ServerCommandPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;

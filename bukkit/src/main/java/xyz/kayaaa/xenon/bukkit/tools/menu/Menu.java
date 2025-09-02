@@ -1,7 +1,5 @@
 package xyz.kayaaa.xenon.bukkit.tools.menu;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -14,6 +12,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
 import xyz.kayaaa.xenon.bukkit.tools.menu.button.BackButton;
 import xyz.kayaaa.xenon.shared.tools.string.CC;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
