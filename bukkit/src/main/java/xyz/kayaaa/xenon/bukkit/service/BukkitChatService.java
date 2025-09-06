@@ -5,9 +5,9 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.bukkit.XenonPlugin;
-import xyz.kayaaa.xenon.bukkit.tools.java.StringSanitizer;
 import xyz.kayaaa.xenon.bukkit.tools.spigot.ConfigUtil;
 import xyz.kayaaa.xenon.shared.service.Service;
+import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.io.File;
 import java.util.*;
@@ -61,7 +61,7 @@ public class BukkitChatService extends Service {
         if (!filterEnabled) return false;
         if (player.hasPermission("xenon.chat.bypassfilter")) return false;
 
-        return filteredWords.stream().anyMatch(word -> StringSanitizer.sanitizeMessage(message).contains(word));
+        return filteredWords.stream().anyMatch(word -> StringHelper.clean(message).contains(word));
     }
 
     public void filterWord(String word) {

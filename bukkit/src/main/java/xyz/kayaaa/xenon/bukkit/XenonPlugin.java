@@ -33,7 +33,7 @@ import xyz.kayaaa.xenon.shared.redis.packets.staff.StaffStatusPacket;
 import xyz.kayaaa.xenon.shared.server.Server;
 import xyz.kayaaa.xenon.shared.server.ServerType;
 import xyz.kayaaa.xenon.shared.service.ServiceContainer;
-import xyz.kayaaa.xenon.shared.service.impl.GiftCodeService;
+import xyz.kayaaa.xenon.shared.service.impl.GiftService;
 import xyz.kayaaa.xenon.shared.service.impl.RankService;
 import xyz.kayaaa.xenon.shared.service.impl.ServerService;
 import xyz.kayaaa.xenon.shared.tools.java.ClassUtils;
@@ -165,7 +165,7 @@ public class XenonPlugin extends JavaPlugin {
 
         manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
-        manager.getCommandCompletions().registerCompletion("giftcodes", c -> ServiceContainer.getService(GiftCodeService.class).getCache().values().stream().map(GiftCode::getCode).collect(Collectors.toList()));
+        manager.getCommandCompletions().registerCompletion("giftcodes", c -> ServiceContainer.getService(GiftService.class).getCache().values().stream().map(GiftCode::getCode).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
                 "perm", "permanent",
                 "1m", "5m", "10m", "30m",

@@ -17,6 +17,7 @@ import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePacket> {
@@ -44,7 +45,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
             String target = targetProfile.getCurrentGrant().getData().getColor() + targetName;
 
             if (packet.isRemoved()) {
-                ServerUtils.sendMessage(author + " &ahas un" + type.getType() + " " + target + " &afor " + packet.getReason() + "!", player -> {
+                ServerUtils.sendMessage(author + " &ahas un" + type.getAction() + " " + target + " &afor " + packet.getReason() + "!", player -> {
                     Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
                     if (profile == null) return false;
                     if (!packet.isSilent()) return true;
@@ -57,7 +58,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                         ? " &apermanently for "
                         : " &atemporarily &7(" + TimeUtils.formatTime(packet.getDuration()) + ") &afor ";
                 if (type == PunishmentType.KICK) duration = " &afor ";
-                ServerUtils.sendMessage(author + " &ahas " + type.getType() + " " + target + duration + packet.getReason() + "!", player -> {
+                ServerUtils.sendMessage(author + " &ahas " + type.getAction() + " " + target + duration + packet.getReason() + "!", player -> {
                     Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
                     if (profile == null) return false;
                     if (!packet.isSilent()) return true;
@@ -78,7 +79,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                 }
 
                 if (type == PunishmentType.BLACKLIST) {
-                    List<Profile> alts = ServiceContainer.getService(ProfileService.class).findFromAddress(targetProfile);
+                    Set<Profile> alts = ServiceContainer.getService(ProfileService.class).findFromAddress(targetProfile);
 
                     for (Profile alt : alts) {
                         Player altPlayer = Bukkit.getPlayer(alt.getUUID());

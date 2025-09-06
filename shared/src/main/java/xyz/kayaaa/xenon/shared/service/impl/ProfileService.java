@@ -22,8 +22,8 @@ import java.util.*;
 @Getter
 public class ProfileService extends Service {
 
-    private List<Profile> allProfiles;
-    private List<Profile> profiles;
+    private Set<Profile> allProfiles;
+    private Set<Profile> profiles;
     private MongoCollection<Document> profilesCollection;
 
     @Override @NonNull
@@ -33,8 +33,8 @@ public class ProfileService extends Service {
 
     @Override
     public void enable() {
-        this.allProfiles = new ArrayList<>();
-        this.profiles = new ArrayList<>();
+        this.allProfiles = new HashSet<>();
+        this.profiles = new HashSet<>();
         this.profilesCollection = XenonShared.getInstance().getMongo().getDatabase().getCollection("profiles");
         this.loadAll();
     }
@@ -76,8 +76,8 @@ public class ProfileService extends Service {
             profile = fromDocument(doc);
         }
 
-        if (!this.profiles.contains(profile)) this.profiles.add(profile);
-        if (!this.allProfiles.contains(profile)) this.allProfiles.add(profile);
+        this.profiles.add(profile);
+        this.allProfiles.add(profile);
 
         return profile;
     }
@@ -104,9 +104,7 @@ public class ProfileService extends Service {
 
         if (doc != null) {
             Profile profile = fromDocument(doc);
-            if (!this.profiles.contains(profile)) {
-                this.profiles.add(profile);
-            }
+            this.profiles.add(profile);
             return profile;
         }
 
@@ -173,17 +171,15 @@ public class ProfileService extends Service {
         return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments);
     }
 
-    public List<Profile> findFromAddress(Profile base) {
+    public Set<Profile> findFromAddress(Profile base) {
         Validate.notNull(base, "Profile cannot be null");
         Validate.notNull(base.getAddress(), "Address cannot be null");
-        List<Profile> candidates = new ArrayList<>();
-        List<Document> allProfiles = profilesCollection.find().into(new ArrayList<>());
+        Set<Profile> candidates = new HashSet<>();
 
-        for (Document doc : allProfiles) {
-            Profile profile = fromDocument(doc);
-            if (profile != null && profile != base && profile.getAddress().equalsIgnoreCase(base.getAddress())) {
-                candidates.add(profile);
-            }
+        for (Profile profile : allProfiles) {
+            if (profile == base || !profile.getAddress().equalsIgnoreCase(base.getAddress())) continue;
+
+            candidates.add(profile);
         }
         return candidates;
     }

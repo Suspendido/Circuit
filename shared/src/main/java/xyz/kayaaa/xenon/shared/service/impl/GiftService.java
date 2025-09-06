@@ -22,14 +22,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
-public class GiftCodeService extends Service {
+public class GiftService extends Service {
 
     private Map<String, GiftCode<Rank>> cache;
     private MongoCollection<Document> giftsCollection;
 
     @Override @NonNull
     public String getIdentifier() {
-        return "giftcode";
+        return "gift";
     }
 
     @Override
@@ -68,7 +68,7 @@ public class GiftCodeService extends Service {
 
     public GiftCode<Rank> getCode(String code) {
         if (!code.toLowerCase().contains("xenon-")) {
-            return this.cache.values().stream().filter(gift -> gift.getCode().replace("xenon-", "").equalsIgnoreCase(code)).findFirst().orElse(null);
+            return this.cache.values().stream().filter(gift -> gift.getCode().toLowerCase().replace("xenon-", "").equalsIgnoreCase(code)).findFirst().orElse(null);
         }
 
         return this.cache.values().stream().filter(gift -> gift.getCode().equalsIgnoreCase(code)).findFirst().orElse(null);
@@ -86,6 +86,11 @@ public class GiftCodeService extends Service {
         GiftCode<Rank> gift = getCode(code);
         if (!gift.isAvailable()) {
             XenonShared.getInstance().getLogger().warn(profile.getName() + " tried redeeming a used/revoked gift code, ignoring...");
+            return false;
+        }
+
+        if (gift.getReward() == null) {
+            XenonShared.getInstance().getLogger().warn(profile.getName() + " tried redeeming a code with no reward, ignoring...");
             return false;
         }
 

@@ -13,7 +13,6 @@ import xyz.kayaaa.xenon.bukkit.menus.ChatColorMenu;
 public class ChatColorCommand extends BaseCommand {
 
     @Default
-    @CatchUnknown
     public void color(Player sender) {
         new ChatColorMenu().openMenu(sender);
     }

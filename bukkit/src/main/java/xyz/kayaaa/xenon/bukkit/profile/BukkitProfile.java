@@ -15,6 +15,7 @@ import xyz.kayaaa.xenon.shared.service.impl.ProfileService;
 import xyz.kayaaa.xenon.shared.tools.java.TimeUtils;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor @Getter
 public class BukkitProfile {
@@ -36,7 +37,7 @@ public class BukkitProfile {
             return;
         }
 
-        List<Profile> alts = ServiceContainer.getService(ProfileService.class).findFromAddress(profile);
+        Set<Profile> alts = ServiceContainer.getService(ProfileService.class).findFromAddress(profile);
         if (!alts.isEmpty()) {
             for (Profile profile1 : alts) {
                 if (profile1.findActivePunishment(PunishmentType.BLACKLIST) == null) continue;

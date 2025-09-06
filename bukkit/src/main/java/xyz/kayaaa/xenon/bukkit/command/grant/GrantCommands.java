@@ -40,7 +40,7 @@ public class GrantCommands extends BaseCommand {
     @CommandCompletion("@players @ranks @times *")
     public void grant(CommandSender sender, @Name("target") Player target, @Name("rank") Rank rank, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found. Please recheck their username!"));
+            sender.sendMessage(XenonConstants.getPlayerNotFound());
             return;
         }
 

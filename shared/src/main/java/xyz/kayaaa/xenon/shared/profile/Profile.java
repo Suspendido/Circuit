@@ -16,22 +16,24 @@ import xyz.kayaaa.xenon.shared.tools.java.CryptographyUtils;
 import xyz.kayaaa.xenon.shared.tools.string.StringHelper;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Getter
 public class Profile {
 
     private final UUID UUID;
-    @Setter private String address;
-    @Setter private String name;
-    @Setter private String color;
-    @Setter private ChatChannel channel = ChatChannel.DEFAULT;
-
     private final String token;
     private final List<String> permissions;
     private final List<Grant<Rank>> rankGrants;
     private final List<Grant<Punishment>> punishments;
+    @Setter
+    private String address;
+    @Setter
+    private String name;
+    @Setter
+    private String color;
+    @Setter
+    private ChatChannel channel = ChatChannel.DEFAULT;
 
     public Profile(UUID UUID) {
         this.UUID = Objects.requireNonNull(UUID, "UUID cannot be null");
@@ -56,10 +58,7 @@ public class Profile {
     }
 
     public Grant<Rank> getCurrentGrant() {
-        return rankGrants.stream()
-                .filter(grant -> grant.isActive() && grant.getData() != null)
-                .max(Comparator.comparingInt(grant -> grant.getData().getWeight()))
-                .orElse(ServiceContainer.getService(GrantService.class).getDefaultGrant());
+        return rankGrants.stream().filter(grant -> grant.isActive() && grant.getData() != null).max(Comparator.comparingInt(grant -> grant.getData().getWeight())).orElse(ServiceContainer.getService(GrantService.class).getDefaultGrant());
     }
 
     public void addGrant(Grant<?> grant) {
@@ -119,6 +118,11 @@ public class Profile {
         return this.punishments.stream().filter(grant -> grant.getData() != null && grant.getData().getPunishmentType().equals(type) && grant.isActive()).findFirst().orElse(null);
     }
 
+    public Grant<Punishment> findActivePunishment() {
+        Comparator<Grant<Punishment>> comparator = Comparator.comparingInt(grant -> grant.getData().getPunishmentType().getPriority());
+        return this.punishments.stream().filter(grant -> grant.getData() != null && grant.isActive() && grant.getData().getPunishmentType() != PunishmentType.KICK).max(comparator).orElse(null);
+    }
+
     public boolean hasGrant(Grant<?> grant) {
         Validate.notNull(grant, "Grant cannot be null");
         Validate.isTrue(grant.getData() != null, "Grant data cannot be null");
@@ -146,14 +150,7 @@ public class Profile {
     }
 
     public Document toDocument() {
-        Document doc = new Document()
-                .append("address", CryptographyUtils.encrypt(this.address, this.token))
-                .append("uuid", this.UUID.toString())
-                .append("name", this.name)
-                .append("color", this.color)
-                .append("token", this.token)
-                .append("permissions", this.permissions)
-                .append("lastUpdated", new Date());
+        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("lastUpdated", new Date());
 
         List<Document> ranks = new ArrayList<>();
         this.rankGrants.forEach(grant -> ranks.add(grant.toDocument()));

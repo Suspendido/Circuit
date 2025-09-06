@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -72,7 +71,7 @@ public abstract class Menu {
 					update = true;
 				} else {
 					previousMenu.setClosedByMenu(true);
-					((CraftPlayer) player).getHandle().p();
+					player.closeInventory();
 				}
 			}
 		}

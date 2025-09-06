@@ -35,7 +35,7 @@ public class UnblacklistCommand extends BaseCommand {
         }
 
         if (profile.findActivePunishment(PunishmentType.BLACKLIST) == null) {
-            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.BLACKLIST.getType()));
+            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.BLACKLIST.getAction()));
             return;
         }
 

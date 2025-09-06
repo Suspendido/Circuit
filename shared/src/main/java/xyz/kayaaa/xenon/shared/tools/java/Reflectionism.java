@@ -1,6 +1,6 @@
-package xyz.kayaaa.xenon.bukkit.tools.java;
+package xyz.kayaaa.xenon.shared.tools.java;
 
-import xyz.kayaaa.xenon.bukkit.XenonPlugin;
+import xyz.kayaaa.xenon.shared.XenonShared;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,30 +9,29 @@ import java.lang.reflect.Method;
 public final class Reflectionism {
 
     private static final String[] COLORS = {
-            "\u001B[31m", // Vermelho
-            "\u001B[33m", // Amarelo
-            "\u001B[32m", // Verde
-            "\u001B[36m", // Ciano
-            "\u001B[34m", // Azul
-            "\u001B[35m"  // Roxo
+            "\u001B[31m",
+            "\u001B[33m",
+            "\u001B[32m",
+            "\u001B[36m",
+            "\u001B[34m",
+            "\u001B[35m"
     };
 
-    private static final String RESET = "\u001B[0m"; // Reseta a cor
-    private static final boolean ENABLE_COLORS = false; // Permite desativar cores se necessário
+    private static final String RESET = "\u001B[0m";
+    private static final boolean ENABLE_COLORS = false;
 
     public static void log(String text) {
         if (ENABLE_COLORS) {
             for (int i = 0; i < text.length(); i++) {
-                String color = COLORS[i % COLORS.length]; // Alterna as cores
-                XenonPlugin.getInstance().getLogger().info(color + text.charAt(i));
+                String color = COLORS[i % COLORS.length];
+                XenonShared.getInstance().getLogger().log(color + text.charAt(i));
             }
-            XenonPlugin.getInstance().getLogger().info(RESET);
+            XenonShared.getInstance().getLogger().log(RESET);
         } else {
-            XenonPlugin.getInstance().getLogger().info(text);
+            XenonShared.getInstance().getLogger().log(text);
         }
     }
 
-    // Acessar o valor de um campo (não estático)
     public static Object getValue(Object base, String field) {
         if (base == null) {
             log("[Reflectionism] Base object is null.");
@@ -53,7 +52,6 @@ public final class Reflectionism {
         return type.cast(getValue(base, field));
     }
 
-    // Acessar o valor de um campo estático
     public static Object getValue(Class<?> base, String field) {
         if (base == null) {
             log("[Reflectionism] Base class is null.");
@@ -70,7 +68,6 @@ public final class Reflectionism {
         }
     }
 
-    // Modificar o valor de um campo
     public static boolean setValue(Object base, String field, Object value) {
         if (base == null) {
             log("[Reflectionism] Base object is null.");
@@ -88,7 +85,6 @@ public final class Reflectionism {
         }
     }
 
-    // Invocar um método de um objeto (não estático)
     public static Object invokeMethod(Object base, String methodName, Class<?>[] paramTypes, Object... params) {
         if (base == null) {
             log("[Reflectionism] Base object is null.");
@@ -105,7 +101,6 @@ public final class Reflectionism {
         }
     }
 
-    // Invocar um método estático de uma classe
     public static Object invokeStaticMethod(Class<?> clazz, String methodName, Class<?>[] paramTypes, Object... params) {
         if (clazz == null) {
             log("[Reflectionism] Base class is null.");
@@ -122,7 +117,6 @@ public final class Reflectionism {
         }
     }
 
-    // Acessar e invocar o construtor de uma classe
     public static Object invokeConstructor(Class<?> clazz, Class<?>[] paramTypes, Object... params) {
         if (clazz == null) {
             log("[Reflectionism] Base class is null.");
@@ -157,7 +151,6 @@ public final class Reflectionism {
         }
     }
 
-    // Método auxiliar para buscar um campo, incluindo superclasses.
     private static Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         while (clazz != null) {
             try {
@@ -169,7 +162,6 @@ public final class Reflectionism {
         throw new NoSuchFieldException("Field '" + fieldName + "' not found.");
     }
 
-    // Verifica o tipo de um campo
     public static Class<?> getFieldType(Object base, String field) {
         if (base == null) {
             log("[Reflectionism] Base object is null.");
@@ -222,7 +214,6 @@ public final class Reflectionism {
         return null;
     }
 
-    // Verifica se um campo é público
     public static boolean isFieldPublic(Object base, String field) {
         if (base == null) {
             log("[Reflectionism] Base object is null.");

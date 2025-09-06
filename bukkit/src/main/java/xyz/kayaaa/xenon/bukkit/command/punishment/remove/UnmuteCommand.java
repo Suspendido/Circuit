@@ -35,7 +35,7 @@ public class UnmuteCommand extends BaseCommand {
         }
 
         if (profile.findActivePunishment(PunishmentType.MUTE) == null) {
-            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.MUTE.getType()));
+            sender.sendMessage(XenonConstants.getPlayerNotPunished().replace("<punishment_type>", PunishmentType.MUTE.getAction()));
             return;
         }
 

@@ -27,7 +27,7 @@ public class Punishment implements Serializable {
 
     @Override
     public String getExpiryMessage() {
-        return "&aYou're no longer " + punishmentType.getType() + "!";
+        return "&aYou're no longer " + punishmentType.getAction() + "!";
     }
 
     @Override

@@ -1,10 +1,7 @@
 package xyz.kayaaa.xenon.bukkit.command.player;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.*;
 import org.bukkit.entity.Player;
 import xyz.kayaaa.xenon.shared.chat.ChatChannel;
 import xyz.kayaaa.xenon.shared.profile.Profile;
