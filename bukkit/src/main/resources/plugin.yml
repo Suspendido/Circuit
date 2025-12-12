@@ -1,4 +1,4 @@
-name: Xenon-Bukkit
-main: xyz.kayaaa.xenon.bukkit.XenonPlugin
+name: Circuit
+main: com.sylluxpvp.circuit.bukkit.CircuitPlugin
 version: 1.0
-author: Kaya
+author: Spexey

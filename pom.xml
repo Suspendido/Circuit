@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>xyz.kayaaa</groupId>
-    <artifactId>Xenon</artifactId>
+    <groupId>com.sylluxpvp</groupId>
+    <artifactId>Circuit</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
@@ -57,11 +57,11 @@
                     <relocations>
                         <relocation>
                             <pattern>co.aikar.commands</pattern>
-                            <shadedPattern>xyz.kayaaa.libs.acf</shadedPattern> <!-- Replace this -->
+                            <shadedPattern>com.sylluxpvp.libs.acf</shadedPattern> <!-- Replace this -->
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.locales</pattern>
-                            <shadedPattern>xyz.kayaaa.libs.locales</shadedPattern> <!-- Replace this -->
+                            <shadedPattern>com.sylluxpvp.libs.locales</shadedPattern> <!-- Replace this -->
                         </relocation>
                     </relocations>
                 </configuration>
