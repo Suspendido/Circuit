@@ -16,7 +16,7 @@ import java.util.UUID;
 public class ReportCommand extends BaseCommand {
 
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
-    private static final long COOLDOWN_MS = 60000; // 1 minute
+    private static final long COOLDOWN_MS = 60_000L;
 
     @Default
     @Syntax("<player> <reason>")

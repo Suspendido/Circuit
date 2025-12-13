@@ -9,6 +9,10 @@ import com.sylluxpvp.circuit.shared.tools.string.CC;
 @CommandAlias("ping|ms|connection")
 public class PingCommand extends BaseCommand {
 
+    private static final int PING_EXCELLENT = 50;
+    private static final int PING_GOOD = 100;
+    private static final int PING_MODERATE = 200;
+
     @Default
     @Syntax("[player]")
     @CommandCompletion("@players")
@@ -17,9 +21,9 @@ public class PingCommand extends BaseCommand {
         int ping = ((CraftPlayer) player).getHandle().ping;
 
         String color;
-        if (ping < 50) color = "&a";
-        else if (ping < 100) color = "&e";
-        else if (ping < 200) color = "&6";
+        if (ping < PING_EXCELLENT) color = "&a";
+        else if (ping < PING_GOOD) color = "&e";
+        else if (ping < PING_MODERATE) color = "&6";
         else color = "&c";
 
         if (target != null && !target.equals(sender)) {

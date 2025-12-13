@@ -15,8 +15,10 @@ import java.util.*;
 @Getter @Setter
 public class BukkitChatService extends Service {
 
+    private static final long DEFAULT_SLOWDOWN_MS = 3_000L;
+
     private boolean chatEnabled = true;
-    private long slowdown = 3000;
+    private long slowdown = DEFAULT_SLOWDOWN_MS;
 
     private boolean filterEnabled = false;
     private Set<String> filteredWords;

@@ -4,7 +4,6 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 @CommandAlias("broadcast|bc|raw")
@@ -16,12 +15,7 @@ public class BroadcastCommand extends BaseCommand {
     public void onBroadcast(CommandSender sender, String message) {
         String translated = CC.translate(message);
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(translated);
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(translated);
-        }
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(translated));
+        Bukkit.getConsoleSender().sendMessage(translated);
     }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 public class RequestCommand extends BaseCommand {
 
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
-    private static final long COOLDOWN_MS = 30000; // 30 seconds
+    private static final long COOLDOWN_MS = 30_000L;
 
     @Default
     @Syntax("<message>")
