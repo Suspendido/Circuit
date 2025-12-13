@@ -4,6 +4,9 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import com.sylluxpvp.circuit.shared.profile.Profile;
+import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.HashMap;
@@ -54,8 +57,21 @@ public class MessageCommand extends BaseCommand {
     }
 
     private void sendMessage(Player sender, Player target, String message) {
-        sender.sendMessage(CC.translate("&7(To &d" + target.getName() + "&7) &f" + message));
-        target.sendMessage(CC.translate("&7(From &d" + sender.getName() + "&7) &f" + message));
+        Profile senderProfile = ServiceContainer.getService(ProfileService.class).find(sender.getUniqueId());
+        Profile targetProfile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
+
+        String senderColor = "&f";
+        if (senderProfile != null && senderProfile.getCurrentGrant() != null && senderProfile.getCurrentGrant().getData() != null) {
+            senderColor = senderProfile.getCurrentGrant().getData().getColor();
+        }
+
+        String targetColor = "&f";
+        if (targetProfile != null && targetProfile.getCurrentGrant() != null && targetProfile.getCurrentGrant().getData() != null) {
+            targetColor = targetProfile.getCurrentGrant().getData().getColor();
+        }
+
+        sender.sendMessage(CC.translate("&7(To " + targetColor + target.getName() + "&7) &f" + message));
+        target.sendMessage(CC.translate("&7(From " + senderColor + sender.getName() + "&7) &f" + message));
 
         lastMessaged.put(sender.getUniqueId(), target.getUniqueId());
         lastMessaged.put(target.getUniqueId(), sender.getUniqueId());

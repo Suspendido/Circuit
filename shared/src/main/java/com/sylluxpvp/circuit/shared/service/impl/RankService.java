@@ -11,6 +11,10 @@ import com.sylluxpvp.circuit.shared.rank.Rank;
 import com.sylluxpvp.circuit.shared.service.Service;
 import com.sylluxpvp.circuit.shared.tools.async.AsyncExecutor;
 
+import com.sylluxpvp.circuit.shared.grant.Grant;
+import com.sylluxpvp.circuit.shared.profile.Profile;
+import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -113,6 +117,20 @@ public class RankService extends Service {
     public void delete(Rank rank) {
         if (rank == null || !this.ranks.contains(rank)) return;
         this.ranks.remove(rank);
+        
+        ProfileService profileService = ServiceContainer.getService(ProfileService.class);
+        if (profileService != null && profileService.getOnlineProfiles() != null) {
+            for (Profile profile : profileService.getOnlineProfiles()) {
+                if (profile.hasRank(rank)) {
+                    Grant<Rank> grant = profile.findByRank(rank);
+                    if (grant != null) {
+                        profile.removeGrant(grant);
+                        profileService.save(profile);
+                    }
+                }
+            }
+        }
+
         AsyncExecutor.runAsync(() -> {
             ranksCollection.deleteOne(Filters.eq("uuid", rank.getUuid().toString()));
         });

@@ -34,6 +34,7 @@ public class Profile {
     private String color;
     @Setter
     private ChatChannel channel = ChatChannel.DEFAULT;
+    // TODO: Implementar sistema de coins completo
     @Setter
     private int coins = 0;
 

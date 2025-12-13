@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
+import com.sylluxpvp.circuit.bukkit.tools.spigot.ConfigUtil;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 @CommandAlias("spawn")
@@ -37,6 +38,7 @@ public class SpawnCommand extends BaseCommand {
         plugin.getMainConfig().set("spawn.z", loc.getZ());
         plugin.getMainConfig().set("spawn.yaw", loc.getYaw());
         plugin.getMainConfig().set("spawn.pitch", loc.getPitch());
+        ConfigUtil.saveConfig(plugin.getMainConfig(), "config");
 
         sender.sendMessage(CC.translate("&aSpawn has been set to your location."));
     }
