@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class RequestCommand extends BaseCommand {
 
         // Broadcast to other servers via Redis
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new StaffChatPacket(sender.getUniqueId(), serverName, staffMessage)
+                new MessagePacket(serverName, staffMessage, true)
         );
 
         sender.sendMessage(CC.translate("&aYour request has been sent to staff."));

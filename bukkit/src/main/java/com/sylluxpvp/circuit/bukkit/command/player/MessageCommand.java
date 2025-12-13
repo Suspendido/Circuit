@@ -26,7 +26,7 @@ public class MessageCommand extends BaseCommand {
             return;
         }
 
-        if (target.equals(sender)) {
+        if (target.getUniqueId().equals(sender.getUniqueId())) {
             sender.sendMessage(CC.translate("&cYou cannot message yourself."));
             return;
         }

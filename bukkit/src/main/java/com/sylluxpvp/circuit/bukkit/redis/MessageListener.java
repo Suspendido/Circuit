@@ -12,15 +12,18 @@ public class MessageListener extends PacketListener<MessagePacket> {
 
     @Override
     public void listen(MessagePacket packet) {
-        String server = packet.getServer();
-        if (server == null || server.equalsIgnoreCase(CircuitPlugin.getInstance().getShared().getServer().getName())) {
-            ServerUtils.sendMessage(packet.getMessage(), player -> {
-                Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
-                if (profile == null) return false;
-                if (!packet.isStaffOnly()) return true;
-                return profile.getCurrentGrant().getData().isStaff() || player.isOp();
-            });
+        // Ignore messages from the same server (already sent locally)
+        String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
+        if (packet.getServer() != null && packet.getServer().equalsIgnoreCase(currentServer)) {
+            return;
         }
+        
+        ServerUtils.sendMessage(packet.getMessage(), player -> {
+            Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
+            if (profile == null) return false;
+            if (!packet.isStaffOnly()) return true;
+            return profile.getCurrentGrant().getData().isStaff() || player.isOp();
+        });
     }
 
 }

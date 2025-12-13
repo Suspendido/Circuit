@@ -1,5 +1,6 @@
 package com.sylluxpvp.circuit.bukkit.redis;
 
+import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ServerUtils;
 import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.redis.listener.PacketListener;
@@ -12,6 +13,11 @@ public class StaffChatListener extends PacketListener<StaffChatPacket> {
 
     @Override
     public void listen(StaffChatPacket packet) {
+        // Ignore messages from the same server (already sent locally)
+        String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
+        if (packet.getServer() != null && packet.getServer().equalsIgnoreCase(currentServer)) {
+            return;
+        }
 
         Profile staff = ServiceContainer
                 .getService(ProfileService.class)

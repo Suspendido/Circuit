@@ -37,7 +37,8 @@ public class GrantCommands extends BaseCommand {
     @Subcommand("manual")
     @Description("Grants a rank to a player")
     @CommandCompletion("@players @ranks @times *")
-    public void grant(CommandSender sender, @Name("target") Player target, @Name("rank") Rank rank, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
+    public void grant(CommandSender sender, @Name("target") String targetName, @Name("rank") Rank rank, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
+        Player target = org.bukkit.Bukkit.getPlayer(targetName);
         if (target == null) {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;

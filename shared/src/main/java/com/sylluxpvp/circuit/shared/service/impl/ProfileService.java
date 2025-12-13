@@ -165,8 +165,9 @@ public class ProfileService extends Service {
 
         List<Grant<Rank>> rankGrants = this.extractGrants(doc, "rankGrants", "rank", grantService);
         List<Grant<Punishment>> punishments = this.extractGrants(doc, "punishments", "punishment", grantService);
+        int coins = doc.getInteger("coins", 0);
 
-        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments);
+        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins);
     }
 
     public Set<Profile> findFromAddress(Profile base) {

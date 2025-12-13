@@ -83,15 +83,15 @@ public class PlayerListener implements Listener {
             Arrays.stream(StringHelper.splitByNewline(message)).forEach(player::sendMessage);
         }
 
-        if (profile.getChannel() == ChatChannel.STAFF) {
-            event.setCancelled(true);
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new StaffChatPacket(player.getUniqueId(), CircuitPlugin.getInstance().getShared().getServer().getName(), event.getMessage()));
-            return;
-        }
-
         if (profile.getChannel() == ChatChannel.ADMIN) {
             event.setCancelled(true);
             AdminChatCommand.sendAdminMessage(player, event.getMessage());
+            return;
+        }
+
+        if (profile.getChannel() == ChatChannel.STAFF) {
+            event.setCancelled(true);
+            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new StaffChatPacket(player.getUniqueId(), CircuitPlugin.getInstance().getShared().getServer().getName(), event.getMessage()));
             return;
         }
 

@@ -5,7 +5,7 @@ import co.aikar.commands.annotation.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class ReportCommand extends BaseCommand {
             return;
         }
 
-        if (target.equals(sender)) {
+        if (target.getUniqueId().equals(sender.getUniqueId())) {
             sender.sendMessage(CC.translate("&cYou cannot report yourself."));
             return;
         }
@@ -55,7 +55,7 @@ public class ReportCommand extends BaseCommand {
 
         // Broadcast to other servers via Redis
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new StaffChatPacket(sender.getUniqueId(), serverName, message)
+                new MessagePacket(serverName, message, true)
         );
 
         sender.sendMessage(CC.translate("&aYour report has been submitted. Thank you!"));

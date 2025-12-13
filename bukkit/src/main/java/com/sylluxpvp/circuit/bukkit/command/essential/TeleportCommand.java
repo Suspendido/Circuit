@@ -2,6 +2,7 @@ package com.sylluxpvp.circuit.bukkit.command.essential;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
@@ -19,8 +20,15 @@ public class TeleportCommand extends BaseCommand {
     @Default
     @Syntax("<player>")
     @CommandCompletion("@players")
-    public void onTeleport(Player sender, Player target) {
-        if (sender.equals(target)) {
+    public void onTeleport(Player sender, String targetName) {
+        Player target = Bukkit.getPlayer(targetName);
+        
+        if (target == null) {
+            sender.sendMessage(CC.translate("&cPlayer not found."));
+            return;
+        }
+        
+        if (sender.getUniqueId().equals(target.getUniqueId())) {
             sender.sendMessage(CC.translate("&cYou cannot teleport to yourself."));
             return;
         }
@@ -34,8 +42,15 @@ public class TeleportCommand extends BaseCommand {
     @CommandPermission("circuit.command.teleport.here")
     @Syntax("<player>")
     @CommandCompletion("@players")
-    public void onTeleportHere(Player sender, Player target) {
-        if (sender.equals(target)) {
+    public void onTeleportHere(Player sender, String targetName) {
+        Player target = Bukkit.getPlayer(targetName);
+        
+        if (target == null) {
+            sender.sendMessage(CC.translate("&cPlayer not found."));
+            return;
+        }
+        
+        if (sender.getUniqueId().equals(target.getUniqueId())) {
             sender.sendMessage(CC.translate("&cYou cannot teleport yourself to yourself."));
             return;
         }

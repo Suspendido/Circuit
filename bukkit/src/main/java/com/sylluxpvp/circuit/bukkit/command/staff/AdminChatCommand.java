@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
 import com.sylluxpvp.circuit.shared.chat.ChatChannel;
 import com.sylluxpvp.circuit.shared.profile.Profile;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.staff.AdminChatPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
@@ -55,7 +55,7 @@ public class AdminChatCommand extends BaseCommand {
 
         // Broadcast to other servers via Redis
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new StaffChatPacket(sender.getUniqueId(), serverName, formatted)
+                new AdminChatPacket(sender.getUniqueId(), serverName, message)
         );
     }
 }

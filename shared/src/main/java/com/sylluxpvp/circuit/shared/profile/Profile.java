@@ -34,6 +34,8 @@ public class Profile {
     private String color;
     @Setter
     private ChatChannel channel = ChatChannel.DEFAULT;
+    @Setter
+    private int coins = 0;
 
     public Profile(UUID UUID) {
         this.UUID = Objects.requireNonNull(UUID, "UUID cannot be null");
@@ -44,9 +46,10 @@ public class Profile {
         this.permissions = new ArrayList<>();
         this.rankGrants = new ArrayList<>();
         this.punishments = new ArrayList<>();
+        this.coins = 0;
     }
 
-    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments) {
+    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments, int coins) {
         this.UUID = UUID;
         this.address = address;
         this.name = name;
@@ -55,6 +58,7 @@ public class Profile {
         this.permissions = permissions != null ? permissions : new ArrayList<>();
         this.rankGrants = rankGrants != null ? rankGrants : new ArrayList<>();
         this.punishments = punishments != null ? punishments : new ArrayList<>();
+        this.coins = coins;
     }
 
     public Grant<Rank> getCurrentGrant() {
@@ -150,7 +154,7 @@ public class Profile {
     }
 
     public Document toDocument() {
-        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("lastUpdated", new Date());
+        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("coins", this.coins).append("lastUpdated", new Date());
 
         List<Document> ranks = new ArrayList<>();
         this.rankGrants.forEach(grant -> ranks.add(grant.toDocument()));
