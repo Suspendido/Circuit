@@ -53,7 +53,7 @@ public class StaffChatCommand extends BaseCommand {
 
         // Broadcast to other servers via Redis
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new StaffChatPacket(sender.getUniqueId(), serverName, formatted)
+                new StaffChatPacket(sender.getUniqueId(), serverName, message)
         );
     }
 }

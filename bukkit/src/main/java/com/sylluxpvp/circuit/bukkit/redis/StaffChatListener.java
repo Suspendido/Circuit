@@ -7,7 +7,6 @@ import com.sylluxpvp.circuit.shared.redis.listener.PacketListener;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
-import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 public class StaffChatListener extends PacketListener<StaffChatPacket> {
 
@@ -28,12 +27,12 @@ public class StaffChatListener extends PacketListener<StaffChatPacket> {
         }
 
         String message =
-                "&b[SC] "
-                        + "&7[" + packet.getServer() + "] "
+                "&9[SC] "
+                        + "&b[" + packet.getServer() + "] "
                         + staff.getCurrentGrant().getData().getColor()
                         + staff.getName()
                         + "&7: &f"
-                        + CC.removeColors(CC.translate(packet.getMessage()));
+                        + packet.getMessage();
 
         ServerUtils.sendMessage(message, player -> {
             Profile profile = ServiceContainer

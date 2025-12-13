@@ -1,6 +1,7 @@
 package com.sylluxpvp.circuit.bukkit.listener;
 
 import com.sylluxpvp.circuit.bukkit.command.staff.AdminChatCommand;
+import com.sylluxpvp.circuit.bukkit.command.staff.StaffChatCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -91,7 +92,7 @@ public class PlayerListener implements Listener {
 
         if (profile.getChannel() == ChatChannel.STAFF) {
             event.setCancelled(true);
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new StaffChatPacket(player.getUniqueId(), CircuitPlugin.getInstance().getShared().getServer().getName(), event.getMessage()));
+            StaffChatCommand.sendStaffMessage(player, event.getMessage());
             return;
         }
 
