@@ -3,6 +3,8 @@ package com.sylluxpvp.circuit.bukkit;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
+import com.sylluxpvp.circuit.bukkit.api.CircuitAPI;
+import com.sylluxpvp.circuit.bukkit.placeholder.CircuitExpansion;
 import com.sylluxpvp.circuit.bukkit.redis.AdminChatListener;
 import com.sylluxpvp.circuit.bukkit.redis.MessageListener;
 import com.sylluxpvp.circuit.bukkit.redis.PunishmentUpdateListener;
@@ -60,6 +62,7 @@ public class CircuitPlugin extends JavaPlugin {
 
     private YamlConfiguration mainConfig, filterConfig;
     private CircuitShared shared;
+    private CircuitAPI api;
 
     private boolean joinable = false;
     @Getter @Setter private boolean chatMuted = false;
@@ -125,6 +128,7 @@ public class CircuitPlugin extends JavaPlugin {
         }
 
         shared = new CircuitShared(new CircuitBukkitLogger(), redisCredentials, mongoCredentials, databaseName);
+        this.api = new CircuitAPI();
         this.setupCommands();
         this.setupServices();
         this.setupTasks();
@@ -216,6 +220,12 @@ public class CircuitPlugin extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
         this.getServer().getPluginManager().registerEvents(new FreezeListener(), this);
+        
+        // Register PlaceholderAPI expansion if available
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new CircuitExpansion().register();
+            this.getLogger().info("PlaceholderAPI expansion registered!");
+        }
     }
 
     @Override
