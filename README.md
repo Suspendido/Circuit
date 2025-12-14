@@ -1,1 +1,1 @@
-Syllux Rank & Essentials Core
+Rank & Essentials Core

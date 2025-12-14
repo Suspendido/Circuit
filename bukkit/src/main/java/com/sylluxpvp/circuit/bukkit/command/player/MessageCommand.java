@@ -37,26 +37,7 @@ public class MessageCommand extends BaseCommand {
         sendMessage(sender, target, message);
     }
 
-    @CommandAlias("reply|r")
-    public void onReply(Player sender, String message) {
-        UUID lastUuid = lastMessaged.get(sender.getUniqueId());
-
-        if (lastUuid == null) {
-            sender.sendMessage(CC.translate("&cYou have no one to reply to."));
-            return;
-        }
-
-        Player target = Bukkit.getPlayer(lastUuid);
-        if (target == null) {
-            sender.sendMessage(CC.translate("&cThat player is no longer online."));
-            lastMessaged.remove(sender.getUniqueId());
-            return;
-        }
-
-        sendMessage(sender, target, message);
-    }
-
-    private void sendMessage(Player sender, Player target, String message) {
+    public static void sendMessage(Player sender, Player target, String message) {
         Profile senderProfile = ServiceContainer.getService(ProfileService.class).find(sender.getUniqueId());
         Profile targetProfile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
 

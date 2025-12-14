@@ -11,7 +11,14 @@ public class ServerStatusListener extends PacketListener<ServerStatusPacket> {
 
     @Override
     public void listen(ServerStatusPacket packet) {
-        ServerUtils.sendMessage( "&b[Staff] &f" + packet.getServerName() + " is now " + (packet.isOnline() ? "&aonline" : "&coffline") + (packet.isWhitelisted() ? ", &fbut it is &ewhitelisted." : "."), player -> {
+        String status = packet.isOnline() ? "&aonline" : "&coffline";
+        String suffix = packet.isOnline() ? " &7and may be joined." : " &7and may no longer be joined.";
+        if (packet.isWhitelisted()) {
+            suffix = "&7, but it is &ewhitelisted&7.";
+        }
+        
+        // Format: [Server] ServerName is now online/offline and may be joined.
+        ServerUtils.sendMessage("&9[Server] &f" + packet.getServerName() + " &7is now " + status + suffix, player -> {
             Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
             if (profile == null) return false;
             return profile.getCurrentGrant().getData().isStaff() || player.isOp();

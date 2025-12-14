@@ -132,6 +132,11 @@ public class CircuitExpansion extends PlaceholderExpansion {
                                  p.getData().getPunishmentType() == PunishmentType.BLACKLIST));
                 return banned ? "true" : "false";
 
+            case "chat_channel":
+            case "chat-channel":
+            case "channel":
+                return profile.getChannel() != null ? profile.getChannel().name() : "DEFAULT";
+
             default:
                 return null;
         }

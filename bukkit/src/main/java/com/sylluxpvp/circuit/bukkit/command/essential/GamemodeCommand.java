@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import com.sylluxpvp.circuit.bukkit.tools.spigot.StaffBroadcast;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 @CommandAlias("gamemode|gm")
@@ -26,6 +27,9 @@ public class GamemodeCommand extends BaseCommand {
 
         if (target != null && !target.equals(sender)) {
             sender.sendMessage(CC.translate("&6Set gamemode to &f" + mode.name() + " &6for &f" + target.getName() + "&6."));
+            StaffBroadcast.broadcastLocal("&f" + StaffBroadcast.getDisplayName(sender) + " &7set &f" + StaffBroadcast.getDisplayName(target) + "&7's gamemode to &f" + mode.name() + "&7.", "circuit.admin");
+        } else {
+            StaffBroadcast.broadcastLocal("&f" + StaffBroadcast.getDisplayName(sender) + " &7set their gamemode to &f" + mode.name() + "&7.", "circuit.admin");
         }
     }
 

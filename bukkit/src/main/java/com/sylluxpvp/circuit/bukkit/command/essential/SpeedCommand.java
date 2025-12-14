@@ -9,6 +9,12 @@ import com.sylluxpvp.circuit.shared.tools.string.CC;
 @CommandPermission("circuit.command.speed")
 public class SpeedCommand extends BaseCommand {
 
+    private static final int MIN_SPEED = 1;
+    private static final int MAX_SPEED = 10;
+    private static final float DEFAULT_FLY_SPEED = 0.1F;
+    private static final float DEFAULT_WALK_SPEED = 0.2F;
+    private static final float MAX_SPEED_VALUE = 1.0F;
+
     @Default
     @Syntax("<speed> [player]")
     @CommandCompletion("1|2|3|4|5|6|7|8|9|10 @players")
@@ -20,13 +26,13 @@ public class SpeedCommand extends BaseCommand {
             return;
         }
 
-        if (speed < 1) {
-            sender.sendMessage(CC.translate("&cSpeed must be at least 1."));
+        if (speed < MIN_SPEED) {
+            sender.sendMessage(CC.translate("&cSpeed must be at least " + MIN_SPEED + "."));
             return;
         }
 
-        if (speed > 10) {
-            speed = 10;
+        if (speed > MAX_SPEED) {
+            speed = MAX_SPEED;
         }
 
         boolean flying = player.isFlying();
@@ -46,14 +52,13 @@ public class SpeedCommand extends BaseCommand {
     }
 
     private float calculateSpeed(int speed, boolean isFly) {
-        float defaultSpeed = isFly ? 0.1F : 0.2F;
-        float maxSpeed = 1.0F;
+        float defaultSpeed = isFly ? DEFAULT_FLY_SPEED : DEFAULT_WALK_SPEED;
 
-        if (speed < 1) {
+        if (speed < MIN_SPEED) {
             return defaultSpeed * speed;
         }
 
-        float ratio = ((float) speed - 1.0F) / 9.0F * (maxSpeed - defaultSpeed);
+        float ratio = ((float) speed - 1.0F) / (MAX_SPEED - 1.0F) * (MAX_SPEED_VALUE - defaultSpeed);
         return ratio + defaultSpeed;
     }
 }

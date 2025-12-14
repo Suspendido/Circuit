@@ -2,10 +2,12 @@ package com.sylluxpvp.circuit.bukkit.command.player;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
+import com.sylluxpvp.circuit.shared.profile.Profile;
+import com.sylluxpvp.circuit.shared.redis.packets.staff.RequestPacket;
+import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import java.util.UUID;
 public class RequestCommand extends BaseCommand {
 
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
-    private static final long COOLDOWN_MS = 30000; // 30 seconds
+    private static final long COOLDOWN_MS = 60_000L;
 
     @Default
     @Syntax("<message>")
@@ -31,19 +33,17 @@ public class RequestCommand extends BaseCommand {
 
         cooldowns.put(sender.getUniqueId(), System.currentTimeMillis());
 
-        String serverName = CircuitPlugin.getInstance().getShared().getServer().getName();
-        String staffMessage = "&9[Request] &f" + sender.getName() + "&7: &f" + message + " &7(" + serverName + ")";
-
-        // Notify online staff
-        for (Player staff : Bukkit.getOnlinePlayers()) {
-            if (staff.hasPermission("circuit.staff")) {
-                staff.sendMessage(CC.translate(staffMessage));
-            }
+        Profile profile = ServiceContainer.getService(ProfileService.class).find(sender.getUniqueId());
+        String playerColor = "&7";
+        if (profile != null && profile.getCurrentGrant() != null && profile.getCurrentGrant().getData() != null) {
+            playerColor = profile.getCurrentGrant().getData().getColor();
         }
 
-        // Broadcast to other servers via Redis
+        String serverName = CircuitPlugin.getInstance().getShared().getServer().getName();
+
+        // Send via Redis to all servers
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new MessagePacket(serverName, staffMessage, true)
+                new RequestPacket(sender.getUniqueId(), sender.getName(), playerColor, serverName, message)
         );
 
         sender.sendMessage(CC.translate("&aYour request has been sent to staff."));

@@ -42,27 +42,6 @@ public class FreezeCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("unfreeze")
-    @CommandAlias("unfreeze")
-    @Syntax("<player>")
-    @CommandCompletion("@players")
-    public void onUnfreeze(CommandSender sender, String targetName) {
-        Player target = Bukkit.getPlayer(targetName);
-        
-        if (target == null) {
-            sender.sendMessage(CC.translate("&cPlayer not found."));
-            return;
-        }
-
-        if (!isFrozen(target.getUniqueId())) {
-            sender.sendMessage(CC.translate("&cThat player is not frozen."));
-            return;
-        }
-
-        unfreeze(target);
-        sender.sendMessage(CC.translate("&f" + target.getName() + " &6has been unfrozen."));
-    }
-
     public static void freeze(Player player) {
         frozenPlayers.add(player.getUniqueId());
         player.sendMessage("");

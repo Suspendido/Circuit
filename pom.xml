@@ -54,6 +54,14 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <minimizeJar>true</minimizeJar>
+                    <filters>
+                        <filter>
+                            <artifact>co.aikar:acf-paper</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
+                    </filters>
                     <relocations>
                         <relocation>
                             <pattern>co.aikar.commands</pattern>

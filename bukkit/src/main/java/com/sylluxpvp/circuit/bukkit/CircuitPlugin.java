@@ -3,8 +3,19 @@ package com.sylluxpvp.circuit.bukkit;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
+import com.sylluxpvp.circuit.bukkit.api.CircuitAPI;
+import com.sylluxpvp.circuit.bukkit.placeholder.CircuitExpansion;
 import com.sylluxpvp.circuit.bukkit.redis.AdminChatListener;
-import com.sylluxpvp.circuit.bukkit.redis.*;
+import com.sylluxpvp.circuit.bukkit.redis.BroadcastListener;
+import com.sylluxpvp.circuit.bukkit.redis.ManagementBroadcastListener;
+import com.sylluxpvp.circuit.bukkit.redis.MessageListener;
+import com.sylluxpvp.circuit.bukkit.redis.PunishmentUpdateListener;
+import com.sylluxpvp.circuit.bukkit.redis.ServerCommandListener;
+import com.sylluxpvp.circuit.bukkit.redis.ServerStatusListener;
+import com.sylluxpvp.circuit.bukkit.redis.StaffChatListener;
+import com.sylluxpvp.circuit.bukkit.redis.StaffStatusListener;
+import com.sylluxpvp.circuit.bukkit.redis.RequestListener;
+import com.sylluxpvp.circuit.bukkit.redis.ReportListener;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -25,19 +36,21 @@ import com.sylluxpvp.circuit.bukkit.tools.circuit.CircuitBukkitLogger;
 import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.credentials.MongoCredentials;
 import com.sylluxpvp.circuit.shared.credentials.RedisCredentials;
-import com.sylluxpvp.circuit.shared.gift.GiftCode;
 import com.sylluxpvp.circuit.shared.rank.Rank;
 import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.punish.PunishmentUpdatePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.server.ServerCommandPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.server.ServerStatusPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.broadcast.BroadcastPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.broadcast.ManagementBroadcastPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.AdminChatPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.staff.RequestPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.staff.ReportPacket;
 import com.sylluxpvp.circuit.shared.server.Server;
 import com.sylluxpvp.circuit.shared.server.ServerType;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
-import com.sylluxpvp.circuit.shared.service.impl.GiftService;
 import com.sylluxpvp.circuit.shared.service.impl.RankService;
 import com.sylluxpvp.circuit.shared.service.impl.ServerService;
 import com.sylluxpvp.circuit.shared.tools.java.ClassUtils;
@@ -55,6 +68,7 @@ public class CircuitPlugin extends JavaPlugin {
 
     private YamlConfiguration mainConfig, filterConfig;
     private CircuitShared shared;
+    private CircuitAPI api;
 
     private boolean joinable = false;
     @Getter @Setter private boolean chatMuted = false;
@@ -120,6 +134,7 @@ public class CircuitPlugin extends JavaPlugin {
         }
 
         shared = new CircuitShared(new CircuitBukkitLogger(), redisCredentials, mongoCredentials, databaseName);
+        this.api = new CircuitAPI();
         this.setupCommands();
         this.setupServices();
         this.setupTasks();
@@ -168,10 +183,20 @@ public class CircuitPlugin extends JavaPlugin {
             if (!server.isPresent()) throw new InvalidCommandArgument("Server not found!");
             return server.get();
         });
+        manager.getCommandContexts().registerContext(org.bukkit.GameMode.class, c -> {
+            String input = c.popFirstArg().toLowerCase();
+            switch (input) {
+                case "0": case "s": case "survival": return org.bukkit.GameMode.SURVIVAL;
+                case "1": case "c": case "creative": return org.bukkit.GameMode.CREATIVE;
+                case "2": case "a": case "adventure": return org.bukkit.GameMode.ADVENTURE;
+                case "3": case "sp": case "spectator": return org.bukkit.GameMode.SPECTATOR;
+                default: throw new InvalidCommandArgument("Please specify one of the following: CREATIVE, SURVIVAL, ADVENTURE, SPECTATOR.");
+            }
+        });
 
+        manager.getCommandCompletions().registerCompletion("gamemodes", c -> java.util.Arrays.asList("survival", "creative", "adventure", "spectator", "0", "1", "2", "3", "s", "c", "a", "sp"));
         manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
-        manager.getCommandCompletions().registerCompletion("giftcodes", c -> ServiceContainer.getService(GiftService.class).getCache().values().stream().map(GiftCode::getCode).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
                 "perm", "permanent",
                 "1m", "5m", "10m", "30m",
@@ -207,10 +232,20 @@ public class CircuitPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new StaffStatusPacket(), new StaffStatusListener());
         this.shared.getRedis().registerListener(new StaffChatPacket(), new StaffChatListener());
         this.shared.getRedis().registerListener(new AdminChatPacket(), new AdminChatListener());
+        this.shared.getRedis().registerListener(new BroadcastPacket(), new BroadcastListener());
+        this.shared.getRedis().registerListener(new ManagementBroadcastPacket(), new ManagementBroadcastListener());
+        this.shared.getRedis().registerListener(new RequestPacket(), new RequestListener());
+        this.shared.getRedis().registerListener(new ReportPacket(), new ReportListener());
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
         this.getServer().getPluginManager().registerEvents(new FreezeListener(), this);
+        
+        // Register PlaceholderAPI expansion if available
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new CircuitExpansion().register();
+            this.getLogger().info("PlaceholderAPI expansion registered!");
+        }
     }
 
     @Override

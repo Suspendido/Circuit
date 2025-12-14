@@ -12,28 +12,29 @@ import com.sylluxpvp.circuit.shared.server.Server;
 
 public class ServerListener implements Listener {
 
+    private static final long UPDATE_DELAY_TICKS = 10L;
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        TaskUtil.runTaskLater(() -> {
-            Server server = CircuitPlugin.getInstance().getShared().getServer();
-            server.setWhitelisted(Bukkit.hasWhitelist());
-            server.setPlayers(Bukkit.getOnlinePlayers().size());
-            server.setMax(Bukkit.getMaxPlayers());
-            server.setOnline(true);
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(), server.isWhitelisted(), false, server.getPlayers(), server.getMax()));
-        }, 10L);
+        scheduleServerUpdate();
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
+        scheduleServerUpdate();
+    }
+
+    private void scheduleServerUpdate() {
         TaskUtil.runTaskLater(() -> {
             Server server = CircuitPlugin.getInstance().getShared().getServer();
             server.setWhitelisted(Bukkit.hasWhitelist());
             server.setPlayers(Bukkit.getOnlinePlayers().size());
             server.setMax(Bukkit.getMaxPlayers());
             server.setOnline(true);
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(), server.isWhitelisted(), false, server.getPlayers(), server.getMax()));
-        }, 10L);
+            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                    new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(), 
+                            server.isWhitelisted(), false, server.getPlayers(), server.getMax())
+            );
+        }, UPDATE_DELAY_TICKS);
     }
-
 }

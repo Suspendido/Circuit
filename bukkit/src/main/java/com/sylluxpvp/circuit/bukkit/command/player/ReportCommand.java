@@ -5,7 +5,10 @@ import co.aikar.commands.annotation.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
+import com.sylluxpvp.circuit.shared.profile.Profile;
+import com.sylluxpvp.circuit.shared.redis.packets.staff.ReportPacket;
+import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.HashMap;
@@ -16,7 +19,7 @@ import java.util.UUID;
 public class ReportCommand extends BaseCommand {
 
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
-    private static final long COOLDOWN_MS = 60000; // 1 minute
+    private static final long COOLDOWN_MS = 60_000L;
 
     @Default
     @Syntax("<player> <reason>")
@@ -43,19 +46,23 @@ public class ReportCommand extends BaseCommand {
 
         cooldowns.put(sender.getUniqueId(), System.currentTimeMillis());
 
-        String serverName = CircuitPlugin.getInstance().getShared().getServer().getName();
-        String message = "&c[Report] &f" + sender.getName() + " &7reported &f" + target.getName() + " &7for: &f" + reason + " &7(" + serverName + ")";
-
-        // Notify online staff
-        for (Player staff : Bukkit.getOnlinePlayers()) {
-            if (staff.hasPermission("circuit.staff")) {
-                staff.sendMessage(CC.translate(message));
-            }
+        Profile reporterProfile = ServiceContainer.getService(ProfileService.class).find(sender.getUniqueId());
+        String reporterColor = "&7";
+        if (reporterProfile != null && reporterProfile.getCurrentGrant() != null && reporterProfile.getCurrentGrant().getData() != null) {
+            reporterColor = reporterProfile.getCurrentGrant().getData().getColor();
         }
 
-        // Broadcast to other servers via Redis
+        Profile targetProfile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
+        String targetColor = "&7";
+        if (targetProfile != null && targetProfile.getCurrentGrant() != null && targetProfile.getCurrentGrant().getData() != null) {
+            targetColor = targetProfile.getCurrentGrant().getData().getColor();
+        }
+
+        String serverName = CircuitPlugin.getInstance().getShared().getServer().getName();
+
+        // Send via Redis to all servers
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                new MessagePacket(serverName, message, true)
+                new ReportPacket(sender.getUniqueId(), sender.getName(), reporterColor, target.getName(), targetColor, serverName, reason)
         );
 
         sender.sendMessage(CC.translate("&aYour report has been submitted. Thank you!"));

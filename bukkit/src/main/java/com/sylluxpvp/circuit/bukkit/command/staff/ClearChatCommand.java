@@ -12,6 +12,7 @@ import com.sylluxpvp.circuit.shared.tools.string.CC;
 public class ClearChatCommand extends BaseCommand {
 
     private static final String STAFF_PERMISSION = "circuit.staff";
+    private static final int CLEAR_CHAT_LINES = 100;
 
     @Default
     public void onClearChat(CommandSender sender) {
@@ -23,7 +24,7 @@ public class ClearChatCommand extends BaseCommand {
                 continue;
             }
 
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < CLEAR_CHAT_LINES; i++) {
                 player.sendMessage("");
             }
         }
