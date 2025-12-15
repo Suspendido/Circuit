@@ -23,6 +23,10 @@ public class ServerUtils {
         sendMessage(player -> message, function);
     }
 
+    public void sendMessageNoConsole(String message, Function<Player, Boolean> function) {
+        sendMessage(player -> message, function);
+    }
+
     public void sendMessage(Function<Player, String> message, Function<Player, Boolean> booleanFunc) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             if (booleanFunc.apply(player)) player.sendMessage(CC.translate(message.apply(player)));

@@ -13,9 +13,12 @@ public class ServerStatusListener extends PacketListener<ServerStatusPacket> {
     public void listen(ServerStatusPacket packet) {
         String status = packet.isOnline() ? "&aonline" : "&coffline";
         String suffix = packet.isOnline() ? " &7and may be joined." : " &7and may no longer be joined.";
+<<<<<<< HEAD
+=======
         if (packet.isWhitelisted()) {
             suffix = "&7, but it is &ewhitelisted&7.";
         }
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
         
         // Format: [Server] ServerName is now online/offline and may be joined.
         ServerUtils.sendMessage("&9[Server] &f" + packet.getServerName() + " &7is now " + status + suffix, player -> {

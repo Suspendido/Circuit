@@ -19,6 +19,9 @@ import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
+import com.sylluxpvp.circuit.shared.service.impl.QueueService;
+import com.sylluxpvp.circuit.shared.tag.Tag;
+import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueLeavePacket;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 import com.sylluxpvp.circuit.shared.tools.string.StringHelper;
@@ -52,6 +55,11 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
         bukkitProfile.leave();
+        
+        // Remove from queue if in one
+        if (ServiceContainer.getService(QueueService.class).getPlayerQueueName(player.getUniqueId()) != null) {
+            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new QueueLeavePacket(player.getUniqueId()));
+        }
     }
 
     @EventHandler
@@ -59,6 +67,11 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
         bukkitProfile.leave();
+        
+        // Remove from queue if in one
+        if (ServiceContainer.getService(QueueService.class).getPlayerQueueName(player.getUniqueId()) != null) {
+            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new QueueLeavePacket(player.getUniqueId()));
+        }
     }
 
     @EventHandler
@@ -113,7 +126,11 @@ public class PlayerListener implements Listener {
         String chatColor = profile.getColor() != null && !profile.getColor().isEmpty() 
                 ? profile.getColor() 
                 : "&f";
-        event.setFormat(CC.translate(profile.getCurrentGrant().getData().getPrefix() + profile.getCurrentGrant().getData().getColor() + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: " + chatColor + event.getMessage()));
+        Tag activeTag = profile.getActiveTag();
+        String tagDisplay = activeTag != null ? activeTag.getDisplay() + " " : "";
+        String vipIcon = profile.getVipIcon();
+        String vipDisplay = !vipIcon.isEmpty() ? vipIcon + " " : "";
+        event.setFormat(CC.translate(vipDisplay + tagDisplay + profile.getCurrentGrant().getData().getPrefix() + profile.getCurrentGrant().getData().getColor() + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: " + chatColor + event.getMessage()));
         ServiceContainer.getService(BukkitChatService.class).getChatCooldown().put(player, System.currentTimeMillis());
     }
 }

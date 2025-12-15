@@ -15,3 +15,13 @@ redis:
   auth:
     enabled: false
     password: ""
+
+queue-manager:
+  enabled: false
+  queues:
+    - "Squads"
+    - "Kitmap"
+  hub-server: "Hub-01"
+  hub-aliases:
+    - "hub"
+    - "lobby"

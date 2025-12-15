@@ -18,7 +18,17 @@ public class RankCommands extends BaseCommand {
     @Subcommand("help")
     @CatchUnknown @Default
     public void doHelp(CommandSender sender) {
-        this.showCommandHelp();
+        sender.sendMessage(CC.translate("&8&m-----------------------------"));
+        sender.sendMessage(CC.translate("&9/rank create <name>"));
+        sender.sendMessage(CC.translate("&9/rank delete <rank>"));
+        sender.sendMessage(CC.translate("&9/rank color <rank> <color>"));
+        sender.sendMessage(CC.translate("&9/rank prefix <rank> <prefix>"));
+        sender.sendMessage(CC.translate("&9/rank suffix <rank> <suffix>"));
+        sender.sendMessage(CC.translate("&9/rank weight <rank> <weight>"));
+        sender.sendMessage(CC.translate("&9/rank info <rank>"));
+        sender.sendMessage(CC.translate("&9/rank list"));
+        sender.sendMessage(CC.translate("&9/rank editor"));
+        sender.sendMessage(CC.translate("&8&m-----------------------------"));
     }
 
     @Subcommand("create")
@@ -299,5 +309,15 @@ public class RankCommands extends BaseCommand {
         }
 
         new RankEditorMenu(rank).openMenu(player);
+    }
+
+    @Subcommand("reload")
+    @Description("Reloads all ranks from database")
+    @CommandPermission("circuit.rank.reload")
+    public void reload(Player player) {
+        RankService service = ServiceContainer.getService(RankService.class);
+        service.getRanks().clear();
+        service.loadAll();
+        player.sendMessage(CC.translate("&aRanks reloaded from database! Loaded " + service.getRanks().size() + " ranks."));
     }
 }

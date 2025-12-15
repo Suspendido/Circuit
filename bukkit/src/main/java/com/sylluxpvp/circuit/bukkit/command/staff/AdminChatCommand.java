@@ -44,7 +44,7 @@ public class AdminChatCommand extends BaseCommand {
         Profile profile = ServiceContainer.getService(ProfileService.class).find(sender.getUniqueId());
         String rankColor = profile.getCurrentGrant().getData().getColor();
 
-        String formatted = "&4[AC] &7[" + serverName + "] " + rankColor + sender.getName() + "&7: &f" + message;
+        String formatted = "&4[AC] &c[" + serverName + "] " + rankColor + sender.getName() + "&7: &f" + message;
 
         // Notify local admins
         for (Player admin : Bukkit.getOnlinePlayers()) {

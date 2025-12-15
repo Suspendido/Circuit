@@ -8,6 +8,7 @@ import com.sylluxpvp.circuit.shared.punishment.PunishmentType;
 import com.sylluxpvp.circuit.shared.rank.Rank;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
+import com.sylluxpvp.circuit.shared.tag.Tag;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 public class CircuitExpansion extends PlaceholderExpansion {
@@ -137,6 +138,30 @@ public class CircuitExpansion extends PlaceholderExpansion {
             case "channel":
                 return profile.getChannel() != null ? profile.getChannel().name() : "DEFAULT";
 
+<<<<<<< HEAD
+            case "tag":
+                Tag activeTag = profile.getActiveTag();
+                return activeTag != null ? CC.translate(activeTag.getDisplay() + " ") : "";
+
+            case "tag_name":
+                Tag tagName = profile.getActiveTag();
+                return tagName != null ? tagName.getName() : "";
+
+            case "tag_display":
+                Tag tagDisplay = profile.getActiveTag();
+                return tagDisplay != null ? CC.translate(tagDisplay.getDisplay()) : "";
+
+            case "vip":
+            case "vip_icon":
+                String vipIcon = profile.getVipIcon();
+                return !vipIcon.isEmpty() ? CC.translate(vipIcon + " ") : "";
+
+            case "is_vip":
+            case "has_subscription":
+                return profile.hasSubscription() ? "true" : "false";
+
+=======
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
             default:
                 return null;
         }

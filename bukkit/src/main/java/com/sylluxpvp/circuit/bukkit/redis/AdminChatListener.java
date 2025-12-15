@@ -36,6 +36,6 @@ public class AdminChatListener extends PacketListener<AdminChatPacket> {
                         + "&7: &f"
                         + packet.getMessage();
 
-        ServerUtils.sendMessage(message, player -> player.hasPermission(ADMIN_PERMISSION));
+        ServerUtils.sendMessageNoConsole(message, player -> player.hasPermission(ADMIN_PERMISSION));
     }
 }

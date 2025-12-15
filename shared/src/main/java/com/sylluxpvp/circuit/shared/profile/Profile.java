@@ -12,6 +12,8 @@ import com.sylluxpvp.circuit.shared.punishment.PunishmentType;
 import com.sylluxpvp.circuit.shared.rank.Rank;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.GrantService;
+import com.sylluxpvp.circuit.shared.service.impl.TagService;
+import com.sylluxpvp.circuit.shared.tag.Tag;
 import com.sylluxpvp.circuit.shared.tools.java.CryptographyUtils;
 import com.sylluxpvp.circuit.shared.tools.string.StringHelper;
 
@@ -37,6 +39,10 @@ public class Profile {
     // TODO: Implementar sistema de coins completo
     @Setter
     private int coins = 0;
+    @Setter
+    private UUID activeTagId = null;
+    @Setter
+    private boolean vipStatus = false;
 
     public Profile(UUID UUID) {
         this.UUID = Objects.requireNonNull(UUID, "UUID cannot be null");
@@ -50,7 +56,7 @@ public class Profile {
         this.coins = 0;
     }
 
-    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments, int coins) {
+    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments, int coins, UUID activeTagId, boolean vipStatus) {
         this.UUID = UUID;
         this.address = address;
         this.name = name;
@@ -60,6 +66,13 @@ public class Profile {
         this.rankGrants = rankGrants != null ? rankGrants : new ArrayList<>();
         this.punishments = punishments != null ? punishments : new ArrayList<>();
         this.coins = coins;
+        this.activeTagId = activeTagId;
+        this.vipStatus = vipStatus;
+    }
+
+    public Tag getActiveTag() {
+        if (activeTagId == null) return null;
+        return ServiceContainer.getService(TagService.class).getTag(activeTagId);
     }
 
     public Grant<Rank> getCurrentGrant() {
@@ -154,8 +167,16 @@ public class Profile {
         return this.rankGrants.stream().anyMatch(grant -> grant.getData() != null && grant.getData().equals(rank) && grant.isActive());
     }
 
+    public boolean hasSubscription() {
+        return this.vipStatus;
+    }
+
+    public String getVipIcon() {
+        return this.vipStatus ? "&6✪" : "";
+    }
+
     public Document toDocument() {
-        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("coins", this.coins).append("lastUpdated", new Date());
+        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("coins", this.coins).append("activeTagId", this.activeTagId != null ? this.activeTagId.toString() : null).append("vipStatus", this.vipStatus).append("lastUpdated", new Date());
 
         List<Document> ranks = new ArrayList<>();
         this.rankGrants.forEach(grant -> ranks.add(grant.toDocument()));

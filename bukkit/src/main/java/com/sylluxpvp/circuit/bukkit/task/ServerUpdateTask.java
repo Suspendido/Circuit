@@ -10,7 +10,7 @@ import com.sylluxpvp.circuit.shared.server.Server;
 public class ServerUpdateTask extends BukkitRunnable {
 
     public ServerUpdateTask() {
-        TaskUtil.runTaskTimerAsynchronously(this, 0, 20 * 60);
+        TaskUtil.runTaskTimerAsynchronously(this, 20 * 30, 20 * 30); // Heartbeat every 30 seconds
     }
 
     @Override

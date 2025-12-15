@@ -167,7 +167,11 @@ public class ProfileService extends Service {
         List<Grant<Punishment>> punishments = this.extractGrants(doc, "punishments", "punishment", grantService);
         int coins = doc.getInteger("coins", 0);
 
-        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins);
+        String activeTagIdStr = doc.getString("activeTagId");
+        UUID activeTagId = activeTagIdStr != null ? UUID.fromString(activeTagIdStr) : null;
+        boolean vipStatus = doc.getBoolean("vipStatus", false);
+
+        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins, activeTagId, vipStatus);
     }
 
     public Set<Profile> findFromAddress(Profile base) {

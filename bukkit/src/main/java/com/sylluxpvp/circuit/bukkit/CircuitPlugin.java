@@ -10,7 +10,12 @@ import com.sylluxpvp.circuit.bukkit.redis.AdminChatListener;
 import com.sylluxpvp.circuit.bukkit.redis.BroadcastListener;
 import com.sylluxpvp.circuit.bukkit.redis.ManagementBroadcastListener;
 =======
+<<<<<<< HEAD
+import com.sylluxpvp.circuit.bukkit.redis.BroadcastListener;
+import com.sylluxpvp.circuit.bukkit.redis.ManagementBroadcastListener;
+=======
 >>>>>>> 0ad8df0acd0dd3bb1a047959dda167bd8ce3c136
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 import com.sylluxpvp.circuit.bukkit.redis.MessageListener;
 import com.sylluxpvp.circuit.bukkit.redis.PunishmentUpdateListener;
 import com.sylluxpvp.circuit.bukkit.redis.ServerCommandListener;
@@ -20,8 +25,24 @@ import com.sylluxpvp.circuit.bukkit.redis.StaffStatusListener;
 <<<<<<< HEAD
 import com.sylluxpvp.circuit.bukkit.redis.RequestListener;
 import com.sylluxpvp.circuit.bukkit.redis.ReportListener;
+import com.sylluxpvp.circuit.bukkit.redis.QueueJoinListener;
+import com.sylluxpvp.circuit.bukkit.redis.QueueLeaveListener;
+import com.sylluxpvp.circuit.bukkit.redis.QueueSendListener;
+import com.sylluxpvp.circuit.bukkit.redis.QueuePositionListener;
+import com.sylluxpvp.circuit.bukkit.redis.ServerDiscoveryListener;
+import com.sylluxpvp.circuit.shared.redis.listener.RankUpdateListener;
+import com.sylluxpvp.circuit.shared.redis.listener.TagUpdateListener;
+import com.sylluxpvp.circuit.shared.redis.listener.VIPUpdateListener;
+import com.sylluxpvp.circuit.shared.redis.packets.rank.RankUpdatePacket;
+import com.sylluxpvp.circuit.shared.redis.packets.tag.TagUpdatePacket;
+import com.sylluxpvp.circuit.shared.redis.packets.vip.VIPUpdatePacket;
+=======
+<<<<<<< HEAD
+import com.sylluxpvp.circuit.bukkit.redis.RequestListener;
+import com.sylluxpvp.circuit.bukkit.redis.ReportListener;
 =======
 >>>>>>> 0ad8df0acd0dd3bb1a047959dda167bd8ce3c136
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -35,6 +56,8 @@ import com.sylluxpvp.circuit.bukkit.service.BukkitChatService;
 import com.sylluxpvp.circuit.bukkit.service.BukkitGrantService;
 import com.sylluxpvp.circuit.bukkit.service.BukkitProfileService;
 import com.sylluxpvp.circuit.bukkit.task.GrantDurationTask;
+import com.sylluxpvp.circuit.bukkit.task.QueueTask;
+import com.sylluxpvp.circuit.bukkit.tools.spigot.BungeeUtils;
 import com.sylluxpvp.circuit.bukkit.tools.menu.MenuListener;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ConfigUtil;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.TaskUtil;
@@ -54,9 +77,22 @@ import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.RequestPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.ReportPacket;
+<<<<<<< HEAD
+import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueJoinPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueLeavePacket;
+import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueSendPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.queue.QueuePositionPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.server.ServerDiscoveryPacket;
+import com.sylluxpvp.circuit.shared.redis.packets.server.ServerUpdatePacket;
 import com.sylluxpvp.circuit.shared.server.Server;
 import com.sylluxpvp.circuit.shared.server.ServerType;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+import com.sylluxpvp.circuit.shared.service.impl.QueueService;
+=======
+import com.sylluxpvp.circuit.shared.server.Server;
+import com.sylluxpvp.circuit.shared.server.ServerType;
+import com.sylluxpvp.circuit.shared.service.ServiceContainer;
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 import com.sylluxpvp.circuit.shared.service.impl.RankService;
 import com.sylluxpvp.circuit.shared.service.impl.ServerService;
 import com.sylluxpvp.circuit.shared.tools.java.ClassUtils;
@@ -172,6 +208,15 @@ public class CircuitPlugin extends JavaPlugin {
         server.setWhitelisted(Bukkit.hasWhitelist());
         server.setMax(Bukkit.getMaxPlayers());
         this.shared.setServer(server);
+        
+        // Send our own info immediately (without status alert - setServer already sends it)
+        this.shared.getRedis().sendPacket(new ServerUpdatePacket(
+                server.getName(), server.getType().name(), server.isOnline(),
+                server.isWhitelisted(), false, server.getPlayers(), server.getMax()
+        ));
+        
+        // Request other servers to send their info (without status alerts)
+        this.shared.getRedis().sendPacket(new ServerDiscoveryPacket(server.getName()));
     }
 
     private void setupCommands() {
@@ -203,14 +248,26 @@ public class CircuitPlugin extends JavaPlugin {
         manager.getCommandCompletions().registerCompletion("gamemodes", c -> java.util.Arrays.asList("survival", "creative", "adventure", "spectator", "0", "1", "2", "3", "s", "c", "a", "sp"));
         manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
+<<<<<<< HEAD
+        manager.getCommandCompletions().registerCompletion("queues", c -> ServiceContainer.getService(QueueService.class).getQueues().values().stream().map(q -> q.getServerName()).collect(Collectors.toList()));
+=======
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
         manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
                 "perm", "permanent",
                 "1m", "5m", "10m", "30m",
                 "1h", "6h", "12h",
                 "1d", "7d", "30d"
         ));
+        boolean queueManagerEnabled = mainConfig.getBoolean("queue-manager.enabled", false);
+        
         ClassUtils.getClasses(getFile(), this.getClass().getPackage().getName() + ".command").stream().filter(c -> !c.getName().contains("$")).forEach(c -> {
             try {
+                // Skip queue commands if queue-manager is not enabled (except HubCommand)
+                String className = c.getSimpleName();
+                if (!queueManagerEnabled && (className.equals("QueueCommand") || 
+                    className.equals("QueueAdminCommand") || className.equals("LeaveQueueCommand"))) {
+                    return;
+                }
                 manager.registerCommand((BaseCommand) c.newInstance());
             } catch (Exception exception) {
                 this.getLogger().info("Error while loading the command " + c.getSimpleName());
@@ -224,10 +281,31 @@ public class CircuitPlugin extends JavaPlugin {
         ServiceContainer.registerService(new BukkitChatService());
         ServiceContainer.registerService(new BukkitProfileService());
         ServiceContainer.registerService(new BukkitGrantService());
+        ServiceContainer.registerService(new QueueService());
     }
 
     private void setupTasks() {
         new GrantDurationTask();
+        BungeeUtils.registerChannel();
+        
+        if (mainConfig.getBoolean("queue-manager.enabled", false)) {
+            setupQueueManager();
+        }
+    }
+    
+    private void setupQueueManager() {
+        QueueService queueService = ServiceContainer.getService(QueueService.class);
+        java.util.List<String> queueNames = mainConfig.getStringList("queue-manager.queues");
+        
+        shared.getLogger().log("&b&lQueue Manager &7- Initializing...");
+        
+        for (String queueName : queueNames) {
+            queueService.getOrCreateQueue(queueName);
+            shared.getLogger().log("&b&lQueue Manager &7- Loaded queue: &f" + queueName);
+        }
+        
+        new QueueTask();
+        shared.getLogger().log("&b&lQueue Manager &7- Started with &f" + queueNames.size() + " &7queues");
     }
 
     private void setupListeners() {
@@ -242,6 +320,17 @@ public class CircuitPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new ManagementBroadcastPacket(), new ManagementBroadcastListener());
         this.shared.getRedis().registerListener(new RequestPacket(), new RequestListener());
         this.shared.getRedis().registerListener(new ReportPacket(), new ReportListener());
+<<<<<<< HEAD
+        this.shared.getRedis().registerListener(new QueueJoinPacket(), new QueueJoinListener());
+        this.shared.getRedis().registerListener(new QueueLeavePacket(), new QueueLeaveListener());
+        this.shared.getRedis().registerListener(new QueueSendPacket(), new QueueSendListener());
+        this.shared.getRedis().registerListener(new QueuePositionPacket(), new QueuePositionListener());
+        this.shared.getRedis().registerListener(new ServerDiscoveryPacket(), new ServerDiscoveryListener());
+        this.shared.getRedis().registerListener(new RankUpdatePacket(), new RankUpdateListener());
+        this.shared.getRedis().registerListener(new TagUpdatePacket(), new TagUpdateListener());
+        this.shared.getRedis().registerListener(new VIPUpdatePacket(), new VIPUpdateListener());
+=======
+>>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);

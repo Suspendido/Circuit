@@ -34,7 +34,7 @@ public class StaffChatListener extends PacketListener<StaffChatPacket> {
                         + "&7: &f"
                         + packet.getMessage();
 
-        ServerUtils.sendMessage(message, player -> {
+        ServerUtils.sendMessageNoConsole(message, player -> {
             Profile profile = ServiceContainer
                     .getService(ProfileService.class)
                     .find(player.getUniqueId());

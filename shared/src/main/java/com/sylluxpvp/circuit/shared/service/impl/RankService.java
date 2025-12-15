@@ -10,6 +10,7 @@ import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.rank.Rank;
 import com.sylluxpvp.circuit.shared.service.Service;
 import com.sylluxpvp.circuit.shared.tools.async.AsyncExecutor;
+import com.sylluxpvp.circuit.shared.redis.packets.rank.RankUpdatePacket;
 
 import com.sylluxpvp.circuit.shared.grant.Grant;
 import com.sylluxpvp.circuit.shared.profile.Profile;
@@ -102,7 +103,10 @@ public class RankService extends Service {
     }
 
     public void save(Rank rank) {
-        AsyncExecutor.runAsync(() -> saveSync(rank));
+        AsyncExecutor.runAsync(() -> {
+            saveSync(rank);
+            CircuitShared.getInstance().getRedis().sendPacket(new RankUpdatePacket(rank.getUuid(), false));
+        });
     }
 
     public void saveSync(Rank rank) {
@@ -133,6 +137,7 @@ public class RankService extends Service {
 
         AsyncExecutor.runAsync(() -> {
             ranksCollection.deleteOne(Filters.eq("uuid", rank.getUuid().toString()));
+            CircuitShared.getInstance().getRedis().sendPacket(new RankUpdatePacket(rank.getUuid(), true));
         });
     }
 

@@ -41,7 +41,7 @@ public class ServerService extends Service {
     public Optional<Server> find(String name) {
         Validate.notNull(name, "Name cannot be null");
         return servers.stream()
-                .filter(server -> server.getName().equals(name))
+                .filter(server -> server.getName().equalsIgnoreCase(name))
                 .findFirst();
     }
 
@@ -49,7 +49,7 @@ public class ServerService extends Service {
         Validate.notNull(name, "Name cannot be null");
         Validate.notNull(type, "Type cannot be null");
         return servers.stream()
-                .filter(server -> server.getName().equals(name) && server.getType().equals(type))
+                .filter(server -> server.getName().equalsIgnoreCase(name) && server.getType().equals(type))
                 .findFirst();
     }
 
@@ -103,19 +103,17 @@ public class ServerService extends Service {
         server.setPlayers(players);
         server.setMax(max);
         server.setWhitelisted(whitelisted);
-        if (sendStatus) sendServerStatusPacket(server);
-        logServerUpdate(server);
+        
+        // Only send status if this is OUR server coming online (not a remote update)
+        if (sendStatus && CircuitShared.getInstance().getServer() != null 
+                && CircuitShared.getInstance().getServer().getName().equalsIgnoreCase(server.getName())) {
+            sendServerStatusPacket(server);
+        }
     }
 
     private void sendServerStatusPacket(Server server) {
         ServerStatusPacket packet = new ServerStatusPacket(server.getName(), server.isOnline(), server.isWhitelisted());
         CircuitShared.getInstance().getRedis().sendPacket(packet);
-    }
-
-    private void logServerUpdate(Server server) {
-        CircuitShared.getInstance().getLogger()
-                .log(String.format("Updated server %s (Online: %s, Whitelisted: %s, Players: %d/%d)",
-                        server.getName(), server.isOnline(), server.isWhitelisted(), server.getPlayers(), server.getMax()));
     }
 
     public boolean removeServer(String name) {
