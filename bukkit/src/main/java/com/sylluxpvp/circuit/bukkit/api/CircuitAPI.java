@@ -1,6 +1,5 @@
 package com.sylluxpvp.circuit.bukkit.api;
 
-import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
 import com.sylluxpvp.circuit.shared.grant.Grant;
 import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.rank.Rank;

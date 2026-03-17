@@ -1,5 +1,6 @@
 package com.sylluxpvp.circuit.bukkit.menus;
 
+import com.sylluxpvp.circuit.bukkit.tools.xenon.GrantUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +13,6 @@ import com.sylluxpvp.circuit.bukkit.tools.menu.Button;
 import com.sylluxpvp.circuit.bukkit.tools.menu.Menu;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ColorMapping;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ItemBuilder;
-import com.sylluxpvp.circuit.bukkit.tools.circuit.GrantUtils;
 import com.sylluxpvp.circuit.shared.grant.Grant;
 import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.rank.Rank;
@@ -23,7 +23,6 @@ import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GrantsMenu extends Menu {
 
@@ -58,7 +57,7 @@ public class GrantsMenu extends Menu {
 
         int slot = 10;
         Comparator<Grant<Rank>> comparator = Comparator.<Grant<Rank>>comparingInt(grant -> grant.getData().getWeight()).reversed();
-        for (Grant<Rank> grant : profile.getRankGrants().stream().sorted(comparator).collect(Collectors.toList())) {
+        for (Grant<Rank> grant : profile.getRankGrants().stream().sorted(comparator).toList()) {
             while (isBorderSlot(slot) && slot < MENU_SIZE - 9) slot++;
             if (slot >= MENU_SIZE - 9) break;
             buttons.put(slot++, new GrantButton(profile, grant));
@@ -71,13 +70,13 @@ public class GrantsMenu extends Menu {
     }
 
     @RequiredArgsConstructor
-    private class PlayerInfoButton extends Button {
+    private static class PlayerInfoButton extends Button {
 
         private final Profile profile;
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(profile.getName());
             builder.name(profile.getCurrentGrant().getData().getColor() + profile.getName());
 
@@ -119,7 +118,7 @@ public class GrantsMenu extends Menu {
         }
     }
 
-    private class CloseButton extends Button {
+    private static class CloseButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
@@ -148,9 +147,9 @@ public class GrantsMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
+            Material dyeMaterial = ColorMapping.getDyeMaterial(grant.getData().getColor());
+            ItemBuilder builder = new ItemBuilder(dyeMaterial);
             builder.amount(1);
-            builder.durability(ColorMapping.getItemDurability(grant.getData().getColor()));
             builder.name(grant.getData().getColor() + grant.getData().getName() + " &7- " + TimeUtils.formatDate(grant.getTimeCreated()) + (grant.isActive() ? " &a(Active)" : " &c(Inactive)"));
             List<String> lore = new ArrayList<>();
             lore.add("");

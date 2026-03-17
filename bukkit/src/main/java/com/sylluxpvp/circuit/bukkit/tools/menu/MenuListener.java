@@ -49,7 +49,7 @@ public class MenuListener implements Listener {
 					if (newMenu == openMenu) {
 						boolean buttonUpdate = button.shouldUpdate(player, event.getClick());
 
-						if ((newMenu.isUpdateAfterClick() && buttonUpdate) || buttonUpdate) {
+						if (buttonUpdate) {
 							openMenu.setClosedByMenu(true);
 							newMenu.openMenu(player);
 						}

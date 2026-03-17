@@ -20,7 +20,7 @@ import com.sylluxpvp.circuit.shared.tools.string.StringHelper;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Getter
+@Getter @Setter
 public class Profile {
 
     private final UUID UUID;
@@ -28,20 +28,13 @@ public class Profile {
     private final List<String> permissions;
     private final List<Grant<Rank>> rankGrants;
     private final List<Grant<Punishment>> punishments;
-    @Setter
     private String address;
-    @Setter
     private String name;
-    @Setter
     private String color;
-    @Setter
     private ChatChannel channel = ChatChannel.DEFAULT;
     // TODO: Implementar sistema de coins completo
-    @Setter
-    private int coins = 0;
-    @Setter
+    private int coins;
     private UUID activeTagId = null;
-    @Setter
     private boolean vipStatus = false;
 
     public Profile(UUID UUID) {
@@ -105,7 +98,7 @@ public class Profile {
         if (grant.getData() instanceof Rank) {
             Validate.isTrue(this.rankGrants.contains(grant), "Rank grant doesn't exist");
             this.rankGrants.remove(grant);
-        } else if (grant.getData() instanceof Punishment) {
+        } else {
             Validate.isTrue(this.punishments.contains(grant), "Punishment doesn't exist");
             this.punishments.remove(grant);
         }
@@ -148,38 +141,47 @@ public class Profile {
 
         if (grant.getData() instanceof Rank) {
             return this.rankGrants.contains(grant);
-        } else if (grant.getData() instanceof Punishment) {
+        } else {
             return this.punishments.contains(grant);
         }
-        return false;
     }
 
     public List<Grant<?>> getAllGrants() {
         List<Grant<?>> grants = new ArrayList<>();
-        grants.addAll(this.rankGrants);
-        grants.addAll(this.punishments);
+        grants.addAll(rankGrants);
+        grants.addAll(punishments);
         return grants;
     }
 
     public boolean hasRank(Rank rank) {
         Validate.notNull(rank, "Rank cannot be null");
 
-        return this.rankGrants.stream().anyMatch(grant -> grant.getData() != null && grant.getData().equals(rank) && grant.isActive());
+        return rankGrants.stream().anyMatch(grant -> grant.getData() != null && grant.getData().equals(rank) && grant.isActive());
     }
 
     public boolean hasSubscription() {
-        return this.vipStatus;
+        return vipStatus;
     }
 
     public String getVipIcon() {
-        return this.vipStatus ? "&6✪" : "";
+        return vipStatus ? "&6✪" : "";
     }
 
     public Document toDocument() {
-        Document doc = new Document().append("address", CryptographyUtils.encrypt(this.address, this.token)).append("uuid", this.UUID.toString()).append("name", this.name).append("color", this.color).append("token", this.token).append("permissions", this.permissions).append("coins", this.coins).append("activeTagId", this.activeTagId != null ? this.activeTagId.toString() : null).append("vipStatus", this.vipStatus).append("lastUpdated", new Date());
+        Document doc = new Document()
+                .append("address", CryptographyUtils.encrypt(address, token))
+                .append("uuid", UUID.toString())
+                .append("name", name)
+                .append("color", color)
+                .append("token", token)
+                .append("permissions", permissions)
+                .append("coins", coins)
+                .append("activeTagId", activeTagId != null ? activeTagId.toString() : null)
+                .append("vipStatus", vipStatus)
+                .append("lastUpdated", new Date());
 
         List<Document> ranks = new ArrayList<>();
-        this.rankGrants.forEach(grant -> ranks.add(grant.toDocument()));
+        rankGrants.forEach(grant -> ranks.add(grant.toDocument()));
         doc.append("rankGrants", ranks);
 
         List<Document> punishments = new ArrayList<>();

@@ -26,7 +26,11 @@ import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 import com.sylluxpvp.circuit.shared.tools.string.StringHelper;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class PlayerListener implements Listener {
 
@@ -123,14 +127,22 @@ public class PlayerListener implements Listener {
             return;
         }
 
-        String chatColor = profile.getColor() != null && !profile.getColor().isEmpty() 
-                ? profile.getColor() 
-                : "&f";
+        String chatColor = profile.getColor() != null && !profile.getColor().isEmpty() ? profile.getColor() : "&f";
         Tag activeTag = profile.getActiveTag();
         String tagDisplay = activeTag != null ? activeTag.getDisplay() + " " : "";
         String vipIcon = profile.getVipIcon();
         String vipDisplay = !vipIcon.isEmpty() ? vipIcon + " " : "";
         event.setFormat(CC.translate(vipDisplay + tagDisplay + profile.getCurrentGrant().getData().getPrefix() + profile.getCurrentGrant().getData().getColor() + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: " + chatColor + event.getMessage()));
         ServiceContainer.getService(BukkitChatService.class).getChatCooldown().put(player, System.currentTimeMillis());
+    }
+
+    public static boolean hasVotedOnNameMC(UUID uuid) {
+        try (Scanner scanner = new Scanner(new URL("https://api.namemc.com/server/mineworld.cc/likes?profile=" + uuid.toString()).openStream()).useDelimiter("\\A")) {
+            return Boolean.parseBoolean(scanner.next());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

@@ -2,7 +2,6 @@ package com.sylluxpvp.circuit.bukkit.command.player;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
@@ -18,7 +17,7 @@ public class PingCommand extends BaseCommand {
     @CommandCompletion("@players")
     public void onPing(Player sender, @Optional Player target) {
         Player player = target != null ? target : sender;
-        int ping = ((CraftPlayer) player).getHandle().ping;
+        int ping = player.getPing();
 
         String color;
         if (ping < PING_EXCELLENT) color = "&a";

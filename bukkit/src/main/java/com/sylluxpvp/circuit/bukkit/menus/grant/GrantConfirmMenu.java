@@ -2,7 +2,6 @@ package com.sylluxpvp.circuit.bukkit.menus.grant;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -66,7 +65,7 @@ public class GrantConfirmMenu extends Menu {
             String targetName = targetProfile != null ? targetProfile.getName() : Bukkit.getOfflinePlayer(target).getName();
             Rank rank = procedure.getData();
 
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(targetName);
             builder.name("&9&lGrant Summary");
 
@@ -87,8 +86,7 @@ public class GrantConfirmMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(DyeColor.LIME.getWoolData());
+            ItemBuilder builder = new ItemBuilder(Material.LIME_WOOL);
             builder.name("&a&lConfirm Grant");
 
             Rank rank = procedure.getData();
@@ -115,12 +113,11 @@ public class GrantConfirmMenu extends Menu {
     }
 
     @SuppressWarnings("deprecation")
-    private class CancelButton extends Button {
+    private static class CancelButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(DyeColor.RED.getWoolData());
+            ItemBuilder builder = new ItemBuilder(Material.RED_WOOL);
             builder.name("&c&lCancel");
 
             List<String> lore = new ArrayList<>();

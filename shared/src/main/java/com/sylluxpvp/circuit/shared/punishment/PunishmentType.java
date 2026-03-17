@@ -1,11 +1,13 @@
 package com.sylluxpvp.circuit.shared.punishment;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
 
+@Getter
 public enum PunishmentType {
     KICK(1, "kicked", "&cYou were kicked from the server!\n&cReason: {0}\n\n&cContact staff if you think this is a mistake."),
     MUTE(2, "muted", "&cYou are muted from the server!\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake."),
@@ -28,22 +30,6 @@ public enum PunishmentType {
         this.action = action;
         this.message = message;
         this.relationMessage = relationMessage;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public String getRelationMessage() {
-        return relationMessage;
     }
 
     public String format(String... toFormat) {

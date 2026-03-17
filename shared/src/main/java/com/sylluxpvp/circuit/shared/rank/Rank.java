@@ -10,20 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor @Getter
+@RequiredArgsConstructor @Getter @Setter
 public class Rank implements Serializable {
     private final UUID uuid;
     private final String name;
-    @Getter @Setter private String prefix;
-    @Getter @Setter private String suffix;
-    @Getter @Setter private String color;
-    @Setter private List<String> permissions = new ArrayList<>();
-    @Setter private List<String> inheritances = new ArrayList<>();
-    @Getter @Setter private int weight = 0;
-    @Getter @Setter private boolean hidden = false;
-    @Getter @Setter private boolean defaultRank = false;
-    @Getter @Setter private boolean staff = false;
-    @Getter @Setter private boolean purchasable = false;
+    private String prefix;
+    private String suffix;
+    private String color;
+    private List<String> permissions = new ArrayList<>();
+    private List<String> inheritances = new ArrayList<>();
+    private int weight = 0;
+    private boolean hidden = false;
+    private boolean defaultRank = false;
+    private boolean staff = false;
+    private boolean purchasable = false;
+    private String discordRoleId = null;
 
     public List<String> getPermissions() {
         if (permissions == null) {

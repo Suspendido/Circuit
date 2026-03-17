@@ -58,7 +58,7 @@ public class PrefixMenu extends PaginatedMenu {
     }
 
     @RequiredArgsConstructor
-    private class TagButton extends Button {
+    private static class TagButton extends Button {
 
         private final Tag tag;
         private final Profile profile;
@@ -69,7 +69,7 @@ public class PrefixMenu extends PaginatedMenu {
             
             ItemBuilder builder = new ItemBuilder(Material.NAME_TAG);
             if (isSelected) {
-                builder.enchant(Enchantment.DURABILITY);
+                builder.enchant(Enchantment.UNBREAKING);
             }
             builder.name((isSelected ? "&a" : "&9") + tag.getName());
 
@@ -98,13 +98,13 @@ public class PrefixMenu extends PaginatedMenu {
     }
 
     @RequiredArgsConstructor
-    private class RemoveTagButton extends Button {
+    private static class RemoveTagButton extends Button {
 
         private final Profile profile;
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK).dyeColor(org.bukkit.DyeColor.WHITE);
+            ItemBuilder builder = new ItemBuilder(Material.INK_SAC).dyeColor(org.bukkit.DyeColor.WHITE);
             builder.name("&c&lRemove Prefix");
 
             List<String> lore = new ArrayList<>();

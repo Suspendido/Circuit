@@ -4,51 +4,22 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.sylluxpvp.circuit.bukkit.api.CircuitAPI;
+import com.sylluxpvp.circuit.bukkit.hook.HookManager;
 import com.sylluxpvp.circuit.bukkit.placeholder.CircuitExpansion;
-import com.sylluxpvp.circuit.bukkit.redis.AdminChatListener;
-<<<<<<< HEAD
-import com.sylluxpvp.circuit.bukkit.redis.BroadcastListener;
-import com.sylluxpvp.circuit.bukkit.redis.ManagementBroadcastListener;
-=======
-<<<<<<< HEAD
-import com.sylluxpvp.circuit.bukkit.redis.BroadcastListener;
-import com.sylluxpvp.circuit.bukkit.redis.ManagementBroadcastListener;
-=======
->>>>>>> 0ad8df0acd0dd3bb1a047959dda167bd8ce3c136
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
-import com.sylluxpvp.circuit.bukkit.redis.MessageListener;
-import com.sylluxpvp.circuit.bukkit.redis.PunishmentUpdateListener;
-import com.sylluxpvp.circuit.bukkit.redis.ServerCommandListener;
-import com.sylluxpvp.circuit.bukkit.redis.ServerStatusListener;
-import com.sylluxpvp.circuit.bukkit.redis.StaffChatListener;
-import com.sylluxpvp.circuit.bukkit.redis.StaffStatusListener;
-<<<<<<< HEAD
-import com.sylluxpvp.circuit.bukkit.redis.RequestListener;
-import com.sylluxpvp.circuit.bukkit.redis.ReportListener;
-import com.sylluxpvp.circuit.bukkit.redis.QueueJoinListener;
-import com.sylluxpvp.circuit.bukkit.redis.QueueLeaveListener;
-import com.sylluxpvp.circuit.bukkit.redis.QueueSendListener;
-import com.sylluxpvp.circuit.bukkit.redis.QueuePositionListener;
-import com.sylluxpvp.circuit.bukkit.redis.ServerDiscoveryListener;
+import com.sylluxpvp.circuit.bukkit.redis.*;
+import com.sylluxpvp.circuit.bukkit.tools.xenon.CircuitBukkitLogger;
+import com.sylluxpvp.circuit.shared.queue.Queue;
 import com.sylluxpvp.circuit.shared.redis.listener.RankUpdateListener;
 import com.sylluxpvp.circuit.shared.redis.listener.TagUpdateListener;
 import com.sylluxpvp.circuit.shared.redis.listener.VIPUpdateListener;
 import com.sylluxpvp.circuit.shared.redis.packets.rank.RankUpdatePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.tag.TagUpdatePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.vip.VIPUpdatePacket;
-=======
-<<<<<<< HEAD
-import com.sylluxpvp.circuit.bukkit.redis.RequestListener;
-import com.sylluxpvp.circuit.bukkit.redis.ReportListener;
-=======
->>>>>>> 0ad8df0acd0dd3bb1a047959dda167bd8ce3c136
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.spigotmc.SpigotConfig;
 import com.sylluxpvp.circuit.bukkit.listener.FreezeListener;
 import com.sylluxpvp.circuit.bukkit.listener.PlayerListener;
 import com.sylluxpvp.circuit.bukkit.listener.ServerListener;
@@ -60,8 +31,6 @@ import com.sylluxpvp.circuit.bukkit.task.QueueTask;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.BungeeUtils;
 import com.sylluxpvp.circuit.bukkit.tools.menu.MenuListener;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ConfigUtil;
-import com.sylluxpvp.circuit.bukkit.tools.spigot.TaskUtil;
-import com.sylluxpvp.circuit.bukkit.tools.circuit.CircuitBukkitLogger;
 import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.credentials.MongoCredentials;
 import com.sylluxpvp.circuit.shared.credentials.RedisCredentials;
@@ -77,7 +46,6 @@ import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.RequestPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.staff.ReportPacket;
-<<<<<<< HEAD
 import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueJoinPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueLeavePacket;
 import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueSendPacket;
@@ -88,15 +56,9 @@ import com.sylluxpvp.circuit.shared.server.Server;
 import com.sylluxpvp.circuit.shared.server.ServerType;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.QueueService;
-=======
-import com.sylluxpvp.circuit.shared.server.Server;
-import com.sylluxpvp.circuit.shared.server.ServerType;
-import com.sylluxpvp.circuit.shared.service.ServiceContainer;
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 import com.sylluxpvp.circuit.shared.service.impl.RankService;
 import com.sylluxpvp.circuit.shared.service.impl.ServerService;
 import com.sylluxpvp.circuit.shared.tools.java.ClassUtils;
-import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.io.File;
 import java.util.Optional;
@@ -111,6 +73,7 @@ public class CircuitPlugin extends JavaPlugin {
     private YamlConfiguration mainConfig, filterConfig;
     private CircuitShared shared;
     private CircuitAPI api;
+    private HookManager hookManager;
 
     private boolean joinable = false;
     @Getter @Setter private boolean chatMuted = false;
@@ -119,27 +82,28 @@ public class CircuitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        if (Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee || !Bukkit.getServer().getOnlineMode() && !SpigotConfig.bungee) {
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c&lSERVER CONFIGURATION ISSUE!"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&cSomething is wrong with your Bukkit config."));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&cYou probably did one of the following:"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c1. Enabled bungee on spigot.yml, and left"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode enabled on server.properties"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c2. Disabled bungee on spigot.yml, and left"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode disabled on server.properties"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&cEither way, Circuit &c&lDOES NOT &csupport"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&cthis type of server configuration. Please fix"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&cyour configurations immediately!"));
-            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
-            TaskUtil.runTaskLater(() -> {
-                System.exit(0);
-            }, 1L);
-            return;
-        }
+//        if (Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee || !Bukkit.getServer().getOnlineMode() && !SpigotConfig.bungee) {
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c&lSERVER CONFIGURATION ISSUE!"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cSomething is wrong with your Bukkit config."));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cYou probably did one of the following:"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c1. Enabled bungee on spigot.yml, and left"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode enabled on server.properties"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c2. Disabled bungee on spigot.yml, and left"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode disabled on server.properties"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cEither way, Circuit &c&lDOES NOT &csupport"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cthis type of server configuration. Please fix"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cyour configurations immediately!"));
+//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
+//            TaskUtil.runTaskLater(() -> {
+//                System.exit(0);
+//            }, 1L);
+//            return;
+//        }
+        this.hookManager = new HookManager();
         mainConfig = ConfigUtil.createConfig("config");
         filterConfig = ConfigUtil.createConfig(new File(this.getDataFolder(), "modules"), "filter");
         String redisAddress = mainConfig.getString("redis.address");
@@ -248,10 +212,7 @@ public class CircuitPlugin extends JavaPlugin {
         manager.getCommandCompletions().registerCompletion("gamemodes", c -> java.util.Arrays.asList("survival", "creative", "adventure", "spectator", "0", "1", "2", "3", "s", "c", "a", "sp"));
         manager.getCommandCompletions().registerCompletion("ranks", c -> ServiceContainer.getService(RankService.class).getRanks().stream().map(Rank::getName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("servers", c -> ServiceContainer.getService(ServerService.class).getServers().stream().map(Server::getName).collect(Collectors.toList()));
-<<<<<<< HEAD
-        manager.getCommandCompletions().registerCompletion("queues", c -> ServiceContainer.getService(QueueService.class).getQueues().values().stream().map(q -> q.getServerName()).collect(Collectors.toList()));
-=======
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
+        manager.getCommandCompletions().registerCompletion("queues", c -> ServiceContainer.getService(QueueService.class).getQueues().values().stream().map(Queue::getServerName).collect(Collectors.toList()));
         manager.getCommandCompletions().registerCompletion("times", c -> java.util.Arrays.asList(
                 "perm", "permanent",
                 "1m", "5m", "10m", "30m",
@@ -320,7 +281,6 @@ public class CircuitPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new ManagementBroadcastPacket(), new ManagementBroadcastListener());
         this.shared.getRedis().registerListener(new RequestPacket(), new RequestListener());
         this.shared.getRedis().registerListener(new ReportPacket(), new ReportListener());
-<<<<<<< HEAD
         this.shared.getRedis().registerListener(new QueueJoinPacket(), new QueueJoinListener());
         this.shared.getRedis().registerListener(new QueueLeavePacket(), new QueueLeaveListener());
         this.shared.getRedis().registerListener(new QueueSendPacket(), new QueueSendListener());
@@ -329,8 +289,6 @@ public class CircuitPlugin extends JavaPlugin {
         this.shared.getRedis().registerListener(new RankUpdatePacket(), new RankUpdateListener());
         this.shared.getRedis().registerListener(new TagUpdatePacket(), new TagUpdateListener());
         this.shared.getRedis().registerListener(new VIPUpdatePacket(), new VIPUpdateListener());
-=======
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
         this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
         this.getServer().getPluginManager().registerEvents(new MenuListener(), this);

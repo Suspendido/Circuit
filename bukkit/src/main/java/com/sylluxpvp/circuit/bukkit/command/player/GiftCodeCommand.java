@@ -80,7 +80,7 @@ public class GiftCodeCommand extends BaseCommand {
             return;
         }
         if (gift.getReward().getWeight() < profile.getCurrentGrant().getData().getWeight()) {
-            sender.sendMessage(CC.RED + "Your rank's weight is higher than " + gift.getReward().getColor() + gift.getReward().getName() + "'s " + CC.RED + "weight.");
+            sender.sendMessage(CC.translate("&cYour rank's weight is higher than " + gift.getReward().getColor() + gift.getReward().getName() + "'s &cweight."));
             return;
         }
         boolean success = ServiceContainer.getService(GiftService.class).redeemCode(sender.getUniqueId(), code);

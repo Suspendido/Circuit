@@ -5,6 +5,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.apache.commons.lang3.Validate;
 import org.bson.Document;
 import com.sylluxpvp.circuit.shared.CircuitShared;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter
+@Getter @Setter
 public class ProfileService extends Service {
 
     private Set<Profile> onlineProfiles;
@@ -210,5 +211,106 @@ public class ProfileService extends Service {
             }
         }
         return grants;
+    }
+
+    public Profile getProfileByName(String name) {
+        Validate.notNull(name, "Name cannot be null");
+        Validate.isTrue(!name.isEmpty(), "Name cannot be empty");
+
+        Profile onlineProfile = onlineProfiles.stream()
+                .filter(profile -> profile.getName() != null && profile.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+
+        if (onlineProfile != null) {
+            return onlineProfile;
+        }
+
+        Profile cachedProfile = ProfileCache.getByName(name);
+        if (cachedProfile != null) {
+            return cachedProfile;
+        }
+
+        try {
+            Document doc = profilesCollection.find(
+                    Filters.regex("name", "^" + name + "$", "i") // Case-insensitive regex
+            ).first();
+
+            if (doc == null) {
+                return null;
+            }
+
+            Profile profile = fromDocument(doc);
+            ProfileCache.put(profile);
+
+            return profile;
+
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().log("Error fetching profile by name: " + name);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public CompletableFuture<Profile> getProfileByNameAsync(String name) {
+        Validate.notNull(name, "Name cannot be null");
+        Validate.isTrue(!name.isEmpty(), "Name cannot be empty");
+
+        Profile onlineProfile = onlineProfiles.stream()
+                .filter(profile -> profile.getName() != null && profile.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+
+        if (onlineProfile != null) {
+            return CompletableFuture.completedFuture(onlineProfile);
+        }
+
+        Profile cachedProfile = ProfileCache.getByName(name);
+        if (cachedProfile != null) {
+            return CompletableFuture.completedFuture(cachedProfile);
+        }
+
+        return AsyncExecutor.supplyAsync(() -> {
+            try {
+                Document doc = profilesCollection.find(
+                        Filters.regex("name", "^" + name + "$", "i")
+                ).first();
+
+                if (doc == null) {
+                    return null;
+                }
+
+                Profile profile = fromDocument(doc);
+                ProfileCache.put(profile);
+                return profile;
+
+            } catch (Exception e) {
+                CircuitShared.getInstance().getLogger().log("Error fetching profile by name: " + name);
+                e.printStackTrace();
+                return null;
+            }
+        });
+    }
+
+    public boolean existsByName(String name) {
+        Validate.notNull(name, "Name cannot be null");
+
+        boolean existsInMemory = onlineProfiles.stream()
+                .anyMatch(profile -> profile.getName() != null && profile.getName().equalsIgnoreCase(name));
+
+        if (existsInMemory) {
+            return true;
+        }
+
+        try {
+            long count = profilesCollection.countDocuments(
+                    Filters.regex("name", "^" + name + "$", "i")
+            );
+            return count > 0;
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().log("Error checking if profile exists: " + name);
+            e.printStackTrace();
+            return false;
+        }
     }
 }

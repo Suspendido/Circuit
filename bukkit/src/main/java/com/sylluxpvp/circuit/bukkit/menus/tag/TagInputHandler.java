@@ -31,24 +31,18 @@ public class TagInputHandler {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            switch (inputType) {
-                case CREATE:
-                    return CC.translate("&aEnter the name for the new tag (or 'cancel' to cancel):");
-                case DISPLAY:
-                    return CC.translate("&aEnter the new display for the tag (or 'cancel' to cancel):");
-                case PERMISSION:
-                    return CC.translate("&aEnter the new permission for the tag (or 'cancel' to cancel):");
-                default:
-                    return CC.translate("&aEnter a value (or 'cancel' to cancel):");
-            }
+            return switch (inputType) {
+                case CREATE -> CC.translate("&aEnter the name for the new tag (or 'cancel' to cancel):");
+                case DISPLAY -> CC.translate("&aEnter the new display for the tag (or 'cancel' to cancel):");
+                case PERMISSION -> CC.translate("&aEnter the new permission for the tag (or 'cancel' to cancel):");
+            };
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
             if (input.equalsIgnoreCase("cancel")) {
                 player.sendMessage(CC.translate("&cCancelled."));
-                CircuitPlugin.getInstance().getServer().getScheduler().runTask(
-                        CircuitPlugin.getInstance(), () -> returnMenu.openMenu(player));
+                CircuitPlugin.getInstance().getServer().getScheduler().runTask(CircuitPlugin.getInstance(), () -> returnMenu.openMenu(player));
                 return Prompt.END_OF_CONVERSATION;
             }
 
@@ -58,31 +52,27 @@ public class TagInputHandler {
                 case CREATE:
                     if (service.getTag(input) != null) {
                         player.sendMessage(CC.translate("&cA tag with that name already exists!"));
-                        CircuitPlugin.getInstance().getServer().getScheduler().runTask(
-                                CircuitPlugin.getInstance(), () -> returnMenu.openMenu(player));
+                        CircuitPlugin.getInstance().getServer().getScheduler().runTask(CircuitPlugin.getInstance(), () -> returnMenu.openMenu(player));
                         return Prompt.END_OF_CONVERSATION;
                     }
                     Tag newTag = service.create(input, player.getUniqueId());
                     service.save(newTag);
                     player.sendMessage(CC.translate("&aTag '" + input + "' created successfully!"));
-                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(
-                            CircuitPlugin.getInstance(), () -> new TagEditorMenu(newTag).openMenu(player));
+                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(CircuitPlugin.getInstance(), () -> new TagEditorMenu(newTag).openMenu(player));
                     break;
 
                 case DISPLAY:
                     tag.setDisplay(input);
                     service.save(tag);
                     player.sendMessage(CC.translate("&aDisplay updated to: " + input));
-                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(
-                            CircuitPlugin.getInstance(), () -> new TagEditorMenu(tag).openMenu(player));
+                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(CircuitPlugin.getInstance(), () -> new TagEditorMenu(tag).openMenu(player));
                     break;
 
                 case PERMISSION:
                     tag.setPermission(input);
                     service.save(tag);
                     player.sendMessage(CC.translate("&aPermission updated to: " + input));
-                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(
-                            CircuitPlugin.getInstance(), () -> new TagEditorMenu(tag).openMenu(player));
+                    CircuitPlugin.getInstance().getServer().getScheduler().runTask(CircuitPlugin.getInstance(), () -> new TagEditorMenu(tag).openMenu(player));
                     break;
             }
 

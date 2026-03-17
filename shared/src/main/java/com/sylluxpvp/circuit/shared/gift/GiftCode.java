@@ -10,8 +10,7 @@ import com.sylluxpvp.circuit.shared.tools.circuit.Serializable;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class GiftCode<T extends Serializable> implements Serializable {

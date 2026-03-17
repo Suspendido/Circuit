@@ -2,7 +2,6 @@ package com.sylluxpvp.circuit.bukkit.menus.rank;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -29,30 +28,24 @@ public class RankColorMenu extends Menu {
     private static final int MENU_SIZE = 45;
     private static final Logger LOGGER = CircuitPlugin.getInstance().getLogger();
 
-    private static final ColorEntry[] AVAILABLE_COLORS = {
-            new ColorEntry(ChatColor.BLACK, DyeColor.BLACK),
-            new ColorEntry(ChatColor.DARK_BLUE, DyeColor.BLUE),
-            new ColorEntry(ChatColor.DARK_GREEN, DyeColor.GREEN),
-            new ColorEntry(ChatColor.DARK_AQUA, DyeColor.CYAN),
-            new ColorEntry(ChatColor.DARK_RED, DyeColor.RED),
-            new ColorEntry(ChatColor.DARK_PURPLE, DyeColor.PURPLE),
-            new ColorEntry(ChatColor.GOLD, DyeColor.ORANGE),
-            new ColorEntry(ChatColor.GRAY, DyeColor.SILVER),
-            new ColorEntry(ChatColor.DARK_GRAY, DyeColor.GRAY),
-            new ColorEntry(ChatColor.BLUE, DyeColor.LIGHT_BLUE),
-            new ColorEntry(ChatColor.GREEN, DyeColor.LIME),
-            new ColorEntry(ChatColor.AQUA, DyeColor.LIGHT_BLUE),
-            new ColorEntry(ChatColor.RED, DyeColor.RED),
-            new ColorEntry(ChatColor.LIGHT_PURPLE, DyeColor.MAGENTA),
-            new ColorEntry(ChatColor.YELLOW, DyeColor.YELLOW),
-            new ColorEntry(ChatColor.WHITE, DyeColor.WHITE)
+    private static final ChatColor[] AVAILABLE_COLORS = {
+            ChatColor.BLACK,
+            ChatColor.DARK_BLUE,
+            ChatColor.DARK_GREEN,
+            ChatColor.DARK_AQUA,
+            ChatColor.DARK_RED,
+            ChatColor.DARK_PURPLE,
+            ChatColor.GOLD,
+            ChatColor.GRAY,
+            ChatColor.DARK_GRAY,
+            ChatColor.BLUE,
+            ChatColor.GREEN,
+            ChatColor.AQUA,
+            ChatColor.RED,
+            ChatColor.LIGHT_PURPLE,
+            ChatColor.YELLOW,
+            ChatColor.WHITE
     };
-
-    @RequiredArgsConstructor
-    private static class ColorEntry {
-        private final ChatColor chatColor;
-        private final DyeColor dyeColor;
-    }
 
     private final Rank rank;
 
@@ -72,9 +65,9 @@ public class RankColorMenu extends Menu {
         fillBorder(buttons);
 
         int slot = 10;
-        for (ColorEntry entry : AVAILABLE_COLORS) {
+        for (ChatColor color : AVAILABLE_COLORS) {
             while (isBorderSlot(slot)) slot++;
-            buttons.put(slot++, new ColorButton(entry));
+            buttons.put(slot++, new ColorButton(color));
         }
 
         addBackButton(buttons, new RankEditorMenu(rank));
@@ -85,24 +78,23 @@ public class RankColorMenu extends Menu {
     @RequiredArgsConstructor
     private class ColorButton extends Button {
 
-        private final ColorEntry entry;
+        private final ChatColor chatColor;
 
         @Override
-        @SuppressWarnings("deprecation")
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(entry.dyeColor.getWoolData());
-            builder.name(entry.chatColor + formatColorName(entry.chatColor.name()));
+            Material woolMaterial = ColorMapping.getWoolMaterial(chatColor);
+            ItemBuilder builder = new ItemBuilder(woolMaterial);
+            builder.name(chatColor + formatColorName(chatColor.name()));
 
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add("&7Preview: " + entry.chatColor + rank.getName());
+            lore.add("&7Preview: " + chatColor + rank.getName());
             lore.add("");
 
             String currentColor = rank.getColor();
             if (currentColor != null && currentColor.length() >= 2) {
                 ChatColor currentChatColor = ColorMapping.fromString(currentColor);
-                if (currentChatColor == entry.chatColor) {
+                if (currentChatColor == chatColor) {
                     lore.add("&a(Selected)");
                 } else {
                     lore.add("&aClick to select!");
@@ -118,10 +110,10 @@ public class RankColorMenu extends Menu {
         @Override
         public void clicked(Player player, ClickType clickType) {
             Button.playSuccess(player);
-            rank.setColor("&" + entry.chatColor.getChar());
+            rank.setColor("&" + chatColor.getChar());
             ServiceContainer.getService(RankService.class).save(rank);
-            player.sendMessage(CC.translate("&aColor updated to: " + entry.chatColor + formatColorName(entry.chatColor.name())));
-            LOGGER.info(player.getName() + " changed color of rank " + rank.getName() + " to " + entry.chatColor.name());
+            player.sendMessage(CC.translate("&aColor updated to: " + chatColor + formatColorName(chatColor.name())));
+            LOGGER.info(player.getName() + " changed color of rank " + rank.getName() + " to " + chatColor.name());
             new RankEditorMenu(rank).openMenu(player);
         }
 
@@ -129,7 +121,7 @@ public class RankColorMenu extends Menu {
             String[] parts = name.toLowerCase().split("_");
             StringBuilder result = new StringBuilder();
             for (String part : parts) {
-                if (result.length() > 0) result.append(" ");
+                if (!result.isEmpty()) result.append(" ");
                 result.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
             }
             return result.toString();

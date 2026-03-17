@@ -2,7 +2,6 @@ package com.sylluxpvp.circuit.bukkit.menus;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -75,7 +74,7 @@ public class ChatColorMenu extends Menu {
         return colors;
     }
 
-    private class CurrentColorButton extends Button {
+    private static class CurrentColorButton extends Button {
 
         private final Profile profile;
 
@@ -85,7 +84,7 @@ public class ChatColorMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(player.getName());
 
             String currentColor = profile != null && !profile.getColor().isEmpty()
@@ -114,19 +113,17 @@ public class ChatColorMenu extends Menu {
     }
 
     @RequiredArgsConstructor
-    private class ChatColorButton extends Button {
+    private static class ChatColorButton extends Button {
 
         private final ChatColor color;
 
-        @SuppressWarnings("deprecation")
         @Override
         public ItemStack getButtonItem(Player player) {
             Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
             boolean isSelected = profile != null && ColorMapping.isChatColor(profile.getColor(), color);
 
-            DyeColor dyeColor = ColorMapping.chatColorToDyeColor(color);
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(dyeColor != null ? dyeColor.getWoolData() : 0);
+            Material woolMaterial = ColorMapping.getWoolMaterial(color);
+            ItemBuilder builder = new ItemBuilder(woolMaterial);
 
             String colorName = StringHelper.capitalizeAllWords(color.name().toLowerCase().replace("_", " "));
             builder.name(color + colorName + (isSelected ? " &a✓" : ""));
@@ -165,12 +162,11 @@ public class ChatColorMenu extends Menu {
         }
     }
 
-    private class ResetColorButton extends Button {
+    private static class ResetColorButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(15);
+            ItemBuilder builder = new ItemBuilder(Material.RED_DYE);
             builder.name("&c&lReset Color");
 
             List<String> lore = new ArrayList<>();
@@ -201,7 +197,7 @@ public class ChatColorMenu extends Menu {
         }
     }
 
-    private class CloseButton extends Button {
+    private static class CloseButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

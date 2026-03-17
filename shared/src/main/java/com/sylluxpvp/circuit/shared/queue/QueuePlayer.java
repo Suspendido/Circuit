@@ -7,10 +7,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class QueuePlayer implements Comparable<QueuePlayer> {
 
     private UUID uuid;

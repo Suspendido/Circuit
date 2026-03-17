@@ -55,8 +55,7 @@ public class RankDeleteConfirmMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(DyeColor.LIME.getWoolData());
+            ItemBuilder builder = new ItemBuilder(Material.LIME_WOOL);
             builder.name("&a&lConfirm Delete");
 
             List<String> lore = new ArrayList<>();
@@ -84,12 +83,11 @@ public class RankDeleteConfirmMenu extends Menu {
     }
 
     @SuppressWarnings("deprecation")
-    private class CancelButton extends Button {
+    private static class CancelButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(DyeColor.RED.getWoolData());
+            ItemBuilder builder = new ItemBuilder(Material.RED_WOOL);
             builder.name("&c&lCancel");
 
             List<String> lore = new ArrayList<>();

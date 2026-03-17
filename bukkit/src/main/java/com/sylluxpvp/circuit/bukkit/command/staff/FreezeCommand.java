@@ -2,6 +2,7 @@ package com.sylluxpvp.circuit.bukkit.command.staff;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,15 +15,14 @@ import java.util.UUID;
 @CommandAlias("freeze|ss")
 @CommandPermission("circuit.command.freeze")
 public class FreezeCommand extends BaseCommand {
-
-    private static final Set<UUID> frozenPlayers = new HashSet<>();
+    @Getter private static final Set<UUID> frozenPlayers = new HashSet<>();
 
     @Default
     @Syntax("<player>")
     @CommandCompletion("@players")
     public void onFreeze(CommandSender sender, String targetName) {
         Player target = Bukkit.getPlayer(targetName);
-        
+
         if (target == null) {
             sender.sendMessage(CC.translate("&cPlayer not found."));
             return;
@@ -60,7 +60,4 @@ public class FreezeCommand extends BaseCommand {
         return frozenPlayers.contains(uuid);
     }
 
-    public static Set<UUID> getFrozenPlayers() {
-        return frozenPlayers;
-    }
 }

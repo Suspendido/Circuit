@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ServersMenu extends Menu {
 
@@ -45,7 +44,7 @@ public class ServersMenu extends Menu {
                 .sorted(Comparator.comparing(Server::isOnline).reversed()
                         .thenComparing(s -> s.getType().name())
                         .thenComparing(Server::getName))
-                .collect(Collectors.toList());
+                .toList();
 
         for (Server server : servers) {
             while (isBorderSlot(slot) && slot < MENU_SIZE - 9) slot++;
@@ -58,7 +57,7 @@ public class ServersMenu extends Menu {
         return buttons;
     }
 
-    private class NetworkInfoButton extends Button {
+    private static class NetworkInfoButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
@@ -134,21 +133,16 @@ public class ServersMenu extends Menu {
 
         private Material getByServer() {
             if (!server.isOnline()) return Material.REDSTONE_BLOCK;
-            switch (server.getType()) {
-                case HUB:
-                    return Material.BEACON;
-                case SOUP:
-                    return Material.MUSHROOM_SOUP;
-                case PRACTICE:
-                    return Material.POTION;
-                case DEFAULT:
-                default:
-                    return Material.EMERALD_BLOCK;
-            }
+            return switch (server.getType()) {
+                case HUB -> Material.BEACON;
+                case SOUP -> Material.MUSHROOM_STEW;
+                case PRACTICE -> Material.POTION;
+                default -> Material.EMERALD_BLOCK;
+            };
         }
     }
 
-    private class CloseButton extends Button {
+    private static class CloseButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

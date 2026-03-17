@@ -19,7 +19,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RankListMenu extends PaginatedMenu {
 
@@ -43,7 +42,7 @@ public class RankListMenu extends PaginatedMenu {
         Comparator<Rank> comparator = Comparator.comparingInt(Rank::getWeight).reversed();
         List<Rank> sortedRanks = service.getRanks().stream()
                 .sorted(comparator)
-                .collect(Collectors.toList());
+                .toList();
 
         for (Rank rank : sortedRanks) {
             buttons.put(buttons.size(), new RankListButton(rank));
@@ -60,14 +59,14 @@ public class RankListMenu extends PaginatedMenu {
     }
 
     @RequiredArgsConstructor
-    private class RankListButton extends Button {
+    private static class RankListButton extends Button {
 
         private final Rank rank;
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(ColorMapping.getItemDurability(rank.getColor()));
+            Material dyeMaterial = ColorMapping.getDyeMaterial(rank.getColor());
+            ItemBuilder builder = new ItemBuilder(dyeMaterial);
             builder.name(rank.getColor() + rank.getName());
 
             List<String> lore = new ArrayList<>();
@@ -109,7 +108,7 @@ public class RankListMenu extends PaginatedMenu {
         }
     }
 
-    private class CreateRankButton extends Button {
+    private static class CreateRankButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

@@ -25,7 +25,8 @@ public class RankInputHandler implements Listener {
         SUFFIX,
         WEIGHT,
         PERMISSION,
-        CREATE
+        CREATE,
+        DISCORD_ROLE
     }
 
     private static final String CANCEL_KEYWORD = "cancel";
@@ -60,6 +61,9 @@ public class RankInputHandler implements Listener {
                 break;
             case CREATE:
                 player.sendMessage(CC.translate("&aType the name for the new rank"));
+                break;
+            case DISCORD_ROLE:
+                player.sendMessage(CC.translate("&aType the Discord role ID"));
                 break;
         }
         player.sendMessage(CC.translate("&7Type &c" + CANCEL_KEYWORD + " &7to cancel."));
@@ -150,6 +154,17 @@ public class RankInputHandler implements Listener {
                     new RankEditorMenu(newRank).openMenu(player);
                 });
                 return;
+            case DISCORD_ROLE:
+                String roleId = message.replaceAll("[^0-9]", "");
+                if (roleId.length() < 17) {
+                    this.player.sendMessage(CC.translate("&cInvalid Discord role ID! IDs are usually 18-19 digits."));
+                    return;
+                }
+
+                rank.setDiscordRoleId(roleId);
+                service.save(rank);
+                player.sendMessage(CC.translate("&aDiscord role ID set to: " + roleId));
+                LOGGER.info(player.getName() + " set Discord role ID for rank " + rank.getName() + " to: " + roleId);
         }
 
         cleanup();

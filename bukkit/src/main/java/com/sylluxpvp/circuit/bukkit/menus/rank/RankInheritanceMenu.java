@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class RankInheritanceMenu extends PaginatedMenu {
@@ -49,7 +48,7 @@ public class RankInheritanceMenu extends PaginatedMenu {
                 .filter(r -> !r.getUuid().equals(rank.getUuid()))
                 .filter(r -> r.getWeight() < rank.getWeight())
                 .sorted(Comparator.comparingInt(Rank::getWeight).reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         for (Rank r : availableRanks) {
             buttons.put(buttons.size(), new InheritanceButton(r));
@@ -74,8 +73,7 @@ public class RankInheritanceMenu extends PaginatedMenu {
         public ItemStack getButtonItem(Player player) {
             boolean inherited = rank.getInheritances().contains(targetRank.getName());
 
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(inherited ? 10 : 8);
+            ItemBuilder builder = new ItemBuilder(inherited ? Material.LIME_DYE : Material.GRAY_DYE);
             builder.name(targetRank.getColor() + targetRank.getName());
 
             List<String> lore = new ArrayList<>();

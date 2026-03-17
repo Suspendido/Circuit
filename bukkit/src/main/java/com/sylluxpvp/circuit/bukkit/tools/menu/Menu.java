@@ -15,8 +15,7 @@ import com.sylluxpvp.circuit.shared.tools.string.CC;
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-@Setter
+@Getter @Setter
 public abstract class Menu {
 
 	public static Map<String, Menu> currentlyOpenedMenus = new HashMap<>();
@@ -27,14 +26,14 @@ public abstract class Menu {
 	private boolean updateAfterClick = true;
 	private boolean closedByMenu = false;
 	private boolean placeholder = false;
-	private Button placeholderButton = Button.placeholder(Material.STAINED_GLASS_PANE, (byte) 15, " ");
+	private Button placeholderButton = Button.placeholder(Material.BLACK_STAINED_GLASS_PANE, " ");
 
 	private boolean hasBackButton = false;
 
 	private ItemStack createItemStack(Player player, Button button) {
 		ItemStack item = button.getButtonItem(player);
 
-		if (item.getType() != Material.SKULL_ITEM) {
+		if (item.getType() != Material.PLAYER_HEAD) {
 			ItemMeta meta = item.getItemMeta();
 
 			if (meta != null && meta.hasDisplayName()) {
@@ -60,23 +59,23 @@ public abstract class Menu {
 			title = title.substring(0, 32);
 		}
 
-		if (player.getOpenInventory() != null) {
-			if (previousMenu == null) {
-				player.closeInventory();
-			} else {
-				int previousSize = player.getOpenInventory().getTopInventory().getSize();
+        player.getOpenInventory();
+        if (previousMenu == null) {
+            player.closeInventory();
+        } else {
+            int previousSize = player.getOpenInventory().getTopInventory().getSize();
 
-				if (previousSize == size && player.getOpenInventory().getTopInventory().getTitle().equals(title)) {
-					inventory = player.getOpenInventory().getTopInventory();
-					update = true;
-				} else {
-					previousMenu.setClosedByMenu(true);
-					player.closeInventory();
-				}
-			}
-		}
+            if (previousSize == size && player.getOpenInventory().getTitle().equals(title)) {
+                inventory = player.getOpenInventory().getTopInventory();
+                update = true;
+            } else {
+                previousMenu.setClosedByMenu(true);
+                player.closeInventory();
+            }
 
-		if (inventory == null) {
+        }
+
+        if (inventory == null) {
 			inventory = Bukkit.createInventory(player, size, title);
 		}
 

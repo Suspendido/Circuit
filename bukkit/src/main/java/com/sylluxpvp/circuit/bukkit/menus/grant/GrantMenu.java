@@ -1,5 +1,6 @@
 package com.sylluxpvp.circuit.bukkit.menus.grant;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,16 +22,13 @@ import com.sylluxpvp.circuit.shared.service.impl.RankService;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
+@Setter @Getter
 public class GrantMenu extends PaginatedMenu {
 
-    private static final int MENU_SIZE = 45;
-
-    public enum Stage { RANK, DURATION, REASON }
-
-    @Setter
     private GrantProcedure<Rank> procedure;
+    private static final int MENU_SIZE = 45;
+    public enum Stage { RANK, DURATION, REASON }
     private final UUID target;
     private final Stage stage;
 
@@ -52,16 +50,11 @@ public class GrantMenu extends PaginatedMenu {
 
     @Override
     public String getPrePaginatedTitle(Player player) {
-        switch (stage) {
-            case RANK:
-                return "&9Grant: Select Rank";
-            case DURATION:
-                return "&9Grant: Select Duration";
-            case REASON:
-                return "&9Grant: Select Reason";
-            default:
-                return "&9Grant";
-        }
+        return switch (stage) {
+            case RANK -> "&9Grant: Select Rank";
+            case DURATION -> "&9Grant: Select Duration";
+            case REASON -> "&9Grant: Select Reason";
+        };
     }
 
     @Override
@@ -85,7 +78,7 @@ public class GrantMenu extends PaginatedMenu {
         switch (stage) {
             case RANK:
                 Comparator<Rank> comparator = Comparator.comparingInt(Rank::getWeight).reversed();
-                for (Rank rank : ServiceContainer.getService(RankService.class).getRanks().stream().filter(rank -> !rank.isDefaultRank()).sorted(comparator).collect(Collectors.toList())) {
+                for (Rank rank : ServiceContainer.getService(RankService.class).getRanks().stream().filter(rank -> !rank.isDefaultRank()).sorted(comparator).toList()) {
                     buttons.put(buttons.size(), new RankButton(procedure, target, rank));
                 }
                 break;
@@ -114,7 +107,7 @@ public class GrantMenu extends PaginatedMenu {
             Profile targetProfile = ServiceContainer.getService(ProfileService.class).find(target);
             String targetName = targetProfile != null ? targetProfile.getName() : Bukkit.getOfflinePlayer(target).getName();
 
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(targetName);
             builder.name("&9&lGrant Progress");
 
@@ -149,7 +142,7 @@ public class GrantMenu extends PaginatedMenu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.BED);
+            ItemBuilder builder = new ItemBuilder(Material.RED_BED);
             builder.name("&c&lBack");
 
             List<String> lore = new ArrayList<>();
@@ -167,7 +160,7 @@ public class GrantMenu extends PaginatedMenu {
         }
     }
 
-    private class CancelButton extends Button {
+    private static class CancelButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

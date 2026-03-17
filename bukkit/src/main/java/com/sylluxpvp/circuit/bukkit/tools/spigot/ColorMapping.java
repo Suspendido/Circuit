@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import com.sylluxpvp.circuit.shared.punishment.PunishmentType;
 
 import java.util.HashMap;
@@ -12,60 +13,82 @@ import java.util.Map;
 @UtilityClass
 public class ColorMapping {
 
-    // INK_SACK (dye) data values - for dye items
-    public static final Map<ChatColor, Integer> dyeMap = new HashMap<ChatColor, Integer>() {{
-        put(ChatColor.BLACK, 0);        // Ink Sac
-        put(ChatColor.DARK_RED, 1);     // Red Dye
-        put(ChatColor.RED, 1);          // Red Dye
-        put(ChatColor.DARK_GREEN, 2);   // Cactus Green
-        put(ChatColor.GOLD, 14);        // Orange Dye
-        put(ChatColor.DARK_BLUE, 4);    // Lapis Lazuli
-        put(ChatColor.BLUE, 12);        // Light Blue Dye
-        put(ChatColor.DARK_PURPLE, 5);  // Purple Dye
-        put(ChatColor.DARK_AQUA, 6);    // Cyan Dye
-        put(ChatColor.AQUA, 12);        // Light Blue Dye
-        put(ChatColor.GRAY, 7);         // Light Gray Dye
-        put(ChatColor.DARK_GRAY, 8);    // Gray Dye
-        put(ChatColor.LIGHT_PURPLE, 9); // Pink Dye
-        put(ChatColor.GREEN, 10);       // Lime Dye
-        put(ChatColor.YELLOW, 11);      // Yellow Dye
-        put(ChatColor.WHITE, 15);       // Bone Meal
+    // Material mapping for dyes (modernized - no durability needed)
+    public static final Map<ChatColor, Material> dyeMaterialMap = new HashMap<>() {{
+        put(ChatColor.BLACK, Material.BLACK_DYE);
+        put(ChatColor.DARK_RED, Material.RED_DYE);
+        put(ChatColor.RED, Material.RED_DYE);
+        put(ChatColor.DARK_GREEN, Material.GREEN_DYE);
+        put(ChatColor.GOLD, Material.ORANGE_DYE);
+        put(ChatColor.DARK_BLUE, Material.BLUE_DYE);
+        put(ChatColor.BLUE, Material.LIGHT_BLUE_DYE);
+        put(ChatColor.DARK_PURPLE, Material.PURPLE_DYE);
+        put(ChatColor.DARK_AQUA, Material.CYAN_DYE);
+        put(ChatColor.AQUA, Material.LIGHT_BLUE_DYE);
+        put(ChatColor.GRAY, Material.LIGHT_GRAY_DYE);
+        put(ChatColor.DARK_GRAY, Material.GRAY_DYE);
+        put(ChatColor.LIGHT_PURPLE, Material.PINK_DYE);
+        put(ChatColor.GREEN, Material.LIME_DYE);
+        put(ChatColor.YELLOW, Material.YELLOW_DYE);
+        put(ChatColor.WHITE, Material.WHITE_DYE);
     }};
 
-    // WOOL data values - for wool blocks
-    public static final Map<ChatColor, Integer> woolMap = new HashMap<ChatColor, Integer>() {{
-        put(ChatColor.WHITE, 0);        // White Wool
-        put(ChatColor.GOLD, 1);         // Orange Wool
-        put(ChatColor.LIGHT_PURPLE, 6); // Pink Wool
-        put(ChatColor.AQUA, 3);         // Light Blue Wool
-        put(ChatColor.YELLOW, 4);       // Yellow Wool
-        put(ChatColor.GREEN, 5);        // Lime Wool
-        put(ChatColor.DARK_GRAY, 7);    // Gray Wool
-        put(ChatColor.GRAY, 8);         // Light Gray Wool
-        put(ChatColor.DARK_AQUA, 9);    // Cyan Wool
-        put(ChatColor.DARK_PURPLE, 10); // Purple Wool
-        put(ChatColor.DARK_BLUE, 11);   // Blue Wool
-        put(ChatColor.BLUE, 3);         // Light Blue Wool
-        put(ChatColor.DARK_GREEN, 13);  // Green Wool
-        put(ChatColor.RED, 14);         // Red Wool
-        put(ChatColor.DARK_RED, 14);    // Red Wool
-        put(ChatColor.BLACK, 15);       // Black Wool
+    // Material mapping for wool (modernized - no durability needed)
+    public static final Map<ChatColor, Material> woolMaterialMap = new HashMap<>() {{
+        put(ChatColor.WHITE, Material.WHITE_WOOL);
+        put(ChatColor.GOLD, Material.ORANGE_WOOL);
+        put(ChatColor.LIGHT_PURPLE, Material.PINK_WOOL);
+        put(ChatColor.AQUA, Material.LIGHT_BLUE_WOOL);
+        put(ChatColor.YELLOW, Material.YELLOW_WOOL);
+        put(ChatColor.GREEN, Material.LIME_WOOL);
+        put(ChatColor.DARK_GRAY, Material.GRAY_WOOL);
+        put(ChatColor.GRAY, Material.LIGHT_GRAY_WOOL);
+        put(ChatColor.DARK_AQUA, Material.CYAN_WOOL);
+        put(ChatColor.DARK_PURPLE, Material.PURPLE_WOOL);
+        put(ChatColor.DARK_BLUE, Material.BLUE_WOOL);
+        put(ChatColor.BLUE, Material.LIGHT_BLUE_WOOL);
+        put(ChatColor.DARK_GREEN, Material.GREEN_WOOL);
+        put(ChatColor.RED, Material.RED_WOOL);
+        put(ChatColor.DARK_RED, Material.RED_WOOL);
+        put(ChatColor.BLACK, Material.BLACK_WOOL);
     }};
 
-    public short getItemDurability(String rankColor) {
-        if (rankColor == null || rankColor.isEmpty()) return 0;
-        if (rankColor.contains("§") || rankColor.contains("&")) {
-            char codeChar = rankColor.charAt(1);
-            ChatColor color = ChatColor.getByChar(codeChar);
+    /**
+     * Gets the dye Material for a given rank color string
+     */
+    public Material getDyeMaterial(String rankColor) {
+        if (rankColor == null || rankColor.isEmpty()) return Material.WHITE_DYE;
 
-            if (color == null || !color.isColor()) return 0;
+        ChatColor color = parseChatColor(rankColor);
+        if (color == null || !color.isColor()) return Material.WHITE_DYE;
 
-            rankColor = color.name();
+        Material material = dyeMaterialMap.get(color);
+        return material != null ? material : Material.WHITE_DYE;
+    }
+
+    /**
+     * Gets the wool Material for a given ChatColor
+     */
+    public Material getWoolMaterial(ChatColor chatColor) {
+        if (chatColor == null || !chatColor.isColor()) return Material.WHITE_WOOL;
+
+        Material material = woolMaterialMap.get(chatColor);
+        return material != null ? material : Material.WHITE_WOOL;
+    }
+
+    /**
+     * Parses a color string to ChatColor
+     */
+    private ChatColor parseChatColor(String color) {
+        if (color.contains("§") || color.contains("&")) {
+            char codeChar = color.charAt(1);
+            return ChatColor.getByChar(codeChar);
         }
-
-        ChatColor color = ChatColor.valueOf(rankColor.toUpperCase());
-        Integer durability = dyeMap.get(color);
-        return durability != null ? durability.shortValue() : 0;
+        try {
+            return ChatColor.valueOf(color.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public boolean isChatColor(String color, ChatColor chatColor) {
@@ -81,77 +104,56 @@ public class ColorMapping {
     }
 
     public DyeColor getColor(PunishmentType type) {
-        switch (type) {
-            case BAN:
-                return DyeColor.RED;
-            case MUTE:
-                return DyeColor.GREEN;
-            case KICK:
-                return DyeColor.ORANGE;
-            case BLACKLIST:
-                return DyeColor.PURPLE;
-            default:
-                return DyeColor.WHITE;
-        }
+        return switch (type) {
+            case BAN -> DyeColor.RED;
+            case MUTE -> DyeColor.GREEN;
+            case KICK -> DyeColor.ORANGE;
+            case BLACKLIST -> DyeColor.PURPLE;
+            default -> DyeColor.WHITE;
+        };
     }
 
     public Color chatColorToLeatherColor(ChatColor chatColor) {
         if (chatColor == null) return Color.WHITE;
 
-        switch (chatColor) {
-            case BLACK: return Color.fromRGB(0, 0, 0);
-            case DARK_BLUE: return Color.fromRGB(0, 0, 170);
-            case DARK_GREEN: return Color.fromRGB(0, 170, 0);
-            case DARK_AQUA: return Color.fromRGB(0, 170, 170);
-            case DARK_RED: return Color.fromRGB(170, 0, 0);
-            case DARK_PURPLE: return Color.fromRGB(170, 0, 170);
-            case GOLD: return Color.fromRGB(255, 170, 0);
-            case GRAY: return Color.fromRGB(170, 170, 170);
-            case DARK_GRAY: return Color.fromRGB(85, 85, 85);
-            case BLUE: return Color.fromRGB(85, 85, 255);
-            case GREEN: return Color.fromRGB(85, 255, 85);
-            case AQUA: return Color.fromRGB(85, 255, 255);
-            case RED: return Color.fromRGB(255, 85, 85);
-            case LIGHT_PURPLE: return Color.fromRGB(255, 85, 255);
-            case YELLOW: return Color.fromRGB(255, 255, 85);
-            case WHITE: return Color.fromRGB(255, 255, 255);
-            default: return Color.WHITE;
-        }
+        return switch (chatColor) {
+            case BLACK -> Color.fromRGB(0, 0, 0);
+            case DARK_BLUE -> Color.fromRGB(0, 0, 170);
+            case DARK_GREEN -> Color.fromRGB(0, 170, 0);
+            case DARK_AQUA -> Color.fromRGB(0, 170, 170);
+            case DARK_RED -> Color.fromRGB(170, 0, 0);
+            case DARK_PURPLE -> Color.fromRGB(170, 0, 170);
+            case GOLD -> Color.fromRGB(255, 170, 0);
+            case GRAY -> Color.fromRGB(170, 170, 170);
+            case DARK_GRAY -> Color.fromRGB(85, 85, 85);
+            case BLUE -> Color.fromRGB(85, 85, 255);
+            case GREEN -> Color.fromRGB(85, 255, 85);
+            case AQUA -> Color.fromRGB(85, 255, 255);
+            case RED -> Color.fromRGB(255, 85, 85);
+            case LIGHT_PURPLE -> Color.fromRGB(255, 85, 255);
+            case YELLOW -> Color.fromRGB(255, 255, 85);
+            case WHITE -> Color.fromRGB(255, 255, 255);
+            default -> Color.WHITE;
+        };
     }
 
     public ChatColor dyeColorToChatColor(DyeColor dyeColor) {
-        switch (dyeColor) {
-            case ORANGE:
-            case BROWN:
-                return ChatColor.GOLD;
-            case MAGENTA:
-            case PINK:
-                return ChatColor.LIGHT_PURPLE;
-            case LIGHT_BLUE:
-                return ChatColor.BLUE;
-            case YELLOW:
-                return ChatColor.YELLOW;
-            case LIME:
-                return ChatColor.GREEN;
-            case GRAY:
-                return ChatColor.DARK_GRAY;
-            case SILVER:
-                return ChatColor.GRAY;
-            case CYAN:
-                return ChatColor.DARK_AQUA;
-            case PURPLE:
-                return ChatColor.DARK_PURPLE;
-            case BLUE:
-                return ChatColor.DARK_BLUE;
-            case GREEN:
-                return ChatColor.DARK_GREEN;
-            case RED:
-                return ChatColor.RED;
-            case BLACK:
-                return ChatColor.BLACK;
-            default:
-                return ChatColor.WHITE;
-        }
+        return switch (dyeColor) {
+            case ORANGE, BROWN -> ChatColor.GOLD;
+            case MAGENTA, PINK -> ChatColor.LIGHT_PURPLE;
+            case LIGHT_BLUE -> ChatColor.BLUE;
+            case YELLOW -> ChatColor.YELLOW;
+            case LIME -> ChatColor.GREEN;
+            case GRAY -> ChatColor.DARK_GRAY;
+            case LIGHT_GRAY -> ChatColor.GRAY;
+            case CYAN -> ChatColor.DARK_AQUA;
+            case PURPLE -> ChatColor.DARK_PURPLE;
+            case BLUE -> ChatColor.DARK_BLUE;
+            case GREEN -> ChatColor.DARK_GREEN;
+            case RED -> ChatColor.RED;
+            case BLACK -> ChatColor.BLACK;
+            default -> ChatColor.WHITE;
+        };
     }
 
     public ChatColor fromString(String color) {
@@ -162,16 +164,30 @@ public class ColorMapping {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
     public DyeColor chatColorToDyeColor(ChatColor color) {
-        Integer data = woolMap.get(color);
-        if (data == null) return DyeColor.WHITE;
-        return DyeColor.getByWoolData(data.byteValue());
+        return switch (color) {
+            case GOLD -> DyeColor.ORANGE;
+            case LIGHT_PURPLE -> DyeColor.PINK;
+            case BLUE -> DyeColor.LIGHT_BLUE;
+            case YELLOW -> DyeColor.YELLOW;
+            case GREEN -> DyeColor.LIME;
+            case DARK_GRAY -> DyeColor.GRAY;
+            case GRAY -> DyeColor.LIGHT_GRAY;
+            case DARK_AQUA -> DyeColor.CYAN;
+            case DARK_PURPLE -> DyeColor.PURPLE;
+            case DARK_BLUE -> DyeColor.BLUE;
+            case DARK_GREEN -> DyeColor.GREEN;
+            case RED, DARK_RED -> DyeColor.RED;
+            case BLACK -> DyeColor.BLACK;
+            default -> DyeColor.WHITE;
+        };
     }
 
+    /**
+     * @deprecated Wool no longer uses durability in modern versions
+     */
+    @Deprecated
     public short getWoolDurability(ChatColor color) {
-        Integer data = woolMap.get(color);
-        return data != null ? data.shortValue() : 0;
+        return 0;
     }
-
 }

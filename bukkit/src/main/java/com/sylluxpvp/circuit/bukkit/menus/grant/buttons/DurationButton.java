@@ -36,7 +36,7 @@ public class DurationButton extends Button {
         boolean isCustom = duration.equalsIgnoreCase("Custom");
         boolean isPermanent = duration.equalsIgnoreCase("Permanent");
 
-        ItemBuilder builder = new ItemBuilder(isCustom ? Material.NAME_TAG : (isPermanent ? Material.NETHER_STAR : Material.WATCH));
+        ItemBuilder builder = new ItemBuilder(isCustom ? Material.NAME_TAG : (isPermanent ? Material.NETHER_STAR : Material.CLOCK));
         builder.name((isPermanent ? "&c&l" : "&9&l") + duration);
 
         List<String> lore = new ArrayList<>();

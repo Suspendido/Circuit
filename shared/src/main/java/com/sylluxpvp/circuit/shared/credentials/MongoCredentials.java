@@ -24,7 +24,6 @@ public class MongoCredentials {
         this.authSource = authSource;
     }
 
-
     public static MongoCredentials getDefault() {
         return new MongoCredentials("localhost", 27017);
     }

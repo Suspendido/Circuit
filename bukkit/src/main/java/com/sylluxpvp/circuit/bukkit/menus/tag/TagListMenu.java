@@ -11,7 +11,6 @@ import com.sylluxpvp.circuit.bukkit.tools.spigot.ItemBuilder;
 import com.sylluxpvp.circuit.shared.tag.Tag;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.TagService;
-import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +51,7 @@ public class TagListMenu extends PaginatedMenu {
     }
 
     @RequiredArgsConstructor
-    private class TagListButton extends Button {
+    private static class TagListButton extends Button {
 
         private final Tag tag;
 
@@ -87,7 +86,7 @@ public class TagListMenu extends PaginatedMenu {
         }
     }
 
-    private class CreateTagButton extends Button {
+    private static class CreateTagButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

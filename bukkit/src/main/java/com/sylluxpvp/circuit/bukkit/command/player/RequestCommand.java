@@ -18,15 +18,7 @@ import java.util.UUID;
 public class RequestCommand extends BaseCommand {
 
     private static final Map<UUID, Long> cooldowns = new HashMap<>();
-<<<<<<< HEAD
     private static final long COOLDOWN_MS = 60_000L;
-=======
-<<<<<<< HEAD
-    private static final long COOLDOWN_MS = 60_000L;
-=======
-    private static final long COOLDOWN_MS = 30_000L;
->>>>>>> 0ad8df0acd0dd3bb1a047959dda167bd8ce3c136
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 
     @Default
     @Syntax("<message>")

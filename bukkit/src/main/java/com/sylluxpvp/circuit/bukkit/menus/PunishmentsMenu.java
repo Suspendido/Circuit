@@ -1,8 +1,10 @@
 package com.sylluxpvp.circuit.bukkit.menus;
 
+import com.sylluxpvp.circuit.bukkit.tools.xenon.GrantUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -11,7 +13,6 @@ import com.sylluxpvp.circuit.bukkit.tools.menu.Button;
 import com.sylluxpvp.circuit.bukkit.tools.menu.Menu;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ColorMapping;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ItemBuilder;
-import com.sylluxpvp.circuit.bukkit.tools.circuit.GrantUtils;
 import com.sylluxpvp.circuit.shared.grant.Grant;
 import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.punishment.Punishment;
@@ -22,11 +23,30 @@ import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PunishmentsMenu extends Menu {
 
     private static final int MENU_SIZE = 45;
+
+    // Mapeo de DyeColor a Material de tinte
+    private static final Map<DyeColor, Material> dyeColorToMaterial = new HashMap<>() {{
+        put(DyeColor.RED, Material.RED_DYE);
+        put(DyeColor.GREEN, Material.GREEN_DYE);
+        put(DyeColor.ORANGE, Material.ORANGE_DYE);
+        put(DyeColor.PURPLE, Material.PURPLE_DYE);
+        put(DyeColor.WHITE, Material.WHITE_DYE);
+        put(DyeColor.LIGHT_BLUE, Material.LIGHT_BLUE_DYE);
+        put(DyeColor.YELLOW, Material.YELLOW_DYE);
+        put(DyeColor.LIME, Material.LIME_DYE);
+        put(DyeColor.PINK, Material.PINK_DYE);
+        put(DyeColor.GRAY, Material.GRAY_DYE);
+        put(DyeColor.LIGHT_GRAY, Material.LIGHT_GRAY_DYE);
+        put(DyeColor.CYAN, Material.CYAN_DYE);
+        put(DyeColor.BLUE, Material.BLUE_DYE);
+        put(DyeColor.BROWN, Material.BROWN_DYE);
+        put(DyeColor.BLACK, Material.BLACK_DYE);
+        put(DyeColor.MAGENTA, Material.MAGENTA_DYE);
+    }};
 
     private final UUID target;
     @Setter private PunishmentType type;
@@ -67,7 +87,7 @@ public class PunishmentsMenu extends Menu {
             List<Grant<Punishment>> punishments = profile.getPunishments().stream()
                     .filter(grant -> grant.getData().getPunishmentType() == type)
                     .sorted(Comparator.<Grant<Punishment>>comparingLong(Grant::getTimeCreated).reversed())
-                    .collect(Collectors.toList());
+                    .toList();
 
             for (Grant<Punishment> grant : punishments) {
                 while (isBorderSlot(slot) && slot < MENU_SIZE - 9) slot++;
@@ -81,13 +101,13 @@ public class PunishmentsMenu extends Menu {
     }
 
     @RequiredArgsConstructor
-    private class PlayerInfoButton extends Button {
+    private static class PlayerInfoButton extends Button {
 
         private final Profile profile;
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(profile.getName());
             builder.name(profile.getCurrentGrant().getData().getColor() + profile.getName());
 
@@ -120,9 +140,11 @@ public class PunishmentsMenu extends Menu {
             List<Grant<Punishment>> punishments = profile.getAllPunishmentsByType(type);
             long active = punishments.stream().filter(Grant::isActive).count();
 
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(ColorMapping.getColor(type).getWoolData());
-            builder.name(ColorMapping.dyeColorToChatColor(ColorMapping.getColor(type)) + type.prettyName() + "s");
+            DyeColor dyeColor = ColorMapping.getColor(type);
+            Material dyeMaterial = dyeColorToMaterial.getOrDefault(dyeColor, Material.WHITE_DYE);
+
+            ItemBuilder builder = new ItemBuilder(dyeMaterial);
+            builder.name(ColorMapping.dyeColorToChatColor(dyeColor) + type.prettyName() + "s");
 
             List<String> lore = new ArrayList<>();
             lore.add("");
@@ -145,8 +167,9 @@ public class PunishmentsMenu extends Menu {
             List<Grant<Punishment>> punishments = profile.getAllPunishmentsByType(punishmentType);
             long active = punishments.stream().filter(Grant::isActive).count();
 
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(ColorMapping.getColor(punishmentType).getWoolData());
+            DyeColor dyeColor = ColorMapping.getColor(punishmentType);
+            Material dyeMaterial = dyeColorToMaterial.getOrDefault(dyeColor, Material.WHITE_DYE);
+            ItemBuilder builder = new ItemBuilder(dyeMaterial);
             builder.name("&9&l" + punishmentType.prettyName() + "s");
 
             List<String> lore = new ArrayList<>();
@@ -247,7 +270,7 @@ public class PunishmentsMenu extends Menu {
         }
     }
 
-    private class CloseButton extends Button {
+    private static class CloseButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

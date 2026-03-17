@@ -1,4 +1,4 @@
-package com.sylluxpvp.circuit.bukkit.tools.circuit;
+package com.sylluxpvp.circuit.bukkit.tools.xenon;
 
 import org.bukkit.Bukkit;
 import com.sylluxpvp.circuit.shared.tools.string.CC;

@@ -1,4 +1,4 @@
-package com.sylluxpvp.circuit.bukkit.tools.circuit;
+package com.sylluxpvp.circuit.bukkit.tools.xenon;
 
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;

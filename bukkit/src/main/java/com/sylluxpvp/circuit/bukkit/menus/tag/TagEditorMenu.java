@@ -75,7 +75,7 @@ public class TagEditorMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.SIGN);
+            ItemBuilder builder = new ItemBuilder(Material.OAK_SIGN);
             builder.name("&9&lEdit Display");
 
             List<String> lore = new ArrayList<>();

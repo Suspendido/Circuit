@@ -48,8 +48,7 @@ public class TagDeleteConfirmMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability((short) 5);
+            ItemBuilder builder = new ItemBuilder(Material.LIME_WOOL);
             builder.name("&a&lConfirm Delete");
 
             List<String> lore = new ArrayList<>();
@@ -72,12 +71,11 @@ public class TagDeleteConfirmMenu extends Menu {
         }
     }
 
-    private class CancelButton extends Button {
+    private static class CancelButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability((short) 14);
+            ItemBuilder builder = new ItemBuilder(Material.RED_WOOL);
             builder.name("&c&lCancel");
 
             List<String> lore = new ArrayList<>();

@@ -6,15 +6,12 @@ import lombok.Setter;
 import java.util.PriorityQueue;
 import java.util.UUID;
 
-@Getter
+@Getter @Setter
 public class Queue {
 
     private final String serverName;
-    @Setter
     private PriorityQueue<QueuePlayer> players = new PriorityQueue<>();
-    @Setter
     private boolean enabled = true;
-    @Setter
     private boolean paused = false;
     
     // Stats for time estimation

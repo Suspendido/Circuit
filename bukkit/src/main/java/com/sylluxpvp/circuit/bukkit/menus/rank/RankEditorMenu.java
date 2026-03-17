@@ -2,7 +2,6 @@ package com.sylluxpvp.circuit.bukkit.menus.rank;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -66,8 +65,8 @@ public class RankEditorMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-            builder.durability(ColorMapping.getItemDurability(rank.getColor()));
+            Material dyeMaterial = ColorMapping.getDyeMaterial(rank.getColor());
+            ItemBuilder builder = new ItemBuilder(dyeMaterial);
             builder.name(rank.getColor() + rank.getName());
 
             List<String> lore = new ArrayList<>();
@@ -140,16 +139,14 @@ public class RankEditorMenu extends Menu {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private class EditColorButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {
             ChatColor chatColor = ColorMapping.fromString(rank.getColor());
-            DyeColor dyeColor = chatColor != null ? ColorMapping.chatColorToDyeColor(chatColor) : DyeColor.WHITE;
+            Material woolMaterial = chatColor != null ? ColorMapping.getWoolMaterial(chatColor) : Material.WHITE_WOOL;
 
-            ItemBuilder builder = new ItemBuilder(Material.WOOL);
-            builder.durability(dyeColor.getWoolData());
+            ItemBuilder builder = new ItemBuilder(woolMaterial);
             builder.name("&9&lEdit Color");
 
             String colorName = chatColor != null ? chatColor.name().replace("_", " ") : "WHITE";
@@ -312,18 +309,31 @@ public class RankEditorMenu extends Menu {
             ItemBuilder builder = new ItemBuilder(Material.NETHER_STAR);
             builder.name("&9&lDiscord Link");
 
+            String currentRoleId = RankEditorMenu.this.rank.getDiscordRoleId();
             List<String> lore = new ArrayList<>();
             lore.add("&7Link this rank to a Discord role.");
             lore.add("");
-            lore.add("&cComing soon!");
-
+            lore.add("&7Current: " + (currentRoleId != null && !currentRoleId.isEmpty() ? "&a" + currentRoleId : "&cNot set"));
+            lore.add("");
+            lore.add("&aLeft click to set role ID");
+            lore.add("&cRight click to remove");
             builder.lore(lore);
             return builder.build();
         }
 
         @Override
         public void clicked(Player player, ClickType clickType) {
-            Button.playFail(player);
+            if (clickType == ClickType.RIGHT) {
+                RankEditorMenu.this.rank.setDiscordRoleId(null);
+                ServiceContainer.getService(RankService.class).save(RankEditorMenu.this.rank);
+                Button.playNeutral(player);
+                RankEditorMenu.LOGGER.info(player.getName() + " removed Discord role link from rank " + RankEditorMenu.this.rank.getName());
+                (new RankEditorMenu(RankEditorMenu.this.rank)).openMenu(player);
+            } else if (clickType == ClickType.LEFT) {
+                Button.playNeutral(player);
+                player.closeInventory();
+                (new RankInputHandler(player, RankEditorMenu.this.rank, RankInputHandler.InputType.DISCORD_ROLE, RankEditorMenu.this)).start();
+            }
         }
     }
 }

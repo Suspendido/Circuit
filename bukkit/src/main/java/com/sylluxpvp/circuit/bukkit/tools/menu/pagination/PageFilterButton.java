@@ -1,7 +1,7 @@
 package com.sylluxpvp.circuit.bukkit.tools.menu.pagination;
 
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,10 +35,10 @@ public class PageFilterButton<T> extends Button {
 
 			if (filter.isEnabled()) {
 				color = ChatColor.GREEN.toString();
-				icon = StringEscapeUtils.unescapeJava("\u2713");
+				icon = StringEscapeUtils.unescapeJava("✓");
 			} else {
 				color = ChatColor.RED.toString();
-				icon = StringEscapeUtils.unescapeJava("\u2717");
+				icon = StringEscapeUtils.unescapeJava("✗");
 			}
 
 			if (menu.getFilters().get(menu.getScrollIndex()).equals(filter)) {

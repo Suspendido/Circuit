@@ -110,8 +110,7 @@ public class RankPropertiesMenu extends Menu {
 
         @Override
         public ItemStack getButtonItem(Player player) {
-            ItemBuilder builder = new ItemBuilder(currentValue ? Material.INK_SACK : Material.INK_SACK);
-            builder.durability(currentValue ? 10 : 8);
+            ItemBuilder builder = new ItemBuilder(currentValue ? Material.LIME_DYE : Material.GRAY_DYE);
             builder.name((currentValue ? "&a" : "&c") + propertyName);
 
             List<String> lore = new ArrayList<>();

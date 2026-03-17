@@ -8,8 +8,7 @@ import com.sylluxpvp.circuit.shared.tools.circuit.Serializable;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Getter @Setter
 @RequiredArgsConstructor
 public class Punishment implements Serializable {
 

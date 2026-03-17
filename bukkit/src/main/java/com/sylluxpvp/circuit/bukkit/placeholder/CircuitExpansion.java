@@ -1,5 +1,6 @@
 package com.sylluxpvp.circuit.bukkit.placeholder;
 
+import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.shared.grant.Grant;
@@ -10,24 +11,22 @@ import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tag.Tag;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
+import org.jetbrains.annotations.NotNull;
 
 public class CircuitExpansion extends PlaceholderExpansion {
 
-    public CircuitExpansion() {
-    }
-
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "circuit";
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "kayaaa";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return "1.0.0";
     }
 
@@ -37,7 +36,7 @@ public class CircuitExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onPlaceholderRequest(Player player, String params) {
+    public String onPlaceholderRequest(Player player, @NotNull String params) {
         if (player == null) return "";
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());
@@ -56,9 +55,11 @@ public class CircuitExpansion extends PlaceholderExpansion {
                 return rank != null ? CC.translate(rank.getColor() + rank.getName()) : "Default";
 
             case "rank_prefix":
-                return rank != null ? CC.translate(rank.getPrefix()) : "";
+            case "prefix":
+                return rank != null ? CC.translate(rank.getPrefix() + rank.getColor()) : "";
 
             case "rank_suffix":
+            case "suffix":
                 return rank != null ? CC.translate(rank.getSuffix()) : "";
 
             case "rank_color":
@@ -67,12 +68,8 @@ public class CircuitExpansion extends PlaceholderExpansion {
             case "rank_weight":
                 return rank != null ? String.valueOf(rank.getWeight()) : "0";
 
-            case "prefix":
-                return rank != null ? CC.translate(rank.getPrefix()) : "";
-
-            case "suffix":
-                return rank != null ? CC.translate(rank.getSuffix()) : "";
-
+            case "rank_duration":
+                return rank != null ? "Permanent" : TimeUtils.formatTimeShort(profile.getCurrentGrant().getDuration());
             case "color":
             case "chatcolor":
                 String color = profile.getColor();
@@ -138,7 +135,6 @@ public class CircuitExpansion extends PlaceholderExpansion {
             case "channel":
                 return profile.getChannel() != null ? profile.getChannel().name() : "DEFAULT";
 
-<<<<<<< HEAD
             case "tag":
                 Tag activeTag = profile.getActiveTag();
                 return activeTag != null ? CC.translate(activeTag.getDisplay() + " ") : "";
@@ -160,8 +156,6 @@ public class CircuitExpansion extends PlaceholderExpansion {
             case "has_subscription":
                 return profile.hasSubscription() ? "true" : "false";
 
-=======
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
             default:
                 return null;
         }

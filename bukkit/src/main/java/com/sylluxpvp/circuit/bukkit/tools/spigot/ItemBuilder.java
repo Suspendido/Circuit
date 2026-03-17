@@ -14,10 +14,11 @@ import java.util.List;
 
 /**
  * A fluent builder for creating and customizing ItemStacks in Bukkit/Spigot.
+ * Updated for modern Minecraft versions (1.13+)
  */
 public class ItemBuilder {
 
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
 
     /**
      * Constructs an ItemBuilder with the given Material.
@@ -41,11 +42,9 @@ public class ItemBuilder {
      * Sets the amount of items in the ItemStack.
      *
      * @param amount The amount of items.
-     * @return The ItemBuilder instance for method chaining.
      */
-    public ItemBuilder amount(int amount) {
+    public void amount(int amount) {
         itemStack.setAmount(amount);
-        return this;
     }
 
     /**
@@ -126,21 +125,22 @@ public class ItemBuilder {
 
     public ItemBuilder skull(String owner) {
         ItemMeta meta = this.itemStack.getItemMeta();
-        if (meta instanceof SkullMeta) {
-            SkullMeta im = (SkullMeta) meta;
-            this.durability((short) 3);
+        if (meta instanceof SkullMeta im) {
             im.setOwner(owner);
             this.itemStack.setItemMeta(im);
         }
         return this;
     }
 
+    /**
+     * @deprecated DyeColor with durability is no longer used in modern versions.
+     * Use specific dye materials instead.
+     */
+    @Deprecated
     public ItemBuilder dyeColor(DyeColor dyeColor) {
-        if (this.itemStack.getType() != Material.INK_SACK) {
-            return this;
-        }
-
-        return this.durability(dyeColor.getDyeData());
+        // This method is deprecated as dyes now use specific materials
+        // Kept for backwards compatibility but does nothing
+        return this;
     }
 
     /**
@@ -160,7 +160,6 @@ public class ItemBuilder {
      *
      * @param enchantment The enchantment to apply.
      * @param level       The level of the enchantment.
-     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder enchant(Enchantment enchantment, int level) {
         if (enchantment == null || level <= 0) return this;
@@ -175,7 +174,6 @@ public class ItemBuilder {
      * Enchants the ItemStack with the specified Enchantment at level 1.
      *
      * @param enchantment The enchantment to apply.
-     * @return The ItemBuilder instance for method chaining.
      */
     public ItemBuilder enchant(Enchantment enchantment) {
         if (enchantment == null) return this;
@@ -193,19 +191,8 @@ public class ItemBuilder {
     }
 
     /**
-     * Sets the durability of the ItemStack.
-     *
-     * @param durability The durability value to set.
-     * @return The ItemBuilder instance for method chaining.
-     */
-    public ItemBuilder durability(int durability) {
-        itemStack.setDurability((short) durability);
-        return this;
-    }
-
-    /**
      * Sets the color of the ItemStack.
-     * Works with leather armor, wool, and carpet.
+     * Works with leather armor.
      *
      * @param color The color to set.
      * @return The ItemBuilder instance for method chaining.
@@ -219,44 +206,24 @@ public class ItemBuilder {
             meta.setColor(color);
             itemStack.setItemMeta(meta);
         }
-        // Para lã e carpete
-        else if (typeName.equals("WOOL") || typeName.equals("CARPET")) {
-            short woolData = getWoolDataFromColor(color);
-            itemStack.setDurability(woolData);
-        }
 
         return this;
     }
 
     /**
-     * Converts a Color to wool data value (best match approximation).
+     * Changes the material of this ItemStack while preserving metadata.
+     * Useful for changing wool/dye colors in modern versions.
      *
-     * @param color The Color to convert.
-     * @return The wool data value.
+     * @param material The new material to use.
+     * @return The ItemBuilder instance for method chaining.
      */
-    private short getWoolDataFromColor(Color color) {
-        int r = color.getRed();
-        int g = color.getGreen();
-        int b = color.getBlue();
-
-        // Aproximações baseadas nas cores RGB das lãs do Minecraft
-        if (r >= 240 && g >= 240 && b >= 240) return 0; // WHITE
-        if (r >= 200 && g >= 100 && b <= 50) return 1;  // ORANGE
-        if (r >= 150 && g <= 100 && b >= 150) return 2; // MAGENTA
-        if (r <= 100 && g >= 150 && b >= 200) return 3; // LIGHT_BLUE
-        if (r >= 200 && g >= 200 && b <= 50) return 4;  // YELLOW
-        if (r <= 100 && g >= 150 && b <= 100) return 5; // LIME
-        if (r >= 200 && g >= 100 && b >= 100) return 6; // PINK
-        if (r <= 100 && g <= 100 && b <= 100) return 7; // GRAY
-        if (r >= 150 && g >= 150 && b >= 150) return 8; // LIGHT_GRAY
-        if (r <= 100 && g >= 100 && b >= 150) return 9; // CYAN
-        if (r >= 100 && g <= 100 && b >= 150) return 10; // PURPLE
-        if (r <= 100 && g <= 100 && b >= 150) return 11; // BLUE
-        if (r >= 100 && g >= 50 && b <= 50) return 12;   // BROWN
-        if (r <= 100 && g >= 100 && b <= 100) return 13; // GREEN
-        if (r >= 150 && g <= 100 && b <= 100) return 14; // RED
-
-        return 15; // BLACK (padrão)
+    public ItemBuilder material(Material material) {
+        ItemMeta meta = itemStack.getItemMeta();
+        this.itemStack = new ItemStack(material, itemStack.getAmount());
+        if (meta != null) {
+            itemStack.setItemMeta(meta);
+        }
+        return this;
     }
 
     /**

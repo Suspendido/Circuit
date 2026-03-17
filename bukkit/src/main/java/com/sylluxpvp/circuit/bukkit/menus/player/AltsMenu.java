@@ -50,7 +50,7 @@ public class AltsMenu extends PaginatedMenu {
 
         List<Profile> sortedAlts = alts.stream()
                 .sorted(Comparator.comparing(Profile::getName))
-                .collect(Collectors.toList());
+                .toList();
 
         for (Profile alt : sortedAlts) {
             buttons.put(buttons.size(), new AltButton(alt));
@@ -76,7 +76,7 @@ public class AltsMenu extends PaginatedMenu {
                     .filter(p -> !p.getUUID().equals(targetProfile.getUUID()))
                     .collect(Collectors.toSet());
 
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(targetProfile.getName());
             builder.name(targetProfile.getCurrentGrant().getData().getColor() + targetProfile.getName());
 
@@ -107,7 +107,7 @@ public class AltsMenu extends PaginatedMenu {
     }
 
     @RequiredArgsConstructor
-    private class AltButton extends Button {
+    private static class AltButton extends Button {
 
         private final Profile alt;
 
@@ -116,7 +116,7 @@ public class AltsMenu extends PaginatedMenu {
             boolean online = Bukkit.getPlayer(alt.getUUID()) != null;
             boolean punished = alt.findActivePunishment() != null;
 
-            ItemBuilder builder = new ItemBuilder(Material.SKULL_ITEM);
+            ItemBuilder builder = new ItemBuilder(Material.PLAYER_HEAD);
             builder.skull(alt.getName());
 
             String statusColor = online ? "&a" : "&c";
@@ -149,7 +149,7 @@ public class AltsMenu extends PaginatedMenu {
         }
     }
 
-    private class CloseButton extends Button {
+    private static class CloseButton extends Button {
 
         @Override
         public ItemStack getButtonItem(Player player) {

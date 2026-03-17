@@ -12,11 +12,7 @@ import org.bukkit.entity.Player;
 
 public class StaffBroadcast {
 
-<<<<<<< HEAD
     private static final String PREFIX = "&5[SC] &d[%server%] ";
-=======
-    private static final String PREFIX = "&5[SC]&d[%server%] ";
->>>>>>> 8bdb8ab8aade754b5669edc1af7569347551be36
 
     /**
      * Send a local broadcast to players with a specific permission (current server only)

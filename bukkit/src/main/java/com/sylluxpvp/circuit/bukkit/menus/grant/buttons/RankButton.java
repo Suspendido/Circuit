@@ -29,8 +29,8 @@ public class RankButton extends Button {
 
     @Override
     public ItemStack getButtonItem(Player player) {
-        ItemBuilder builder = new ItemBuilder(Material.INK_SACK);
-        builder.durability(ColorMapping.getItemDurability(rank.getColor()));
+        Material dyeMaterial = ColorMapping.getDyeMaterial(rank.getColor());
+        ItemBuilder builder = new ItemBuilder(dyeMaterial);
         builder.name(rank.getColor() + rank.getName() + (rank.isStaff() ? " &7(Staff)" : ""));
         List<String> lore = new ArrayList<>();
         lore.add("");
