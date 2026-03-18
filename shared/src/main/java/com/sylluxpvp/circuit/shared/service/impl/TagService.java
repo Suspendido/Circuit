@@ -40,9 +40,15 @@ public class TagService extends Service {
 
     @Override
     public void disable() {
-        this.saveAll();
-        this.tags.clear();
-        this.tags = null;
+        try {
+            this.saveAll();
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().warn("Could not save tags during shutdown (MongoDB may be down): " + e.getMessage());
+        }
+        if (this.tags != null) {
+            this.tags.clear();
+            this.tags = null;
+        }
     }
 
     public void loadAll() {

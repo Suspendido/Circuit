@@ -1,7 +1,9 @@
 package com.sylluxpvp.circuit.bukkit.profile;
 
+import com.sylluxpvp.circuit.shared.redis.Redis;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
@@ -13,6 +15,7 @@ import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
+import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 
@@ -63,14 +66,83 @@ public class BukkitProfile {
         player.recalculatePermissions();
 
         if (profile.getCurrentGrant().getData().isStaff()) {
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new StaffStatusPacket(player.getUniqueId(), true, CircuitPlugin.getInstance().getShared().getServer().getName()));
+            String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
+            String previousServer = getLastServer();
+
+            String action = previousServer != null ? "serverSwitch" : "networkConnect";
+
+            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                    new StaffStatusPacket(player.getUniqueId(), true, currentServer, previousServer, action)
+            );
+
+            setLastServer(currentServer);
         }
     }
 
     public void leave() {
         ServiceContainer.getService(ProfileService.class).save(profile);
-        if (profile.getCurrentGrant().getData().isStaff()) {
-            CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new StaffStatusPacket(player.getUniqueId(), false, CircuitPlugin.getInstance().getShared().getServer().getName()));
+
+        if (profile.getCurrentGrant() == null || profile.getCurrentGrant().getData() == null) return;
+        if (!profile.getCurrentGrant().getData().isStaff()) return;
+
+        markLeaving();
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CircuitPlugin.getInstance(), () -> {
+            try (Jedis jedis = createJedis()) {
+                if (jedis == null) return;
+                String key = "lastServer:" + player.getUniqueId();
+                String lastServer = jedis.get(key);
+                String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
+
+                if (currentServer.equals(lastServer)) {
+                    CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                            new StaffStatusPacket(player.getUniqueId(), false, lastServer, lastServer, "networkDisconnect")
+                    );
+                    jedis.del(key);
+                }
+            } catch (Exception ignored) {}
+        }, 10 * 20L);
+    }
+
+    private String getLastServer() {
+        try (Jedis jedis = CircuitPlugin.getInstance().getShared().getRedis().getJedisPublisher()) {
+            return jedis.get("lastServer:" + player.getUniqueId());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void setLastServer(String server) {
+        try (Jedis jedis = createJedis()) {
+            if (jedis == null) return;
+            String key = "lastServer:" + player.getUniqueId();
+            if (server == null) {
+                jedis.del(key);
+            } else {
+                jedis.setex(key, 60, server);
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void markLeaving() {
+        try (Jedis jedis = createJedis()) {
+            if (jedis == null) return;
+            String key = "lastServer:" + player.getUniqueId();
+            String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
+            jedis.setex(key, 10, currentServer);
+        } catch (Exception ignored) {}
+    }
+
+    private Jedis createJedis() {
+        try {
+            Redis redis = CircuitPlugin.getInstance().getShared().getRedis();
+            Jedis jedis = new Jedis(redis.getHost(), redis.getPort());
+            if (redis.getPassword() != null && !redis.getPassword().isEmpty()) {
+                jedis.auth(redis.getPassword());
+            }
+            return jedis;
+        } catch (Exception e) {
+            return null;
         }
     }
 }

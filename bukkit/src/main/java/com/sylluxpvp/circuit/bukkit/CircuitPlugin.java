@@ -5,51 +5,20 @@ import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import com.sylluxpvp.circuit.bukkit.api.CircuitAPI;
 import com.sylluxpvp.circuit.bukkit.hook.HookManager;
-import com.sylluxpvp.circuit.bukkit.placeholder.CircuitExpansion;
-import com.sylluxpvp.circuit.bukkit.redis.*;
+import com.sylluxpvp.circuit.bukkit.module.ModuleManager;
+import com.sylluxpvp.circuit.bukkit.module.impl.*;
 import com.sylluxpvp.circuit.bukkit.tools.xenon.CircuitBukkitLogger;
 import com.sylluxpvp.circuit.shared.queue.Queue;
-import com.sylluxpvp.circuit.shared.redis.listener.RankUpdateListener;
-import com.sylluxpvp.circuit.shared.redis.listener.TagUpdateListener;
-import com.sylluxpvp.circuit.shared.redis.listener.VIPUpdateListener;
-import com.sylluxpvp.circuit.shared.redis.packets.rank.RankUpdatePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.tag.TagUpdatePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.vip.VIPUpdatePacket;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.sylluxpvp.circuit.bukkit.listener.FreezeListener;
-import com.sylluxpvp.circuit.bukkit.listener.PlayerListener;
-import com.sylluxpvp.circuit.bukkit.listener.ServerListener;
-import com.sylluxpvp.circuit.bukkit.service.BukkitChatService;
-import com.sylluxpvp.circuit.bukkit.service.BukkitGrantService;
-import com.sylluxpvp.circuit.bukkit.service.BukkitProfileService;
-import com.sylluxpvp.circuit.bukkit.task.GrantDurationTask;
-import com.sylluxpvp.circuit.bukkit.task.QueueTask;
-import com.sylluxpvp.circuit.bukkit.tools.spigot.BungeeUtils;
-import com.sylluxpvp.circuit.bukkit.tools.menu.MenuListener;
 import com.sylluxpvp.circuit.bukkit.tools.spigot.ConfigUtil;
 import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.credentials.MongoCredentials;
 import com.sylluxpvp.circuit.shared.credentials.RedisCredentials;
 import com.sylluxpvp.circuit.shared.rank.Rank;
-import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.punish.PunishmentUpdatePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.server.ServerCommandPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.server.ServerStatusPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.broadcast.BroadcastPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.broadcast.ManagementBroadcastPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.AdminChatPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.RequestPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.ReportPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueJoinPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueLeavePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueSendPacket;
-import com.sylluxpvp.circuit.shared.redis.packets.queue.QueuePositionPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.server.ServerDiscoveryPacket;
 import com.sylluxpvp.circuit.shared.redis.packets.server.ServerUpdatePacket;
 import com.sylluxpvp.circuit.shared.server.Server;
@@ -74,6 +43,7 @@ public class CircuitPlugin extends JavaPlugin {
     private CircuitShared shared;
     private CircuitAPI api;
     private HookManager hookManager;
+    private ModuleManager moduleManager;
 
     private boolean joinable = false;
     @Getter @Setter private boolean chatMuted = false;
@@ -82,28 +52,8 @@ public class CircuitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-//        if (Bukkit.getServer().getOnlineMode() && SpigotConfig.bungee || !Bukkit.getServer().getOnlineMode() && !SpigotConfig.bungee) {
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c&lSERVER CONFIGURATION ISSUE!"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cSomething is wrong with your Bukkit config."));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cYou probably did one of the following:"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c1. Enabled bungee on spigot.yml, and left"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode enabled on server.properties"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c2. Disabled bungee on spigot.yml, and left"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c  online-mode disabled on server.properties"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate(""));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cEither way, Circuit &c&lDOES NOT &csupport"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cthis type of server configuration. Please fix"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&cyour configurations immediately!"));
-//            Bukkit.getConsoleSender().sendMessage(CC.translate("&c** --------------------------------------- **"));
-//            TaskUtil.runTaskLater(() -> {
-//                System.exit(0);
-//            }, 1L);
-//            return;
-//        }
         this.hookManager = new HookManager();
+        this.moduleManager = new ModuleManager();
         mainConfig = ConfigUtil.createConfig("config");
         filterConfig = ConfigUtil.createConfig(new File(this.getDataFolder(), "modules"), "filter");
         String redisAddress = mainConfig.getString("redis.address");
@@ -142,9 +92,7 @@ public class CircuitPlugin extends JavaPlugin {
         shared = new CircuitShared(new CircuitBukkitLogger(), redisCredentials, mongoCredentials, databaseName);
         this.api = new CircuitAPI();
         this.setupCommands();
-        this.setupServices();
-        this.setupTasks();
-        this.setupListeners();
+        this.setupModules();
         this.setupServer();
     }
 
@@ -200,13 +148,14 @@ public class CircuitPlugin extends JavaPlugin {
         });
         manager.getCommandContexts().registerContext(org.bukkit.GameMode.class, c -> {
             String input = c.popFirstArg().toLowerCase();
-            switch (input) {
-                case "0": case "s": case "survival": return org.bukkit.GameMode.SURVIVAL;
-                case "1": case "c": case "creative": return org.bukkit.GameMode.CREATIVE;
-                case "2": case "a": case "adventure": return org.bukkit.GameMode.ADVENTURE;
-                case "3": case "sp": case "spectator": return org.bukkit.GameMode.SPECTATOR;
-                default: throw new InvalidCommandArgument("Please specify one of the following: CREATIVE, SURVIVAL, ADVENTURE, SPECTATOR.");
-            }
+            return switch (input) {
+                case "0", "s", "survival" -> org.bukkit.GameMode.SURVIVAL;
+                case "1", "c", "creative" -> org.bukkit.GameMode.CREATIVE;
+                case "2", "a", "adventure" -> org.bukkit.GameMode.ADVENTURE;
+                case "3", "sp", "spectator" -> org.bukkit.GameMode.SPECTATOR;
+                default ->
+                        throw new InvalidCommandArgument("Please specify one of the following: CREATIVE, SURVIVAL, ADVENTURE, SPECTATOR.");
+            };
         });
 
         manager.getCommandCompletions().registerCompletion("gamemodes", c -> java.util.Arrays.asList("survival", "creative", "adventure", "spectator", "0", "1", "2", "3", "s", "c", "a", "sp"));
@@ -225,7 +174,7 @@ public class CircuitPlugin extends JavaPlugin {
             try {
                 // Skip queue commands if queue-manager is not enabled (except HubCommand)
                 String className = c.getSimpleName();
-                if (!queueManagerEnabled && (className.equals("QueueCommand") || 
+                if (!queueManagerEnabled && (className.equals("QueueCommand") ||
                     className.equals("QueueAdminCommand") || className.equals("LeaveQueueCommand"))) {
                     return;
                 }
@@ -238,68 +187,20 @@ public class CircuitPlugin extends JavaPlugin {
 
     }
 
-    private void setupServices() {
-        ServiceContainer.registerService(new BukkitChatService());
-        ServiceContainer.registerService(new BukkitProfileService());
-        ServiceContainer.registerService(new BukkitGrantService());
-        ServiceContainer.registerService(new QueueService());
+    private void setupModules() {
+        this.moduleManager = new ModuleManager();
+        this.moduleManager.registerModule(new CoreModule());
+        this.moduleManager.registerModule(new RankModule());
+        this.moduleManager.registerModule(new EssentialsModule());
+        this.moduleManager.registerModule(new PlayerModule());
+        this.moduleManager.registerModule(new ServerModule());
+        this.moduleManager.registerModule(new PunishmentModule());
+        this.moduleManager.registerModule(new StaffModule());
+        this.moduleManager.registerModule(new QueueModule());
+        this.moduleManager.loadModuleStates(this.mainConfig);
+        this.moduleManager.enableModules();
     }
 
-    private void setupTasks() {
-        new GrantDurationTask();
-        BungeeUtils.registerChannel();
-        
-        if (mainConfig.getBoolean("queue-manager.enabled", false)) {
-            setupQueueManager();
-        }
-    }
-    
-    private void setupQueueManager() {
-        QueueService queueService = ServiceContainer.getService(QueueService.class);
-        java.util.List<String> queueNames = mainConfig.getStringList("queue-manager.queues");
-        
-        shared.getLogger().log("&b&lQueue Manager &7- Initializing...");
-        
-        for (String queueName : queueNames) {
-            queueService.getOrCreateQueue(queueName);
-            shared.getLogger().log("&b&lQueue Manager &7- Loaded queue: &f" + queueName);
-        }
-        
-        new QueueTask();
-        shared.getLogger().log("&b&lQueue Manager &7- Started with &f" + queueNames.size() + " &7queues");
-    }
-
-    private void setupListeners() {
-        this.shared.getRedis().registerListener(new MessagePacket(), new MessageListener());
-        this.shared.getRedis().registerListener(new ServerStatusPacket(), new ServerStatusListener());
-        this.shared.getRedis().registerListener(new PunishmentUpdatePacket(), new PunishmentUpdateListener());
-        this.shared.getRedis().registerListener(new ServerCommandPacket(), new ServerCommandListener());
-        this.shared.getRedis().registerListener(new StaffStatusPacket(), new StaffStatusListener());
-        this.shared.getRedis().registerListener(new StaffChatPacket(), new StaffChatListener());
-        this.shared.getRedis().registerListener(new AdminChatPacket(), new AdminChatListener());
-        this.shared.getRedis().registerListener(new BroadcastPacket(), new BroadcastListener());
-        this.shared.getRedis().registerListener(new ManagementBroadcastPacket(), new ManagementBroadcastListener());
-        this.shared.getRedis().registerListener(new RequestPacket(), new RequestListener());
-        this.shared.getRedis().registerListener(new ReportPacket(), new ReportListener());
-        this.shared.getRedis().registerListener(new QueueJoinPacket(), new QueueJoinListener());
-        this.shared.getRedis().registerListener(new QueueLeavePacket(), new QueueLeaveListener());
-        this.shared.getRedis().registerListener(new QueueSendPacket(), new QueueSendListener());
-        this.shared.getRedis().registerListener(new QueuePositionPacket(), new QueuePositionListener());
-        this.shared.getRedis().registerListener(new ServerDiscoveryPacket(), new ServerDiscoveryListener());
-        this.shared.getRedis().registerListener(new RankUpdatePacket(), new RankUpdateListener());
-        this.shared.getRedis().registerListener(new TagUpdatePacket(), new TagUpdateListener());
-        this.shared.getRedis().registerListener(new VIPUpdatePacket(), new VIPUpdateListener());
-        this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-        this.getServer().getPluginManager().registerEvents(new ServerListener(), this);
-        this.getServer().getPluginManager().registerEvents(new MenuListener(), this);
-        this.getServer().getPluginManager().registerEvents(new FreezeListener(), this);
-        
-        // Register PlaceholderAPI expansion if available
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new CircuitExpansion().register();
-            this.getLogger().info("PlaceholderAPI expansion registered!");
-        }
-    }
 
     @Override
     public void onDisable() {

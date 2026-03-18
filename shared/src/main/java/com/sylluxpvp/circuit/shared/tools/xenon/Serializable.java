@@ -14,13 +14,10 @@ public interface Serializable {
     Document toDocument();
 
     static Serializable fromDocument(String type, Document doc) {
-        switch (type.toLowerCase()) {
-            case "rank":
-                return ServiceContainer.getService(RankService.class).fromDocument(doc);
-            case "punishment":
-                return ServiceContainer.getService(PunishmentService.class).fromDocument(doc);
-            default:
-                throw new IllegalArgumentException("Unknown type: " + type);
-        }
+        return switch (type.toLowerCase()) {
+            case "rank" -> ServiceContainer.getService(RankService.class).fromDocument(doc);
+            case "punishment" -> ServiceContainer.getService(PunishmentService.class).fromDocument(doc);
+            default -> throw new IllegalArgumentException("Unknown type: " + type);
+        };
     }
 }

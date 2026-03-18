@@ -1,27 +1,27 @@
 server:
-  name: "Unconfigured"
+  name: "SFaction"
   type: DEFAULT
 mongo:
-  ip: "127.0.0.1"
+  ip: "148.113.191.109"
   port: 27017
-  database: "Circuit" # esta mierda de aca es el authSource de mongo, no se le pone cualquier estupidez de nombre
+  database: "admin"
   auth:
-    enabled: false
-    username: ""
-    password: ""
+    enabled: true
+    username: "adminxminelc"
+    password: "Xm1n3lc_Network_2026#"
 redis:
-  address: "127.0.0.1"
+  address: "172.18.0.1"
   port: 6379
   auth:
-    enabled: false
-    password: ""
+    enabled: true
+    password: "XmiN3lc.Secur3.Db!"
 
 queue-manager:
-  enabled: false
+  enabled: true
   queues:
-    - "Squads"
-    - "Kitmap"
-  hub-server: "Hub-01"
+    - "SFaction"
+    - "Skyblock"
+  hub-server: "Lobby"
   hub-aliases:
     - "hub"
     - "lobby"

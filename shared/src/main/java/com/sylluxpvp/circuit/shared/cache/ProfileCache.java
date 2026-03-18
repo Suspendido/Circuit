@@ -23,7 +23,9 @@ public class ProfileCache {
         if (profile == null || profile.getUUID() == null) return;
 
         cache.put(profile.getUUID(), CacheEntry.of(profile, ttlMillis));
-        nameToUuidCache.put(profile.getName().toLowerCase(), profile.getUUID());
+        if (profile.getName() != null) {
+            nameToUuidCache.put(profile.getName().toLowerCase(), profile.getUUID());
+        }
     }
 
     public void putOnline(Profile profile) {

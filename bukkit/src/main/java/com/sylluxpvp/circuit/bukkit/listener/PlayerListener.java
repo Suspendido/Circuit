@@ -46,7 +46,19 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(null);
         Player player = event.getPlayer();
-        Profile profile = ServiceContainer.getService(ProfileService.class).load(player.getUniqueId());
+
+        ProfileService profileService = ServiceContainer.getService(ProfileService.class);
+        Profile existing = profileService.find(player.getUniqueId());
+        if (existing != null && existing.getName() == null) {
+            existing.setName(player.getName());
+        }
+
+        Profile profile = profileService.load(player.getUniqueId());
+
+        if (profile.getName() == null) {
+            profile.setName(player.getName());
+        }
+
         String ip = player.getAddress().getAddress().getHostAddress();
         profile.setAddress(ip);
         BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).create(profile);
@@ -58,9 +70,8 @@ public class PlayerListener implements Listener {
         event.setQuitMessage(null);
         Player player = event.getPlayer();
         BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
-        bukkitProfile.leave();
-        
-        // Remove from queue if in one
+        if (bukkitProfile != null) bukkitProfile.leave();
+
         if (ServiceContainer.getService(QueueService.class).getPlayerQueueName(player.getUniqueId()) != null) {
             CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new QueueLeavePacket(player.getUniqueId()));
         }
@@ -70,9 +81,8 @@ public class PlayerListener implements Listener {
     public void onPlayerKick(PlayerKickEvent event) {
         Player player = event.getPlayer();
         BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).find(player.getUniqueId());
-        bukkitProfile.leave();
-        
-        // Remove from queue if in one
+        if (bukkitProfile != null) bukkitProfile.leave();
+
         if (ServiceContainer.getService(QueueService.class).getPlayerQueueName(player.getUniqueId()) != null) {
             CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new QueueLeavePacket(player.getUniqueId()));
         }

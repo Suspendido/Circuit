@@ -31,9 +31,7 @@ public class WhitelistCommand extends BaseCommand {
         Server server = CircuitPlugin.getInstance().getShared().getServer();
         server.setWhitelisted(true);
 
-        String executor = sender instanceof Player 
-                ? ((Player) sender).getName() 
-                : "Console";
+        String executor = sender instanceof Player ? sender.getName() : "Console";
 
         Bukkit.broadcastMessage(CC.translate("&fWhitelist has been &aenabled&f."));
         CircuitPlugin.getInstance().getLogger().info(executor + " enabled whitelist");
@@ -45,9 +43,7 @@ public class WhitelistCommand extends BaseCommand {
         Server server = CircuitPlugin.getInstance().getShared().getServer();
         server.setWhitelisted(false);
 
-        String executor = sender instanceof Player 
-                ? ((Player) sender).getName() 
-                : "Console";
+        String executor = sender instanceof Player ? sender.getName() : "Console";
 
         Bukkit.broadcastMessage(CC.translate("&fWhitelist has been &cdisabled&f."));
         CircuitPlugin.getInstance().getLogger().info(executor + " disabled whitelist");

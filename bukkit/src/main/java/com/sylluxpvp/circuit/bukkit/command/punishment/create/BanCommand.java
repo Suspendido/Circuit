@@ -2,6 +2,8 @@ package com.sylluxpvp.circuit.bukkit.command.punishment.create;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import com.sylluxpvp.circuit.bukkit.module.impl.PunishmentModule;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,6 +20,8 @@ import com.sylluxpvp.circuit.shared.service.impl.PunishmentService;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
 
+import java.util.UUID;
+
 @CommandAlias("ban")
 @CommandPermission("circuit.punish.ban")
 public class BanCommand extends BaseCommand {
@@ -25,12 +29,18 @@ public class BanCommand extends BaseCommand {
     @Default
     @CommandCompletion("@players @times *")
     public void ban(CommandSender sender, @Name("target") OfflinePlayer target, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
+        String finalReason;
+        PunishmentModule punishmentModule = CircuitPlugin.getInstance().getModuleManager().getModule(PunishmentModule.class);
+        if (punishmentModule != null && !punishmentModule.canWrite()) {
+            sender.sendMessage(CC.translate(punishmentModule.getDegradedMessage()));
+            return;
+        }
         if (target == null) {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;
         }
-
-        Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
+        ProfileService profileService = ServiceContainer.getService(ProfileService.class);
+        Profile profile = profileService.find(target.getUniqueId());
         if (profile == null) {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;
@@ -42,19 +52,37 @@ public class BanCommand extends BaseCommand {
         }
 
         boolean isPermanent = time.equalsIgnoreCase("perm") || time.equalsIgnoreCase("permanent");
-        long duration = isPermanent ? -1 : TimeUtils.parseTime(time);
-        if (!isPermanent && !TimeUtils.isTime(time)) {
-            sender.sendMessage(CC.translate("&cDuration needs to be a valid time unit."));
-            return;
+        boolean isValidTime = isPermanent || TimeUtils.isTime(time);
+        long duration;
+        if (isValidTime) {
+            duration = isPermanent ? -1L : TimeUtils.parseTime(time);
+            finalReason = reason;
+        } else {
+            duration = -1L;
+            finalReason = reason != null ? time + " " + reason : time;
         }
-
-        if (!isPermanent && duration < 0 || duration == Long.MAX_VALUE) {
-            sender.sendMessage(CC.translate("&cDuration needs to be a valid time."));
-            return;
-        }
-        Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID(), PunishmentType.BAN, reason, duration);
-        profile.addGrant(grant);
-        ServiceContainer.getService(ProfileService.class).save(profile);
-        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID(), target.getUniqueId(), PunishmentType.BAN.name(), grant.getTimeCreated(), duration, reason, false, false));
+        UUID senderUUID = sender instanceof Player ? ((Player)sender).getUniqueId() : CircuitConstants.getConsoleUUID();
+        Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(senderUUID, PunishmentType.BAN, finalReason, duration);
+        String reasonForPacket = finalReason;
+        long durationForPacket = duration;
+        (profileService.saveWithPendingGrant(profile, grant).thenAccept(success -> Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
+            if (success) {
+                profile.addGrant(grant);
+                CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(senderUUID, target.getUniqueId(), PunishmentType.BAN.name(), grant.getTimeCreated(), durationForPacket, reasonForPacket, false, false));
+            } else {
+                sender.sendMessage(CC.translate("&c&lError: &cFailed to save ban to database. Try again later."));
+                if (punishmentModule != null) {
+                    punishmentModule.reportFailure("ban command - save failed");
+                }
+            }
+        }))).exceptionally(ex -> {
+            Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
+                sender.sendMessage(CC.translate("&c&lError: &cPunishment system unavailable. Try again later."));
+                if (punishmentModule != null) {
+                    punishmentModule.reportFailure("ban command - exception: " + ex.getMessage());
+                }
+            });
+            return null;
+        });
     }
 }

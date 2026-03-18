@@ -42,9 +42,15 @@ public class RankService extends Service {
 
     @Override
     public void disable() {
-        this.saveAll();
-        this.ranks.clear();
-        this.ranks = null;
+        try {
+            this.saveAll();
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().warn("Could not save ranks during shutdown (MongoDB may be down): " + e.getMessage());
+        }
+        if (this.ranks != null) {
+            this.ranks.clear();
+            this.ranks = null;
+        }
         this.defaultRank = null;
     }
 

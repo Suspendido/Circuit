@@ -101,4 +101,12 @@ public class ServiceContainer {
         return serviceClass.cast(service);
     }
 
+    public static <T extends Service> T getServiceSafe(Class<T> serviceClass) {
+        if (serviceClass == null || serviceClass == Service.class || serviceClass == NoActionService.class) {
+            return null;
+        }
+        Service service = services.get(serviceClass);
+        return service != null ? serviceClass.cast(service) : null;
+    }
+
 }

@@ -2,3 +2,4 @@ name: Circuit
 main: com.sylluxpvp.circuit.bukkit.CircuitPlugin
 version: 1.1
 author: Spexey
+api-version: 1.21

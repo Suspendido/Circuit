@@ -64,12 +64,12 @@ public class Rank implements Serializable {
 
     @Override
     public String getExpiryMessage() {
-        return "&aYour " + color + name + " rank has expired!";
+        return "&aTu rango " + color + name + " &aa expirado!";
     }
 
     @Override
     public String getRemovalMessage() {
-        return "&aYour " + color + name + " &arank has been removed!";
+        return "&aTu rango " + color + name + " &aa sido removido!";
     }
 
     public void setPermission(String permission) {
@@ -102,7 +102,8 @@ public class Rank implements Serializable {
                 .append("purchasable", this.purchasable)
                 .append("weight", this.weight)
                 .append("color", this.color)
-                .append("inheritances", this.inheritances);
+                .append("inheritances", this.inheritances)
+                .append("discordRoleId", this.discordRoleId);
     }
 
 }

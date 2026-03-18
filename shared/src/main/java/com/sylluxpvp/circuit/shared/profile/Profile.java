@@ -32,10 +32,10 @@ public class Profile {
     private String name;
     private String color;
     private ChatChannel channel = ChatChannel.DEFAULT;
-    // TODO: Implementar sistema de coins completo
     private int coins;
     private UUID activeTagId = null;
     private boolean vipStatus = false;
+    private Long discordId = null;
 
     public Profile(UUID UUID) {
         this.UUID = Objects.requireNonNull(UUID, "UUID cannot be null");
@@ -49,7 +49,7 @@ public class Profile {
         this.coins = 0;
     }
 
-    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments, int coins, UUID activeTagId, boolean vipStatus) {
+    public Profile(String address, UUID UUID, String name, String color, String token, List<String> permissions, List<Grant<Rank>> rankGrants, List<Grant<Punishment>> punishments, int coins, UUID activeTagId, boolean vipStatus, Long discordId) {
         this.UUID = UUID;
         this.address = address;
         this.name = name;
@@ -61,6 +61,7 @@ public class Profile {
         this.coins = coins;
         this.activeTagId = activeTagId;
         this.vipStatus = vipStatus;
+        this.discordId = discordId;
     }
 
     public Tag getActiveTag() {
@@ -165,6 +166,28 @@ public class Profile {
 
     public String getVipIcon() {
         return vipStatus ? "&6✪" : "";
+    }
+
+    public boolean hasPermission(String permission) {
+        return permissions.contains(permission);
+    }
+
+    public void addPermission(String permission) {
+        if (!permissions.contains(permission)) {
+            permissions.add(permission);
+        }
+    }
+
+    public void removePermission(String permission) {
+        permissions.remove(permission);
+    }
+
+    public void togglePermission(String permission) {
+        if (permissions.contains(permission)) {
+            permissions.remove(permission);
+        } else {
+            permissions.add(permission);
+        }
     }
 
     public Document toDocument() {

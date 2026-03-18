@@ -13,6 +13,8 @@ public class StaffStatusPacket implements RedisPacket {
     private UUID staffUUID;
     private boolean joined;
     private String serverName;
+    private String fromServerName;
+    private String action;
 
     @Override
     public String getID() {

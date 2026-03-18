@@ -21,12 +21,12 @@ public class Tag {
 
     public Document toDocument() {
         return new Document()
-                .append("uuid", this.uuid.toString())
-                .append("name", this.name)
-                .append("display", this.display)
-                .append("purchasable", this.purchasable)
-                .append("permission", this.permission)
-                .append("createdAt", this.createdAt)
-                .append("createdBy", this.createdBy != null ? this.createdBy.toString() : null);
+                .append("uuid", uuid.toString())
+                .append("name", name)
+                .append("display", display)
+                .append("purchasable", purchasable)
+                .append("permission", permission)
+                .append("createdAt", createdAt)
+                .append("createdBy", createdBy != null ? createdBy.toString() : null);
     }
 }

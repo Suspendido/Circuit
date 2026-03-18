@@ -32,7 +32,7 @@ public class AltsCommand extends BaseCommand {
                 .collect(Collectors.toSet());
 
         if (alts.isEmpty()) {
-            sender.sendMessage(CC.translate("&cNo alts found for " + profile.getCurrentGrant().getData().getColor() + profile.getName() + "&c!"));
+            sender.sendMessage(CC.translate("&cNo se encontraron multicuentas al " + profile.getCurrentGrant().getData().getColor() + profile.getName() + "&c!"));
             return;
         }
 

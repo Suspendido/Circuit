@@ -10,15 +10,16 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.connection.ConnectionPoolSettings;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+@Getter @Setter
 public class Mongo {
 
     private static Mongo instance;
     private final MongoClient mongoClient;
-    @Getter
     private final MongoDatabase database;
 
     private static final int MIN_POOL_SIZE = 5;
@@ -28,7 +29,8 @@ public class Mongo {
 
     private Mongo(String mongoHost, int mongoPort, String databaseName) {
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoHost, mongoPort))))
+                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoHost, mongoPort)))
+                        .serverSelectionTimeout(5000L, TimeUnit.MILLISECONDS))
                 .applyToConnectionPoolSettings(this::configureConnectionPool)
                 .build();
         this.mongoClient = MongoClients.create(settings);
@@ -39,7 +41,8 @@ public class Mongo {
     private Mongo(String mongoHost, int mongoPort, String username, char[] password, String authSource, String databaseName) {
         MongoCredential credential = MongoCredential.createCredential(username, authSource, password);
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoHost, mongoPort))))
+                .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoHost, mongoPort)))
+                        .serverSelectionTimeout(5000L, TimeUnit.MILLISECONDS))
                 .applyToConnectionPoolSettings(this::configureConnectionPool)
                 .credential(credential)
                 .build();
@@ -57,34 +60,13 @@ public class Mongo {
 
     private void createIndexes() {
         try {
-            database.getCollection("profiles").createIndex(
-                    Indexes.ascending("uuid"),
-                    new IndexOptions().unique(true).background(true)
-            );
-            database.getCollection("profiles").createIndex(
-                    Indexes.ascending("name"),
-                    new IndexOptions().background(true)
-            );
-            database.getCollection("profiles").createIndex(
-                    Indexes.ascending("address"),
-                    new IndexOptions().background(true)
-            );
-            database.getCollection("ranks").createIndex(
-                    Indexes.ascending("uuid"),
-                    new IndexOptions().unique(true).background(true)
-            );
-            database.getCollection("ranks").createIndex(
-                    Indexes.ascending("name"),
-                    new IndexOptions().background(true)
-            );
-            database.getCollection("gifts").createIndex(
-                    Indexes.ascending("uuid"),
-                    new IndexOptions().unique(true).background(true)
-            );
-            database.getCollection("gifts").createIndex(
-                    Indexes.ascending("code"),
-                    new IndexOptions().unique(true).background(true)
-            );
+            database.getCollection("profiles").createIndex(Indexes.ascending("uuid"), new IndexOptions().unique(true).background(true));
+            database.getCollection("profiles").createIndex(Indexes.ascending("name"), new IndexOptions().background(true));
+            database.getCollection("profiles").createIndex(Indexes.ascending("address"), new IndexOptions().background(true));
+            database.getCollection("ranks").createIndex(Indexes.ascending("uuid"), new IndexOptions().unique(true).background(true));
+            database.getCollection("ranks").createIndex(Indexes.ascending("name"), new IndexOptions().background(true));
+            database.getCollection("gifts").createIndex(Indexes.ascending("uuid"), new IndexOptions().unique(true).background(true));
+            database.getCollection("gifts").createIndex(Indexes.ascending("code"), new IndexOptions().unique(true).background(true));
         } catch (Exception ignored) {
         }
     }

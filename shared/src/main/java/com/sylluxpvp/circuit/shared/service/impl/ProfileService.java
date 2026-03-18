@@ -3,6 +3,7 @@ package com.sylluxpvp.circuit.shared.service.impl;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
+import com.sylluxpvp.circuit.shared.service.DatabaseOperationListener;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -23,12 +24,14 @@ import com.sylluxpvp.circuit.shared.tools.circuit.Serializable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter @Setter
 public class ProfileService extends Service {
 
     private Set<Profile> onlineProfiles;
     private MongoCollection<Document> profilesCollection;
+    private final List<DatabaseOperationListener> dbListeners = new CopyOnWriteArrayList<>();
 
     @Override @NonNull
     public String getIdentifier() {
@@ -44,10 +47,16 @@ public class ProfileService extends Service {
 
     @Override
     public void disable() {
-        this.saveAllSync();
+        try {
+            this.saveAllSync();
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().warn("Could not save profiles during shutdown (MongoDB may be down): " + e.getMessage());
+        }
         ProfileCache.clear();
-        this.onlineProfiles.clear();
-        this.onlineProfiles = null;
+        if (this.onlineProfiles != null) {
+            this.onlineProfiles.clear();
+            this.onlineProfiles = null;
+        }
         this.profilesCollection = null;
         AsyncExecutor.shutdown();
     }
@@ -70,19 +79,11 @@ public class ProfileService extends Service {
     public Profile load(UUID uuid) {
         Validate.notNull(uuid, "UUID cannot be null");
         Profile memoryProfile = find(uuid);
-        if (memoryProfile != null) {
-            return memoryProfile;
-        }
+        if (memoryProfile != null) return memoryProfile;
 
         Document doc = profilesCollection.find(Filters.eq("uuid", uuid.toString())).first();
 
-        Profile profile;
-        if (doc == null) {
-            profile = create(uuid);
-        } else {
-            profile = fromDocument(doc);
-        }
-
+        Profile profile = doc == null ? this.create(uuid) : this.fromDocument(doc);
         this.onlineProfiles.add(profile);
         ProfileCache.putOnline(profile);
 
@@ -92,18 +93,11 @@ public class ProfileService extends Service {
     public CompletableFuture<Profile> loadAsync(UUID uuid) {
         Validate.notNull(uuid, "UUID cannot be null");
         Profile memoryProfile = find(uuid);
-        if (memoryProfile != null) {
-            return CompletableFuture.completedFuture(memoryProfile);
-        }
+        if (memoryProfile != null) return CompletableFuture.completedFuture(memoryProfile);
 
         return AsyncExecutor.supplyAsync(() -> {
             Document doc = profilesCollection.find(Filters.eq("uuid", uuid.toString())).first();
-            Profile profile;
-            if (doc == null) {
-                profile = create(uuid);
-            } else {
-                profile = fromDocument(doc);
-            }
+            Profile profile = doc == null ? this.create(uuid) : this.fromDocument(doc);
             this.onlineProfiles.add(profile);
             ProfileCache.putOnline(profile);
             return profile;
@@ -115,14 +109,132 @@ public class ProfileService extends Service {
         AsyncExecutor.runAsync(() -> saveSync(profile));
     }
 
+    public CompletableFuture<Boolean> saveWithResult(Profile profile) {
+        Validate.notNull(profile, "Profile cannot be null");
+        return AsyncExecutor.supplyAsync(() -> {
+            try {
+                this.saveSync(profile);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> saveWithPendingGrant(Profile profile, Grant<?> pendingGrant) {
+        Validate.notNull(profile, "Profile cannot be null");
+        Validate.notNull(pendingGrant, "Pending grant cannot be null");
+        return AsyncExecutor.supplyAsync(() -> {
+            try {
+                Document doc = profile.toDocument();
+                Document grantDoc = pendingGrant.toDocument();
+                if (pendingGrant.getData() instanceof Punishment) {
+                    ArrayList<Document> punishments = (ArrayList<Document>) doc.get("punishments");
+                    if (punishments == null) {
+                        punishments = new ArrayList<>();
+                    }
+                    punishments.add(grantDoc);
+                    doc.put("punishments", punishments);
+                } else if (pendingGrant.getData() instanceof Rank) {
+                    ArrayList<Document> rankGrants = (ArrayList<Document>) doc.get("rankGrants");
+                    if (rankGrants == null) {
+                        rankGrants = new ArrayList<>();
+                    }
+                    rankGrants.add(grantDoc);
+                    doc.put("rankGrants", rankGrants);
+                }
+                this.profilesCollection.replaceOne(Filters.eq("uuid", profile.getUUID().toString()), doc, new ReplaceOptions().upsert(true));
+                this.notifySuccess();
+                return true;
+            } catch (Exception e) {
+                this.notifyFailure("save profile with pending grant " + profile.getUUID(), e);
+                return false;
+            }
+        });
+    }
+
     public void saveSync(Profile profile) {
         Validate.notNull(profile, "Profile cannot be null");
-        Document doc = profile.toDocument();
-        profilesCollection.replaceOne(
-                Filters.eq("uuid", profile.getUUID().toString()),
-                doc,
-                new ReplaceOptions().upsert(true)
-        );
+        try {
+            Document doc = profile.toDocument();
+            this.profilesCollection.replaceOne(Filters.eq("uuid", profile.getUUID().toString()), doc, new ReplaceOptions().upsert(true));
+            this.notifySuccess();
+        } catch (Exception e) {
+            this.notifyFailure("save profile " + profile.getUUID(), e);
+            throw e;
+        }
+    }
+
+    public CompletableFuture<Boolean> saveWithPendingPermission(Profile profile, String permission, boolean add) {
+        Validate.notNull(profile, "Profile cannot be null");
+        Validate.notNull(permission, "Permission cannot be null");
+        return AsyncExecutor.supplyAsync(() -> {
+            try {
+                Document doc = profile.toDocument();
+                ArrayList<String> permissions = (ArrayList<String>)doc.get("permissions");
+                if (permissions == null) {
+                    permissions = new ArrayList<>();
+                }
+                if (add) {
+                    if (!permissions.contains(permission)) {
+                        permissions.add(permission);
+                    }
+                } else {
+                    permissions.remove(permission);
+                }
+                doc.put("permissions", permissions);
+                this.profilesCollection.replaceOne(Filters.eq("uuid", profile.getUUID().toString()), doc, new ReplaceOptions().upsert(true));
+                this.notifySuccess();
+                return true;
+            } catch (Exception e) {
+                this.notifyFailure("save profile with pending permission " + profile.getUUID(), e);
+                return false;
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> saveWithClearedPermissions(Profile profile) {
+        Validate.notNull(profile, "Profile cannot be null");
+        return AsyncExecutor.supplyAsync(() -> {
+            try {
+                Document doc = profile.toDocument();
+                doc.put("permissions", new ArrayList<>());
+                this.profilesCollection.replaceOne(Filters.eq("uuid", profile.getUUID().toString()), doc, new ReplaceOptions().upsert(true));
+                this.notifySuccess();
+                return true;
+            } catch (Exception e) {
+                this.notifyFailure("save profile with cleared permissions " + profile.getUUID(), e);
+                return false;
+            }
+        });
+    }
+
+    public void addDatabaseListener(DatabaseOperationListener listener) {
+        this.dbListeners.add(listener);
+    }
+
+    public void removeDatabaseListener(DatabaseOperationListener listener) {
+        this.dbListeners.remove(listener);
+    }
+
+    private void notifyFailure(String operation, Exception error) {
+        this.dbListeners.forEach(l -> {
+            try {
+                l.onDatabaseFailure(operation, error);
+            } catch (Exception exception) {
+                // empty catch block
+            }
+        });
+    }
+
+    private void notifySuccess() {
+        this.dbListeners.forEach(l -> {
+            try {
+                l.onDatabaseSuccess();
+            } catch (Exception exception) {
+                // empty catch block
+            }
+        });
     }
 
     public Profile create(UUID uuid) {
@@ -171,8 +283,8 @@ public class ProfileService extends Service {
         String activeTagIdStr = doc.getString("activeTagId");
         UUID activeTagId = activeTagIdStr != null ? UUID.fromString(activeTagIdStr) : null;
         boolean vipStatus = doc.getBoolean("vipStatus", false);
-
-        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins, activeTagId, vipStatus);
+        Long discordId = doc.getLong("discordId");
+        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins, activeTagId, vipStatus, discordId);
     }
 
     public Set<Profile> findFromAddress(Profile base) {

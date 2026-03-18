@@ -320,4 +320,42 @@ public class RankCommands extends BaseCommand {
         service.loadAll();
         player.sendMessage(CC.translate("&aRanks reloaded from database! Loaded " + service.getRanks().size() + " ranks."));
     }
+
+//    @Subcommand("import ranks")
+//    @CommandPermission("circuit.rank.import")
+//    public void importRanks(Player player) {
+//        LuckPermsImport importer = new LuckPermsImport(CircuitPlugin.getInstance().getLogger());
+//
+//        if (!importer.isAvailable()) {
+//            player.sendMessage(CC.translate("&cLuckPerms is not available."));
+//            return;
+//        }
+//
+//        player.sendMessage(CC.translate("&aImporting ranks from LuckPerms..."));
+//        AsyncExecutor.runAsync(() -> {
+//            importer.executeImportRanks();
+//            player.sendMessage(CC.translate("&aRanks imported! Check console for details."));
+//        });
+//    }
+//
+//    @Subcommand("import users")
+//    @CommandPermission("circuit.rank.import")
+//    public void importUsers(Player player) {
+//        LuckPermsImport importer = new LuckPermsImport(CircuitPlugin.getInstance().getLogger());
+//
+//        if (!importer.isAvailable()) {
+//            player.sendMessage(CC.translate("&cLuckPerms is not available."));
+//            return;
+//        }
+//
+//        player.sendMessage(CC.translate("&aImporting users from LuckPerms, check console for progress..."));
+//        AsyncExecutor.runAsync(() -> {
+//            try {
+//                importer.importUsers().get(5, TimeUnit.MINUTES);
+//                player.sendMessage(CC.translate("&aUsers imported!"));
+//            } catch (Exception e) {
+//                player.sendMessage(CC.translate("&cImport failed, check console."));
+//            }
+//        });
+//    }
 }

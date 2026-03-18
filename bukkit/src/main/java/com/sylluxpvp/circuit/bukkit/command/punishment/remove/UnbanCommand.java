@@ -16,6 +16,8 @@ import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.service.impl.PunishmentService;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @CommandAlias("unban")
 @CommandPermission("circuit.punish.unban")
@@ -23,13 +25,24 @@ public class UnbanCommand extends BaseCommand {
 
     @Default
     @CommandCompletion("@players *")
-    public void ban(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
+    public void unban(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         if (target == null) {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;
         }
 
-        Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
+        ProfileService profileService = ServiceContainer.getService(ProfileService.class);
+        Profile profile = profileService.find(target.getUniqueId());
+
+        if (profile == null) {
+            try {
+                profile = profileService.loadAsync(target.getUniqueId()).get(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                sender.sendMessage(CircuitConstants.getPlayerNotFound());
+                return;
+            }
+        }
+
         if (profile == null) {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;
@@ -41,8 +54,12 @@ public class UnbanCommand extends BaseCommand {
         }
 
         Grant<Punishment> punishment = profile.findActivePunishment(PunishmentType.BAN);
-        ServiceContainer.getService(PunishmentService.class).removePunishment(sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID(), profile, punishment, reason);
-        ServiceContainer.getService(ProfileService.class).save(profile);
-        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID(), target.getUniqueId(), PunishmentType.BAN.name(), -1, -1, reason, true, false));
+        UUID authorUUID = sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID();
+
+        ServiceContainer.getService(PunishmentService.class).removePunishment(authorUUID, profile, punishment, reason);
+        profileService.save(profile);
+        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                new PunishmentUpdatePacket(authorUUID, target.getUniqueId(), PunishmentType.BAN.name(), -1, -1, reason, true, false)
+        );
     }
 }

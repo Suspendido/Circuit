@@ -75,12 +75,9 @@ public class QueueService extends Service {
         queue.addPlayer(player);
     }
 
-    public boolean removePlayerFromQueue(UUID uuid) {
+    public void removePlayerFromQueue(UUID uuid) {
         Optional<Queue> queue = findQueueByPlayer(uuid);
-        if (queue.isPresent()) {
-            return queue.get().removePlayer(uuid);
-        }
-        return false;
+        queue.ifPresent(value -> value.removePlayer(uuid));
     }
 
     public int getPlayerPosition(UUID uuid) {

@@ -24,7 +24,7 @@ public class HubCommand extends BaseCommand {
         String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
         
         if (currentServer.equalsIgnoreCase(hubServer)) {
-            player.sendMessage(CC.translate("&cYou are already in the hub!"));
+            player.sendMessage(CC.translate("&cYa estas en el hub!"));
             return;
         }
         
@@ -32,11 +32,11 @@ public class HubCommand extends BaseCommand {
         Optional<Server> serverOpt = serverService.find(hubServer);
         
         if (!serverOpt.isPresent() || !serverOpt.get().isOnline()) {
-            player.sendMessage(CC.translate("&cThe hub server is currently unavailable."));
+            player.sendMessage(CC.translate("&cEl hub se encuentra inaccesible actualmente."));
             return;
         }
         
         BungeeUtils.sendToServer(player, hubServer);
-        player.sendMessage(CC.translate("&aSending you to the hub..."));
+        player.sendMessage(CC.translate("&aMandandote al hub..."));
     }
 }

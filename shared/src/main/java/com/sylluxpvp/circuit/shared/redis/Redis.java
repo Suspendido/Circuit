@@ -3,6 +3,8 @@ package com.sylluxpvp.circuit.shared.redis;
 import lombok.Getter;
 import org.apache.commons.lang3.Validate;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.redis.listener.PacketListener;
@@ -11,17 +13,16 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+@Getter
 public class Redis {
 
     private static Redis instance;
 
-    private final String host;
-    private final int port;
-    private final String password;
+    @Getter private final String host;
+    @Getter private final int port;
+    @Getter private final String password;
 
-    @Getter
-    private final Jedis jedisPublisher;
-    private final Jedis jedisSubscriber;
+    private final JedisPool jedisPool;
     private final String channel;
     private final Map<JedisPubSub, Thread> runningListeners = new HashMap<>();
     private final Map<String, List<PacketListener<RedisPacket>>> packetListeners = new ConcurrentHashMap<>();
@@ -34,17 +35,26 @@ public class Redis {
         this.host = redisHost;
         this.port = redisPort;
         this.password = password;
-        this.jedisPublisher = new Jedis(redisHost, redisPort);
-        this.jedisSubscriber = new Jedis(redisHost, redisPort);
         this.channel = channel;
 
+        JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(16);
+        config.setMaxIdle(8);
+        config.setMinIdle(2);
+        config.setTestOnBorrow(true);
+        config.setTestOnReturn(true);
+        config.setTestWhileIdle(true);
+
         if (password != null && !password.isEmpty()) {
-            this.jedisPublisher.auth(password);
-            this.jedisSubscriber.auth(password);
+            this.jedisPool = new JedisPool(config, redisHost, redisPort, 2000, password);
+        } else {
+            this.jedisPool = new JedisPool(config, redisHost, redisPort, 2000);
         }
 
-        if (!"PONG".equalsIgnoreCase(this.jedisPublisher.ping())) {
-            throw new RuntimeException("Failed to connect to Redis!");
+        try (Jedis jedis = jedisPool.getResource()) {
+            if (!"PONG".equalsIgnoreCase(jedis.ping())) {
+                throw new RuntimeException("Failed to connect to Redis!");
+            }
         }
     }
 
@@ -63,14 +73,22 @@ public class Redis {
         }
     }
 
+    // ── Backwards compat — usado en BukkitProfile helpers ──
+    public Jedis getJedisPublisher() {
+        return jedisPool.getResource(); // caller debe cerrar con try-with-resources
+    }
+
     public void sendMessage(String message) {
-        jedisPublisher.publish(channel, message);
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.publish(channel, message);
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().error("Failed to send Redis message: " + e.getMessage());
+        }
     }
 
     public synchronized void listen(JedisPubSub listener, Consumer<Void> onReady) {
         Thread thread = new Thread(() -> {
-            try (Jedis jedis = new Jedis(host, port)) {
-                if (password != null) jedis.auth(password);
+            try (Jedis jedis = jedisPool.getResource()) {
                 jedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onSubscribe(String channel, int subscribedChannels) {
@@ -103,13 +121,13 @@ public class Redis {
     }
 
     public void close() {
-        try {
-            jedisPublisher.close();
-            jedisSubscriber.close();
-        } catch (Exception ignored) {}
-
         runningListeners.values().forEach(Thread::interrupt);
         runningListeners.clear();
+
+        try {
+            jedisPool.close();
+        } catch (Exception ignored) {}
+
         instance = null;
     }
 
