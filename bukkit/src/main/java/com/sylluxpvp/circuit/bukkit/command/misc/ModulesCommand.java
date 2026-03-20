@@ -33,15 +33,15 @@ public class ModulesCommand extends BaseCommand {
             switch (state) {
                 case ENABLED: {
                     ++enabled;
-                    continue block5;
+                    continue;
                 }
                 case DISABLED: {
                     ++disabled;
-                    continue block5;
+                    continue;
                 }
                 case DEGRADED: {
                     ++degraded;
-                    continue block5;
+                    continue;
                 }
             }
             if (!state.isFailed()) continue;

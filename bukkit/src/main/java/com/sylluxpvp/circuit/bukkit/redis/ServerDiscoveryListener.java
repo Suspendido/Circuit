@@ -27,7 +27,7 @@ public class ServerDiscoveryListener extends PacketListener<ServerDiscoveryPacke
         CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
                 new ServerUpdatePacket(server.getName(), server.getType().name(), 
                         server.isOnline(), server.isWhitelisted(), false, 
-                        server.getPlayers(), server.getMax())
+                        server.getPlayers(), server.getMax(), server.getWhitelistRank(), server.getWhitelistedPlayers())
         );
     }
 }

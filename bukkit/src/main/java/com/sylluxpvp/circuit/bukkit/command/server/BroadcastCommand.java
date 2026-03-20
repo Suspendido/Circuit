@@ -14,7 +14,7 @@ public class BroadcastCommand extends BaseCommand {
     @Default
     @CommandCompletion("@players *")
     public void broadcast(CommandSender sender, @Name("message") @Flags("remaining") String message) {
-        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket(null, "&9Circuit &7» &f" + message, false));
+        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new MessagePacket(null, "&6&lxMineLC &7» &f" + message, false));
         sender.sendMessage(CC.translate("&aBroadcasted to the whole network!"));
     }
 

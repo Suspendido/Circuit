@@ -1,16 +1,7 @@
-/*
- * Decompiled with CFR 0.153-SNAPSHOT (d6f6758-dirty).
- * 
- * Could not load the following classes:
- *  lombok.Generated
- *  org.bukkit.event.Listener
- *  org.bukkit.plugin.Plugin
- */
 package com.sylluxpvp.circuit.bukkit.module;
 
 import co.aikar.commands.BaseCommand;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.bukkit.module.ModuleState;
 import com.sylluxpvp.circuit.shared.redis.RedisPacket;
 import com.sylluxpvp.circuit.shared.redis.listener.PacketListener;
 import com.sylluxpvp.circuit.shared.tools.java.ClassUtils;
@@ -22,7 +13,6 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 
 @Getter @Setter
 public abstract class Module {
@@ -32,7 +22,7 @@ public abstract class Module {
     private String failureReason = null;
     private final List<Listener> registeredListeners = new ArrayList<>();
     private final List<BaseCommand> registeredCommands = new ArrayList<>();
-    private final List<RedisPacketRegistration<?>> registeredPackets = new ArrayList();
+    private final List<RedisPacketRegistration<?>> registeredPackets = new ArrayList<>();
 
     public Module(String name, String description) {
         this.name = name;
@@ -62,7 +52,7 @@ public abstract class Module {
     }
 
     protected void registerListener(Listener listener) {
-        CircuitPlugin.getInstance().getServer().getPluginManager().registerEvents(listener, (Plugin)CircuitPlugin.getInstance());
+        CircuitPlugin.getInstance().getServer().getPluginManager().registerEvents(listener, CircuitPlugin.getInstance());
         this.registeredListeners.add(listener);
     }
 
@@ -73,7 +63,7 @@ public abstract class Module {
 
     protected <T extends RedisPacket> void registerPacketListener(T packet, PacketListener<T> listener) {
         CircuitPlugin.getInstance().getShared().getRedis().registerListener(packet, listener);
-        this.registeredPackets.add(new RedisPacketRegistration<T>(packet, listener));
+        this.registeredPackets.add(new RedisPacketRegistration<>(packet, listener));
     }
 
     protected void loadCommandsFromPackage(String packageName) {

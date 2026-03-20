@@ -44,6 +44,7 @@ public class RankUpdateListener extends PacketListener<RankUpdatePacket> {
             existingRank.setDefaultRank(updatedRank.isDefaultRank());
             existingRank.setPermissions(updatedRank.getPermissions());
             existingRank.setInheritances(updatedRank.getInheritances());
+            rankService.notifyRankUpdate(existingRank);
         } else {
             // Add new rank
             rankService.getRanks().add(updatedRank);

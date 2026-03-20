@@ -53,9 +53,7 @@ public class PunishmentUpdateListener extends PacketListener<PunishmentUpdatePac
                 });
                 return;
             } else {
-                String duration = packet.getDuration() == -1
-                        ? " &apermanently for "
-                        : " &atemporarily &7(" + TimeUtils.formatTime(packet.getDuration()) + ") &afor ";
+                String duration = packet.getDuration() == -1 ? " &apermanently for " : " &atemporarily &7(" + TimeUtils.formatTime(packet.getDuration()) + ") &afor ";
                 if (type == PunishmentType.KICK) duration = " &afor ";
                 ServerUtils.sendMessage(author + " &ahas " + type.getAction() + " " + target + duration + packet.getReason() + "!", player -> {
                     Profile profile = ServiceContainer.getService(ProfileService.class).find(player.getUniqueId());

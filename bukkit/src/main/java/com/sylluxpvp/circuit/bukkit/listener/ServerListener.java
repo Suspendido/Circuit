@@ -32,8 +32,8 @@ public class ServerListener implements Listener {
             server.setMax(Bukkit.getMaxPlayers());
             server.setOnline(true);
             CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
-                    new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(), 
-                            server.isWhitelisted(), false, server.getPlayers(), server.getMax())
+                    new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(),
+                            server.isWhitelisted(), false, server.getPlayers(), server.getMax(), server.getWhitelistRank(), server.getWhitelistedPlayers())
             );
         }, UPDATE_DELAY_TICKS);
     }

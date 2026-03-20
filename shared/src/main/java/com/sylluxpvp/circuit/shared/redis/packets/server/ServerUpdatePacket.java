@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.sylluxpvp.circuit.shared.redis.RedisPacket;
 
+import java.util.Set;
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -17,6 +20,8 @@ public class ServerUpdatePacket implements RedisPacket {
     private boolean sendStatus;
     private int players;
     private int max;
+    private String whitelistRank;
+    private Set<UUID> whitelistedPlayers;
 
     @Override
     public String getID() {

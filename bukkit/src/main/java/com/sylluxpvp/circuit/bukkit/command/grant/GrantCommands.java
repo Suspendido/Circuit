@@ -2,6 +2,7 @@ package com.sylluxpvp.circuit.bukkit.command.grant;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import com.sylluxpvp.circuit.shared.grant.Grant;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,10 +46,6 @@ public class GrantCommands extends BaseCommand {
         }
 
         Profile profile = ServiceContainer.getService(ProfileService.class).find(target.getUniqueId());
-        if (profile.hasRank(rank)) {
-            sender.sendMessage(CC.translate("&cThis player already has this rank!"));
-            return;
-        }
 
         boolean isPermanent = time.equalsIgnoreCase("perm") || time.equalsIgnoreCase("permanent");
         long duration = isPermanent ? -1 : TimeUtils.parseTime(time);
@@ -58,8 +55,29 @@ public class GrantCommands extends BaseCommand {
             return;
         }
 
-        if (!isPermanent && duration < 0 || duration == Long.MAX_VALUE) {
+        if (!isPermanent && (duration < 0 || duration == Long.MAX_VALUE)) {
             sender.sendMessage(CC.translate("&cDuration needs to be a valid time."));
+            return;
+        }
+
+        if (!isPermanent) {
+            Grant<Rank> existingGrant = profile.findByRank(rank);
+            if (existingGrant != null && existingGrant.isActive() && existingGrant.getDuration() != -1) {
+                long remaining = (existingGrant.getTimeCreated() + existingGrant.getDuration()) - System.currentTimeMillis();
+                if (remaining > 0) {
+                    duration += remaining;
+                    sender.sendMessage(CC.translate("&7El jugador ya tiene &f" + rank.getColor() + rank.getName() + " &7temporal. Se sumó el tiempo restante (&f" + TimeUtils.formatTimeShort(remaining) + "&7)."));
+                }
+                existingGrant.setRemoved(true);
+                existingGrant.setRemovedBy(sender instanceof Player ? ((Player) sender).getUniqueId() : CircuitConstants.getConsoleUUID());
+                existingGrant.setRemovedAt(System.currentTimeMillis());
+                existingGrant.setRemovalReason("Extended by grant");
+            } else if (profile.hasRank(rank)) {
+                sender.sendMessage(CC.translate("&cThis player already has this rank!"));
+                return;
+            }
+        } else if (profile.hasRank(rank)) {
+            sender.sendMessage(CC.translate("&cThis player already has this rank!"));
             return;
         }
 

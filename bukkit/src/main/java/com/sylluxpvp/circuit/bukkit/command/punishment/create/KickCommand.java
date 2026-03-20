@@ -49,7 +49,7 @@ public class KickCommand extends BaseCommand {
         (profileService.saveWithPendingGrant(profile, grant).thenAccept(success -> Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
             if (success) {
                 profile.addGrant(grant);
-                CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(senderUUID, targetUUID, PunishmentType.KICK.name(), System.currentTimeMillis(), -1L, reason, false, false));
+                CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(senderUUID, targetUUID, PunishmentType.KICK.name(), System.currentTimeMillis(), -1L, reason, false, true));
             } else {
                 sender.sendMessage(CC.translate("&c&lError: &cFailed to save kick to database. Try again later."));
                 if (punishmentModule != null) {

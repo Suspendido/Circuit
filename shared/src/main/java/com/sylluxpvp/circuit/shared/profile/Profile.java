@@ -36,6 +36,7 @@ public class Profile {
     private UUID activeTagId = null;
     private boolean vipStatus = false;
     private Long discordId = null;
+    private boolean nameMcVoted = false;
 
     public Profile(UUID UUID) {
         this.UUID = Objects.requireNonNull(UUID, "UUID cannot be null");
@@ -201,6 +202,8 @@ public class Profile {
                 .append("coins", coins)
                 .append("activeTagId", activeTagId != null ? activeTagId.toString() : null)
                 .append("vipStatus", vipStatus)
+                .append("nameMcVoted", nameMcVoted)
+                .append("discordId", discordId)
                 .append("lastUpdated", new Date());
 
         List<Document> ranks = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.sylluxpvp.circuit.bukkit.profile;
 
 import com.sylluxpvp.circuit.shared.redis.Redis;
+import com.sylluxpvp.circuit.shared.service.impl.RankService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
@@ -15,8 +16,10 @@ import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import redis.clients.jedis.Jedis;
 
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor @Getter
@@ -63,7 +66,8 @@ public class BukkitProfile {
         for (String permission : profile.getCurrentGrant().getData().getPermissions()) {
             attachment.setPermission(permission, true);
         }
-        player.recalculatePermissions();
+
+        applyPermissions(player, profile);
 
         if (profile.getCurrentGrant().getData().isStaff()) {
             String currentServer = CircuitPlugin.getInstance().getShared().getServer().getName();
@@ -86,6 +90,10 @@ public class BukkitProfile {
         if (!profile.getCurrentGrant().getData().isStaff()) return;
 
         markLeaving();
+
+        if (player.isOp() && !player.isWhitelisted()) {
+            player.setOp(false);
+        }
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(CircuitPlugin.getInstance(), () -> {
             try (Jedis jedis = createJedis()) {
@@ -143,6 +151,36 @@ public class BukkitProfile {
             return jedis;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public static void applyPermissions(Player player, Profile profile) {
+        player.getEffectivePermissions().stream()
+                .filter(info -> info.getAttachment() != null && info.getAttachment().getPlugin() == CircuitPlugin.getInstance())
+                .map(PermissionAttachmentInfo::getAttachment)
+                .distinct()
+                .forEach(player::removeAttachment);
+
+        RankService rankService = ServiceContainer.getService(RankService.class);
+        List<String> allPerms = rankService.getAllPermissions(profile.getCurrentGrant().getData());
+
+        boolean hasWildcard = allPerms.contains("*");
+
+        PermissionAttachment attachment = player.addAttachment(CircuitPlugin.getInstance());
+
+        if (hasWildcard) {
+            for (org.bukkit.permissions.Permission perm : Bukkit.getPluginManager().getPermissions()) {
+                attachment.setPermission(perm.getName(), true);
+                perm.getChildren().forEach((child, value) -> {
+                    if (value != null) attachment.setPermission(child, value);
+                });
+            }
+            attachment.setPermission("minecraft.command.op", true);
+            attachment.setPermission("bukkit.command.*", true);
+        } else {
+            for (String perm : allPerms) {
+                attachment.setPermission(perm, true);
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
 import com.sylluxpvp.circuit.bukkit.menus.player.UserPermissionsMenu;
 import com.sylluxpvp.circuit.bukkit.module.impl.PunishmentModule;
+import com.sylluxpvp.circuit.bukkit.profile.BukkitProfile;
 import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
@@ -19,11 +20,10 @@ import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachment;
 
 @CommandAlias(value="userperm|uperm|userpermission")
 @CommandPermission(value="circuit.command.userperm")
@@ -186,26 +186,8 @@ public class UserPermissionCommand extends BaseCommand {
 
     private void refreshPlayerPermissions(Profile profile) {
         Player player = Bukkit.getPlayer(profile.getUUID());
-        if (player == null || !player.isOnline()) {
-            return;
-        }
-        for (PermissionAttachment attachment : player.getEffectivePermissions().stream().filter(info -> info.getAttachment() != null && info.getAttachment().getPlugin() == CircuitPlugin.getInstance()).map(info -> info.getAttachment()).distinct().collect(Collectors.toList())) {
-            player.removeAttachment(attachment);
-        }
-        PermissionAttachment attachment = player.addAttachment(CircuitPlugin.getInstance());
-        if (profile.getCurrentGrant() != null && profile.getCurrentGrant().getData() != null) {
-            for (String permission : profile.getCurrentGrant().getData().getPermissions()) {
-                attachment.setPermission(permission, true);
-            }
-        }
-        for (String permission : profile.getPermissions()) {
-            if (permission.startsWith("-")) {
-                attachment.setPermission(permission.substring(1), false);
-                continue;
-            }
-            attachment.setPermission(permission, true);
-        }
-        player.recalculatePermissions();
+        if (player == null || !player.isOnline()) return;
+        BukkitProfile.applyPermissions(player, profile);
     }
 
     private boolean canWrite(CommandSender sender) {

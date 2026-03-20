@@ -2,12 +2,8 @@ package com.sylluxpvp.circuit.bukkit.command.punishment.create;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
-import com.sylluxpvp.circuit.bukkit.module.impl.PunishmentModule;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
+import com.sylluxpvp.circuit.bukkit.module.impl.PunishmentModule;
 import com.sylluxpvp.circuit.shared.CircuitConstants;
 import com.sylluxpvp.circuit.shared.grant.Grant;
 import com.sylluxpvp.circuit.shared.profile.Profile;
@@ -17,20 +13,33 @@ import com.sylluxpvp.circuit.shared.redis.packets.punish.PunishmentUpdatePacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
 import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
 import com.sylluxpvp.circuit.shared.service.impl.PunishmentService;
-import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
 import com.sylluxpvp.circuit.shared.tools.string.CC;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-@CommandAlias("mute")
-@CommandPermission("circuit.punish.mute")
-public class MuteCommand extends BaseCommand {
+/*
+ * Copyright (c) 2026. C0munidad
+ * Use or redistribution of this source file is only permitted
+ * if explicit permission is given by the author.
+ *
+ * Project: Circuit
+ * File: IPBanCommand
+ * Package: com.sylluxpvp.circuit.bukkit.command.punishment.create.IPBanCommand
+ *
+ * @author C0munidad
+ * @since 19/3/2026
+ */
+@CommandAlias("ipban|banip")
+@CommandPermission("circuit.punish.ban")
+public class IPBanCommand extends BaseCommand {
 
     @Default
-    @CommandCompletion("@players @times *")
-    public void mute(CommandSender sender, @Name("target") OfflinePlayer target, @Name("time") String time, @Optional @Name("reason") @Flags("remaining") String reason) {
-        String finalReason;
-        long duration;
+    @CommandCompletion("@players *")
+    public void ipban(CommandSender sender, @Name("target") OfflinePlayer target, @Optional @Name("reason") @Flags("remaining") String reason) {
         PunishmentModule punishmentModule = CircuitPlugin.getInstance().getModuleManager().getModule(PunishmentModule.class);
         if (punishmentModule != null && !punishmentModule.canWrite()) {
             sender.sendMessage(CC.translate(punishmentModule.getDegradedMessage()));
@@ -46,38 +55,28 @@ public class MuteCommand extends BaseCommand {
             sender.sendMessage(CircuitConstants.getPlayerNotFound());
             return;
         }
-        if (profile.findActivePunishment(PunishmentType.MUTE) != null) {
-            sender.sendMessage(CircuitConstants.getPlayerAlreadyPunished().replace("<punishment_type>", PunishmentType.MUTE.getAction()));
+
+        if (profile.findActivePunishment(PunishmentType.BANIP) != null || profile.findActivePunishment(PunishmentType.BAN) != null) {
+            sender.sendMessage(CircuitConstants.getPlayerAlreadyPunished().replace("<punishment_type>", PunishmentType.BAN.getAction()));
             return;
         }
-        boolean isPermanent = time.equalsIgnoreCase("perm") || time.equalsIgnoreCase("permanent");
-        boolean isValidTime = isPermanent || TimeUtils.isTime(time);
-        if (isValidTime) {
-            duration = isPermanent ? -1L : TimeUtils.parseTime(time);
-            finalReason = reason;
-        } else {
-            duration = -1L;
-            finalReason = reason != null ? time + " " + reason : time;
-        }
         UUID senderUUID = sender instanceof Player ? ((Player)sender).getUniqueId() : CircuitConstants.getConsoleUUID();
-        Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(senderUUID, PunishmentType.MUTE, finalReason, duration);
-        String reasonForPacket = finalReason;
-        long durationForPacket = duration;
+        Grant<Punishment> grant = ServiceContainer.getService(PunishmentService.class).create(senderUUID, PunishmentType.BANIP, reason, -1L);
         (profileService.saveWithPendingGrant(profile, grant).thenAccept(success -> Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
             if (success) {
                 profile.addGrant(grant);
-                CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(senderUUID, target.getUniqueId(), PunishmentType.MUTE.name(), grant.getTimeCreated(), durationForPacket, reasonForPacket, false, true));
+                CircuitPlugin.getInstance().getShared().getRedis().sendPacket(new PunishmentUpdatePacket(senderUUID, target.getUniqueId(), PunishmentType.BANIP.name(), grant.getTimeCreated(), -1L, reason, false, false));
             } else {
-                sender.sendMessage(CC.translate("&c&lError: &cFailed to save mute to database. Try again later."));
+                sender.sendMessage(CC.translate("&c&lError: &cFailed to save blacklist to database. Try again later."));
                 if (punishmentModule != null) {
-                    punishmentModule.reportFailure("mute command - save failed");
+                    punishmentModule.reportFailure("blacklist command - save failed");
                 }
             }
         }))).exceptionally(ex -> {
             Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
                 sender.sendMessage(CC.translate("&c&lError: &cPunishment system unavailable. Try again later."));
                 if (punishmentModule != null) {
-                    punishmentModule.reportFailure("mute command - exception: " + ex.getMessage());
+                    punishmentModule.reportFailure("blacklist command - exception: " + ex.getMessage());
                 }
             });
             return null;

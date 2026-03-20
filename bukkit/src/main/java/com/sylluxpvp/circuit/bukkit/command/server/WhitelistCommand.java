@@ -3,7 +3,9 @@ package com.sylluxpvp.circuit.bukkit.command.server;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
+import com.sylluxpvp.circuit.shared.redis.packets.server.ServerUpdatePacket;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
@@ -30,6 +32,12 @@ public class WhitelistCommand extends BaseCommand {
     public void onEnable(CommandSender sender) {
         Server server = CircuitPlugin.getInstance().getShared().getServer();
         server.setWhitelisted(true);
+        Bukkit.setWhitelist(true);
+
+        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(),
+                        true, false, server.getPlayers(), server.getMax(), server.getWhitelistRank(), server.getWhitelistedPlayers())
+        );
 
         String executor = sender instanceof Player ? sender.getName() : "Console";
 
@@ -42,6 +50,12 @@ public class WhitelistCommand extends BaseCommand {
     public void onDisable(CommandSender sender) {
         Server server = CircuitPlugin.getInstance().getShared().getServer();
         server.setWhitelisted(false);
+        Bukkit.setWhitelist(false);
+
+        CircuitPlugin.getInstance().getShared().getRedis().sendPacket(
+                new ServerUpdatePacket(server.getName(), server.getType().name(), server.isOnline(),
+                        false, false, server.getPlayers(), server.getMax(), server.getWhitelistRank(), server.getWhitelistedPlayers())
+        );
 
         String executor = sender instanceof Player ? sender.getName() : "Console";
 
@@ -80,8 +94,7 @@ public class WhitelistCommand extends BaseCommand {
             targetUuid = target.getUniqueId();
             targetName = target.getName();
         } else {
-            @SuppressWarnings("deprecation")
-            org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(playerName);
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(playerName);
             targetUuid = offline.getUniqueId();
             targetName = offline.getName() != null ? offline.getName() : playerName;
         }
@@ -109,8 +122,7 @@ public class WhitelistCommand extends BaseCommand {
             targetUuid = target.getUniqueId();
             targetName = target.getName();
         } else {
-            @SuppressWarnings("deprecation")
-            org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(playerName);
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(playerName);
             targetUuid = offline.getUniqueId();
             targetName = offline.getName() != null ? offline.getName() : playerName;
         }
@@ -121,6 +133,10 @@ public class WhitelistCommand extends BaseCommand {
         }
 
         server.removeWhitelistedPlayer(targetUuid);
+
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(targetUuid);
+        offlinePlayer.setWhitelisted(false);
+
         sender.sendMessage(CC.translate("&c" + targetName + " &fhas been removed from the whitelist."));
     }
 
@@ -159,7 +175,19 @@ public class WhitelistCommand extends BaseCommand {
     public void onClear(CommandSender sender) {
         Server server = CircuitPlugin.getInstance().getShared().getServer();
         int count = server.getWhitelistedPlayers().size();
+
+        for (UUID uuid : server.getWhitelistedPlayers()) {
+            Bukkit.getOfflinePlayer(uuid).setWhitelisted(false);
+        }
+
         server.getWhitelistedPlayers().clear();
         sender.sendMessage(CC.translate("&fCleared &c" + count + " &fplayers from the whitelist."));
+    }
+
+    @Subcommand("list")
+    @Description("Display the list of whitelisted players")
+    public void list(CommandSender sender) {
+        Server server = CircuitPlugin.getInstance().getShared().getServer();
+        server.getWhitelistedPlayers().stream().toList();
     }
 }

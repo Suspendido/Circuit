@@ -9,10 +9,11 @@ import java.util.Arrays;
 
 @Getter
 public enum PunishmentType {
-    KICK(1, "kicked", "&cYou were kicked from the server!\n&cReason: {0}\n\n&cContact staff if you think this is a mistake."),
-    MUTE(2, "muted", "&cYou are muted from the server!\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake."),
-    BAN(3, "banned", "&cYou are banned from the server.\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake."),
-    BLACKLIST(4, "blacklisted", "&cYou are blacklisted from the server.\n\n&cReason: {0}\n&cExpires: {1}\n\n&cContact staff if you think this is a mistake.", "&cYou are blacklisted from the server.\n&cYour account has relation to \"{0}\" which is blacklisted!\n\n&cReason: {1}\n&cExpires: {2}\n\n&cContact staff if you think this is a mistake.");
+    KICK(1, "kicked", "&cHaz sido kickeado del servidor!\n&cKickeado por&7: &f{0}"),
+    MUTE(2, "muted", "&cHaz sido muteado por &4{0}&c.\n&cMuteado por&7: {1}\n&8Muteado Incorrectamente?&7Puedes apelar tu mute\n&7en &9mine.lc/discord"),
+    BAN(3, "banned", "&cTu cuenta ha sido baneada.\n\n&cExpira en&7: &f{1}\n&cBaneado por&7: &f{0}\n\n&cPuedes apelar el baneo en nuestro discord &8- &7(&9mine.lc/discord&7)"),
+    BANIP(4, "bannedip", "&cTu cuenta ha sido baneada de IP.\n\n&cExpira en&7: &f{1}\n&cBaneado por&7: &f{0}\n\n&cEste ban no es apelable.", "&cTu cuenta ha sido baneada de IP.\n&cTu cuenta esta vinculada con la cuenta \"{0}\" por lo que esta baneada de IP!\n\n&cExpira en&7: &f{2}\n&cBaneado por&7: &f{1}\n\n&cEste ban no es apelable.\n&cGracias por haber jugado al servidor."),
+    BLACKLIST(5, "blacklisted", "&cTu cuenta a sido blacklisteada.\n\n&cExpira en&7: &f{1}\n&cBaneado por&7: &f{0}\n\n&cEste ban no es apelable.", "&cTu cuenta ha sido blacklisteada.\n&cTu cuenta esta vinculada con la cuenta \"{0}\" por lo que esta blacklisteada!\n\n&cExpira en&7: &f{2}\n&cBaneado por&7: &f{1}\n\n&cEste ban no es apelable.\n&cGracias por haber jugado al servidor.");
 
     private final int priority;
     private final String action;

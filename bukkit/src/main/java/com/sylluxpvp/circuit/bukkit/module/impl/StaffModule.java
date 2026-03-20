@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.153-SNAPSHOT (d6f6758-dirty).
- */
 package com.sylluxpvp.circuit.bukkit.module.impl;
 
 import com.sylluxpvp.circuit.bukkit.command.staff.AdminChatCommand;
@@ -28,8 +25,8 @@ import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffStatusPacket;
 import java.util.Collections;
 import java.util.List;
 
-public class StaffModule
-extends Module {
+public class StaffModule extends Module {
+
     public StaffModule() {
         super("Staff", "Staff tools and communication");
     }

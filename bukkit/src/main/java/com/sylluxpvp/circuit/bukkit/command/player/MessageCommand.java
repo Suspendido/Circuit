@@ -2,6 +2,7 @@ package com.sylluxpvp.circuit.bukkit.command.player;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import com.sylluxpvp.circuit.shared.profile.Profile;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @CommandAlias("msg|message|tell|whisper|w|pm")
 public class MessageCommand extends BaseCommand {
 
-    private static final Map<UUID, UUID> lastMessaged = new HashMap<>();
+    @Getter private static final Map<UUID, UUID> lastMessaged = new HashMap<>();
 
     @Default
     @Syntax("<player> <message>")
@@ -56,9 +57,5 @@ public class MessageCommand extends BaseCommand {
 
         lastMessaged.put(sender.getUniqueId(), target.getUniqueId());
         lastMessaged.put(target.getUniqueId(), sender.getUniqueId());
-    }
-
-    public static Map<UUID, UUID> getLastMessaged() {
-        return lastMessaged;
     }
 }

@@ -69,11 +69,21 @@ public class ProfileService extends Service {
     public Profile find(UUID uuid) {
         Validate.notNull(uuid, "UUID cannot be null");
         Profile cached = ProfileCache.get(uuid);
+        Profile online = this.onlineProfiles.stream().filter(profile -> profile.getUUID().equals(uuid)).findFirst().orElse(null);
+
         if (cached != null) return cached;
-        return this.onlineProfiles.stream()
-                .filter(profile -> profile.getUUID().equals(uuid))
-                .findFirst()
-                .orElse(null);
+        if (online != null) return online;
+
+        try {
+            Document doc = profilesCollection.find(Filters.eq("uuid", uuid.toString())).first();
+            if (doc == null) return null;
+            Profile loaded = fromDocument(doc);
+            ProfileCache.put(loaded);
+            return loaded;
+        } catch (Exception e) {
+            CircuitShared.getInstance().getLogger().warn("Error loading profile for " + uuid + ": " + e.getMessage());
+            return null;
+        }
     }
 
     public Profile load(UUID uuid) {
@@ -284,7 +294,10 @@ public class ProfileService extends Service {
         UUID activeTagId = activeTagIdStr != null ? UUID.fromString(activeTagIdStr) : null;
         boolean vipStatus = doc.getBoolean("vipStatus", false);
         Long discordId = doc.getLong("discordId");
-        return new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins, activeTagId, vipStatus, discordId);
+        boolean nameMcVoted = doc.getBoolean("nameMcVoted", false);
+        Profile profile = new Profile(address, uuid, name, color, token, permissions, rankGrants, punishments, coins, activeTagId, vipStatus, discordId);
+        profile.setNameMcVoted(nameMcVoted);
+        return profile;
     }
 
     public Set<Profile> findFromAddress(Profile base) {

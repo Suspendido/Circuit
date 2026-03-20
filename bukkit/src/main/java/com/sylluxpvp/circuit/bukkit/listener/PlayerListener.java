@@ -2,6 +2,12 @@ package com.sylluxpvp.circuit.bukkit.listener;
 
 import com.sylluxpvp.circuit.bukkit.command.staff.AdminChatCommand;
 import com.sylluxpvp.circuit.bukkit.command.staff.StaffChatCommand;
+import com.sylluxpvp.circuit.shared.CircuitConstants;
+import com.sylluxpvp.circuit.shared.cache.ProfileCache;
+import com.sylluxpvp.circuit.shared.rank.Rank;
+import com.sylluxpvp.circuit.shared.server.Server;
+import com.sylluxpvp.circuit.shared.service.impl.*;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,10 +22,7 @@ import com.sylluxpvp.circuit.shared.profile.Profile;
 import com.sylluxpvp.circuit.shared.punishment.Punishment;
 import com.sylluxpvp.circuit.shared.punishment.PunishmentType;
 import com.sylluxpvp.circuit.shared.redis.packets.misc.MessagePacket;
-import com.sylluxpvp.circuit.shared.redis.packets.staff.StaffChatPacket;
 import com.sylluxpvp.circuit.shared.service.ServiceContainer;
-import com.sylluxpvp.circuit.shared.service.impl.ProfileService;
-import com.sylluxpvp.circuit.shared.service.impl.QueueService;
 import com.sylluxpvp.circuit.shared.tag.Tag;
 import com.sylluxpvp.circuit.shared.redis.packets.queue.QueueLeavePacket;
 import com.sylluxpvp.circuit.shared.tools.java.TimeUtils;
@@ -28,9 +31,7 @@ import com.sylluxpvp.circuit.shared.tools.string.StringHelper;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerListener implements Listener {
 
@@ -39,6 +40,25 @@ public class PlayerListener implements Listener {
         if (!CircuitPlugin.getInstance().isJoinable()) {
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
             event.setKickMessage(CC.translate("&cServer is still loading up."));
+            return;
+        }
+        Server server = CircuitPlugin.getInstance().getShared().getServer();
+        if (server.isWhitelisted()) {
+            UUID uuid = event.getUniqueId();
+            if (server.isPlayerWhitelisted(uuid)) {
+                return;
+            }
+            Profile profile = ServiceContainer.getService(ProfileService.class).load(uuid);
+            if (profile != null) {
+                RankService rankService = ServiceContainer.getService(RankService.class);
+                Rank playerRank = profile.getCurrentGrant() != null ? profile.getCurrentGrant().getData() : null;
+                Rank whitelistRank = rankService.getRank(server.getWhitelistRank());
+                if (playerRank != null && whitelistRank != null && playerRank.getWeight() >= whitelistRank.getWeight()) {
+                    return;
+                }
+            }
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST);
+            event.setKickMessage(CC.translate("&cYou are not whitelisted on this server!"));
         }
     }
 
@@ -48,10 +68,10 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
 
         ProfileService profileService = ServiceContainer.getService(ProfileService.class);
-        Profile existing = profileService.find(player.getUniqueId());
-        if (existing != null && existing.getName() == null) {
-            existing.setName(player.getName());
-        }
+        BukkitProfileService bukkitProfileService = ServiceContainer.getService(BukkitProfileService.class);
+        ProfileCache.remove(player.getUniqueId());
+        profileService.getOnlineProfiles().removeIf(p -> p.getUUID().equals(player.getUniqueId()));
+        bukkitProfileService.getProfiles().removeIf(p -> p.getProfile().getUUID().equals(player.getUniqueId()));
 
         Profile profile = profileService.load(player.getUniqueId());
 
@@ -61,8 +81,61 @@ public class PlayerListener implements Listener {
 
         String ip = player.getAddress().getAddress().getHostAddress();
         profile.setAddress(ip);
-        BukkitProfile bukkitProfile = ServiceContainer.getService(BukkitProfileService.class).create(profile);
+        BukkitProfile bukkitProfile = bukkitProfileService.create(profile);
         bukkitProfile.setupPlayer();
+
+        Bukkit.getScheduler().runTaskAsynchronously(CircuitPlugin.getInstance(), () -> {
+            boolean voted = hasVotedOnNameMC(player.getUniqueId());
+
+            Bukkit.getScheduler().runTask(CircuitPlugin.getInstance(), () -> {
+                if (!player.isOnline()) return;
+
+                if (voted) {
+                    rewardNameMCVote(player, profile, profileService);
+                } else {
+                    player.sendMessage(CC.translate("&eParece que todavia no nos das like en NameMC todavía, ve a"));
+                    player.sendMessage(CC.translate("&ahttps://namemc.com/server/mine.lc &epara recibir el ✔ Verified Tag."));
+                }
+            });
+        });
+    }
+
+    private void rewardNameMCVote(Player player, Profile profile, ProfileService profileService) {
+        RankService rankService = ServiceContainer.getService(RankService.class);
+        TagService tagService = ServiceContainer.getService(TagService.class);
+        GrantService grantService = ServiceContainer.getService(GrantService.class);
+
+        if (profile.isNameMcVoted()) return;
+
+        Rank vipRank = rankService.getRank("VIP");
+        if (vipRank == null) {
+            player.sendMessage(CC.translate("&aGracias por darnos like en NameMC!"));
+            return;
+        }
+
+        boolean hasVip = profile.getRankGrants().stream().anyMatch(g -> g.isActive() && g.getData() != null && g.getData().getName().equalsIgnoreCase("VIP"));
+
+        if (!hasVip) {
+            long minDuration = 7L * 24 * 60 * 60 * 1000;
+            long maxDuration = 14L * 24 * 60 * 60 * 1000;
+            long duration = minDuration + (long) (Math.random() * (maxDuration - minDuration));
+
+            Grant<Rank> vipGrant = grantService.createGrant(vipRank, CircuitConstants.getConsoleUUID(), duration, "NameMC Vote Reward");
+            profile.addGrant(vipGrant);
+            profileService.save(profile);
+
+            player.sendMessage(CC.translate("&aGracias por darnos like en NameMC! Has recibido el rango &6VIP &apor " + TimeUtils.formatTimeShort(duration) + "!"));
+        }
+
+        if (profile.getActiveTagId() == null) {
+            List<Tag> availableTags = tagService.getTags().stream().filter(Objects::nonNull).toList();
+            if (!availableTags.isEmpty()) {
+                Tag randomTag = availableTags.get((int) (Math.random() * availableTags.size()));
+                profile.setActiveTagId(randomTag.getUuid());
+                profileService.save(profile);
+                player.sendMessage(CC.translate("&aTambien recibiste el tag: " + randomTag.getDisplay() + "&a!"));
+            }
+        }
     }
 
     @EventHandler
@@ -107,7 +180,7 @@ public class PlayerListener implements Listener {
             Grant<Punishment> punishmentGrant = profile.findActivePunishment(PunishmentType.MUTE);
             event.setCancelled(true);
             String expire = punishmentGrant.getDuration() == -1 ? "Never" : TimeUtils.formatDate(punishmentGrant.getTimeCreated() + punishmentGrant.getDuration());
-            String message = PunishmentType.MUTE.format(punishmentGrant.getReason(), expire);
+            String message = PunishmentType.MUTE.format(expire, punishmentGrant.getReason());
             Arrays.stream(StringHelper.splitByNewline(message)).forEach(player::sendMessage);
         }
 
@@ -147,12 +220,14 @@ public class PlayerListener implements Listener {
     }
 
     public static boolean hasVotedOnNameMC(UUID uuid) {
-        try (Scanner scanner = new Scanner(new URL("https://api.namemc.com/server/mineworld.cc/likes?profile=" + uuid.toString()).openStream()).useDelimiter("\\A")) {
+        return hasVotedOnServer(uuid, "mine.lc") || hasVotedOnServer(uuid, "xminelc.com");
+    }
+
+    private static boolean hasVotedOnServer(UUID uuid, String server) {
+        try (Scanner scanner = new Scanner(new URL("https://api.namemc.com/server/" + server + "/likes?profile=" + uuid.toString()).openStream()).useDelimiter("\\A")) {
             return Boolean.parseBoolean(scanner.next());
         } catch (IOException e) {
-            e.printStackTrace();
+            return false;
         }
-
-        return false;
     }
 }

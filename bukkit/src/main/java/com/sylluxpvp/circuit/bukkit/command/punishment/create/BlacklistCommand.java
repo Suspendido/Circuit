@@ -21,7 +21,7 @@ import com.sylluxpvp.circuit.shared.service.impl.PunishmentService;
 
 import java.util.UUID;
 
-@CommandAlias("blacklist|banip|ipban|bl")
+@CommandAlias("blacklist|bl")
 @CommandPermission("circuit.punish.blacklist")
 public class BlacklistCommand extends BaseCommand {
 

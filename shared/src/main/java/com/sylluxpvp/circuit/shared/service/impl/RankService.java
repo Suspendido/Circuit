@@ -5,6 +5,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.bson.Document;
 import com.sylluxpvp.circuit.shared.CircuitShared;
 import com.sylluxpvp.circuit.shared.rank.Rank;
@@ -20,13 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
-@Getter
+@Getter @Setter
 public class RankService extends Service {
 
     private List<Rank> ranks;
     private Rank defaultRank;
     private MongoCollection<Document> ranksCollection;
+    private Consumer<Rank> onRankUpdate;
 
     @Override @NonNull
     public String getIdentifier() {
@@ -93,6 +96,10 @@ public class RankService extends Service {
         return this.ranks.stream().filter(rank -> rank.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
+    public void notifyRankUpdate(Rank rank) {
+        if (onRankUpdate != null) onRankUpdate.accept(rank);
+    }
+
     public Rank create(String name) {
         Rank rank = new Rank(java.util.UUID.randomUUID(), name);
         rank.setPrefix("&7");
@@ -113,6 +120,16 @@ public class RankService extends Service {
             saveSync(rank);
             CircuitShared.getInstance().getRedis().sendPacket(new RankUpdatePacket(rank.getUuid(), false));
         });
+    }
+
+    public List<String> getAllPermissions(Rank rank) {
+        List<String> allPerms = new ArrayList<>(rank.getPermissions());
+        for (String inheritanceName : rank.getInheritances()) {
+            Rank inherited = getRank(inheritanceName);
+            if (inherited == null || inherited.equals(rank)) continue;
+            allPerms.addAll(getAllPermissions(inherited));
+        }
+        return allPerms;
     }
 
     public void saveSync(Rank rank) {
