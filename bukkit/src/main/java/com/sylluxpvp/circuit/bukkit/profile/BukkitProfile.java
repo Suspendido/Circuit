@@ -166,21 +166,22 @@ public class BukkitProfile {
 
         boolean hasWildcard = allPerms.contains("*");
 
-        PermissionAttachment attachment = player.addAttachment(CircuitPlugin.getInstance());
-
         if (hasWildcard) {
-            for (org.bukkit.permissions.Permission perm : Bukkit.getPluginManager().getPermissions()) {
-                attachment.setPermission(perm.getName(), true);
-                perm.getChildren().forEach((child, value) -> {
-                    if (value != null) attachment.setPermission(child, value);
-                });
-            }
-            attachment.setPermission("minecraft.command.op", true);
-            attachment.setPermission("bukkit.command.*", true);
-        } else {
-            for (String perm : allPerms) {
+            player.setOp(true);
+            return;
+        }
+
+        PermissionAttachment attachment = player.addAttachment(CircuitPlugin.getInstance());
+        for (String perm : allPerms) {
+            attachment.setPermission(perm, true);
+        }
+        for (String perm : profile.getPermissions()) {
+            if (perm.startsWith("-")) {
+                attachment.setPermission(perm.substring(1), false);
+            } else {
                 attachment.setPermission(perm, true);
             }
         }
+        player.recalculatePermissions();
     }
 }
