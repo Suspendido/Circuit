@@ -94,7 +94,7 @@ public class PlayerListener implements Listener {
                     rewardNameMCVote(player, profile, profileService);
                 } else {
                     player.sendMessage(CC.translate("&eParece que todavia no nos das like en NameMC todavía, ve a"));
-                    player.sendMessage(CC.translate("&ahttps://namemc.com/server/mine.lc &epara recibir el ✔ Verified Tag."));
+                    player.sendMessage(CC.translate("&ahttps://namemc.com/server/mine.lc &epara recibir un tag random!"));
                 }
             });
         });
@@ -215,7 +215,8 @@ public class PlayerListener implements Listener {
         String tagDisplay = activeTag != null ? activeTag.getDisplay() + " " : "";
         String vipIcon = profile.getVipIcon();
         String vipDisplay = !vipIcon.isEmpty() ? vipIcon + " " : "";
-        event.setFormat(CC.translate(vipDisplay + tagDisplay + profile.getCurrentGrant().getData().getPrefix() + profile.getCurrentGrant().getData().getColor() + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: " + chatColor + event.getMessage()));
+        String premiumIcon = isPremium(player) ? "&b✦ " : "";
+        event.setFormat(CC.translate(premiumIcon + vipDisplay + tagDisplay + profile.getCurrentGrant().getData().getPrefix() + profile.getCurrentGrant().getData().getColor() + player.getName() + profile.getCurrentGrant().getData().getSuffix() + "&7: " + chatColor + event.getMessage()));
         ServiceContainer.getService(BukkitChatService.class).getChatCooldown().put(player, System.currentTimeMillis());
     }
 
@@ -229,5 +230,9 @@ public class PlayerListener implements Listener {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    private static boolean isPremium(Player player) {
+        return player.getUniqueId().version() == 4;
     }
 }
