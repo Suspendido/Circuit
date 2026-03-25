@@ -1,15 +1,7 @@
-/*
- * Decompiled with CFR 0.153-SNAPSHOT (d6f6758-dirty).
- * 
- * Could not load the following classes:
- *  lombok.Generated
- *  org.bukkit.configuration.file.YamlConfiguration
- */
 package com.sylluxpvp.circuit.bukkit.module;
 
 import com.sylluxpvp.circuit.bukkit.CircuitPlugin;
-import com.sylluxpvp.circuit.bukkit.module.Module;
-import com.sylluxpvp.circuit.bukkit.module.ModuleState;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import lombok.Generated;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.configuration.file.YamlConfiguration;

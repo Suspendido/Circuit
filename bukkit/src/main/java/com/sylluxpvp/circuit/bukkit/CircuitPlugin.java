@@ -207,6 +207,9 @@ public class CircuitPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         this.shared.getLogger().log("Shutting down Circuit!");
+        if (this.moduleManager != null) {
+            this.moduleManager.disableModules();
+        }
         this.shared.shutdown();
     }
 }
