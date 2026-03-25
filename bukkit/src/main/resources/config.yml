@@ -1,27 +1,42 @@
 server:
-  name: "SFaction"
+  name: "Unconfigured"
   type: DEFAULT
 mongo:
-  ip: "148.113.191.109"
+  ip: "127.0.0.1"
   port: 27017
-  database: "admin"
+  database: "Circuit"
   auth:
-    enabled: true
-    username: "adminxminelc"
-    password: "Xm1n3lc_Network_2026#"
+    enabled: false
+    username: ""
+    password: ""
 redis:
-  address: "172.18.0.1"
+  address: "127.0.0.1"
   port: 6379
   auth:
-    enabled: true
-    password: "XmiN3lc.Secur3.Db!"
+    enabled: false
+    password: ""
 
-queue-manager:
-  enabled: true
-  queues:
-    - "SFaction"
-    - "Skyblock"
-  hub-server: "Lobby"
-  hub-aliases:
-    - "hub"
-    - "lobby"
+# Module configuration - enable/disable individual features
+# If a module fails, other modules will continue to work
+modules:
+  rank:
+    enabled: true  # Rank/Tag/VIP management commands
+  essentials:
+    enabled: true  # Basic utility commands (fly, tp, gm, etc.)
+  player:
+    enabled: true  # Player commands (ping, list, msg, etc.)
+  server:
+    enabled: true  # Server management commands
+  punishment:
+    enabled: true  # Ban, mute, kick commands
+  staff:
+    enabled: true  # Staff chat, freeze, chat moderation
+  queue:
+    enabled: false # Queue system for server transfers
+    queues:
+      - "Squads"
+      - "Kitmap"
+    hub-server: "Hub-01"
+    hub-aliases:
+      - "hub"
+      - "lobby"
